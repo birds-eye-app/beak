@@ -12,17 +12,17 @@ const INITIAL_CENTER = [
 ]
 const INITIAL_ZOOM = 10.12
 
+import defaultLifers from './lifers.json'
+
 type lifer = {
   common_name: string;
   latitude: number;
   longitude: number;
   date: string
-  taxonomic_order: string;
+  taxonomic_order: number;
 }
 
-import lifers from './lifers.json';
-
-function lifersToGeoJson() {
+function lifersToGeoJson(lifers: lifer[]) {
   return lifers.map((lifer) => {
     return {
       type: 'Feature',
@@ -40,9 +40,7 @@ function lifersToGeoJson() {
   })
 }
 
-console.log(lifersToGeoJson()[0])
-
-function App() {
+function BirdMap() {
   const mapRef = useRef<Map>()
   const mapContainerRef = useRef<HTMLElement>()
 
@@ -52,6 +50,7 @@ function App() {
   const [activeLayerIds, setActiveLayerIds] = useState(['historical_lifers']);
   const [mapLoaded, setMapLoaded] = useState(false);
 
+  const [historicalLifers, setHistoricalLifers] = useState()
 
   useEffect(() => {
     mapboxgl.accessToken = TOKEN
@@ -72,7 +71,7 @@ function App() {
             type: 'geojson',
             data: {
               type: 'FeatureCollection',
-              features: lifersToGeoJson(),
+              features: lifersToGeoJson(defaultLifers),
             }
           });
 
@@ -116,7 +115,7 @@ function App() {
     return () => {
       mapRef.current!.remove()
     }
-  }, [])
+  }, [historicalLifers])
 
   useEffect(() => {
     if (!mapLoaded) return;
@@ -144,20 +143,49 @@ function App() {
     }
   };
 
+  const historicalLifersOnChange = (e) => {
+    if (!e.target.value) {return}
+    const geojson = lifersToGeoJson(JSON.parse(e.target.value))
+
+    console.log(geojson[1])
+
+    mapRef.current!.getSource('historical_lifers')!.setData({
+        type: 'FeatureCollection',
+        features: geojson,
+    })
+  }
+
   return (
-    <>
-      <div className="sidebar">
-        Longitude: {center[0].toFixed(4)} | Latitude: {center[1].toFixed(4)} | Zoom: {zoom.toFixed(2)}
-      </div>
-      <div className="sidebar-right">
-        <label>
-          <input type="checkbox" id='historical_lifers'
-            checked={activeLayerIds.includes('historical_lifers')}
-            onChange={handleClick} />
-          Show Historical Lifers
+    <div style={{height: '100%', width: '100%', flexDirection: 'row'}}>
+      <div style={{flexDirection: 'column'}}>
+        <div className="sidebar">
+          Longitude: {center[0].toFixed(4)} | Latitude: {center[1].toFixed(4)} | Zoom: {zoom.toFixed(2)}
+        </div>
+        <div className="sidebar-right">
+          <label>
+            <input type="checkbox" id='historical_lifers'
+              checked={activeLayerIds.includes('historical_lifers')}
+              onChange={handleClick} />
+            Show Historical Lifers
+          </label>
+        </div>
+        <label >
+          <input type="text" id="historicalLifers" name="name" required size={10}
+          onChange={historicalLifersOnChange}
+           />
+          Historical Lifers Json
         </label>
+
       </div>
       <div id='map-container' ref={mapContainerRef} />
+    </div>
+  )
+}
+
+function App() {
+  return (
+    <>
+      <BirdMap />
     </>
   )
 }
