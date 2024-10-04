@@ -1,15 +1,15 @@
 import { useRef, useEffect, useState } from 'react'
-import mapboxgl, { LngLatLike, Map } from 'mapbox-gl'
+import mapboxgl, { Map } from 'mapbox-gl'
 
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './App.css'
 
 const TOKEN = 'pk.eyJ1IjoiZGF2aWR0bWVhZG93cyIsImEiOiJjbTF0djNteTgwNzYzMnFvbGJrdjU3YzMzIn0.3sZJbLI9SKeK4Zs2ZFsuaA'
 
-const INITIAL_CENTER = [
-  -74.0242,
-  40.6941
-]
+const INITIAL_CENTER = {
+  lng: -74.0242,
+  lat: 40.6941
+}
 const INITIAL_ZOOM = 10.12
 
 import defaultLifers from './lifers.json'
@@ -42,15 +42,13 @@ function lifersToGeoJson(lifers: lifer[]) {
 
 function BirdMap() {
   const mapRef = useRef<Map>()
-  const mapContainerRef = useRef<HTMLElement>()
+  const mapContainerRef = useRef()
 
-  const [center, setCenter] = useState<LngLatLike>(INITIAL_CENTER)
+  const [center, setCenter] = useState(INITIAL_CENTER)
   const [zoom, setZoom] = useState(INITIAL_ZOOM)
 
   const [activeLayerIds, setActiveLayerIds] = useState(['historical_lifers']);
   const [mapLoaded, setMapLoaded] = useState(false);
-
-  const [historicalLifers, setHistoricalLifers] = useState()
 
   useEffect(() => {
     mapboxgl.accessToken = TOKEN
@@ -71,6 +69,7 @@ function BirdMap() {
             type: 'geojson',
             data: {
               type: 'FeatureCollection',
+              // @ts-expect-error: todo fix invalid error
               features: lifersToGeoJson(defaultLifers),
             }
           });
@@ -100,7 +99,7 @@ function BirdMap() {
       const mapZoom = mapRef.current!.getZoom()
 
       // update state
-      setCenter([mapCenter.lng, mapCenter.lat])
+      setCenter({lng: mapCenter.lng, lat: mapCenter.lat})
       setZoom(mapZoom)
     })
 
@@ -115,7 +114,7 @@ function BirdMap() {
     return () => {
       mapRef.current!.remove()
     }
-  }, [historicalLifers])
+  }, [])
 
   useEffect(() => {
     if (!mapLoaded) return;
@@ -133,7 +132,7 @@ function BirdMap() {
     });
   }, [activeLayerIds]);
 
-  const handleClick = (e) => {
+  const handleClick = (e: { target: { id: string; }; }) => {
     const layerId = e.target.id;
 
     if (activeLayerIds.includes(layerId)) {
@@ -143,23 +142,11 @@ function BirdMap() {
     }
   };
 
-  const historicalLifersOnChange = (e) => {
-    if (!e.target.value) {return}
-    const geojson = lifersToGeoJson(JSON.parse(e.target.value))
-
-    console.log(geojson[1])
-
-    mapRef.current!.getSource('historical_lifers')!.setData({
-        type: 'FeatureCollection',
-        features: geojson,
-    })
-  }
-
   return (
     <div style={{height: '100%', width: '100%', flexDirection: 'row'}}>
       <div style={{flexDirection: 'column'}}>
         <div className="sidebar">
-          Longitude: {center[0].toFixed(4)} | Latitude: {center[1].toFixed(4)} | Zoom: {zoom.toFixed(2)}
+          Longitude: {center.lng.toFixed(4)} | Latitude: {center.lat.toFixed(4)} | Zoom: {zoom.toFixed(2)}
         </div>
         <div className="sidebar-right">
           <label>
@@ -170,10 +157,9 @@ function BirdMap() {
           </label>
         </div>
         <label >
-          <input type="text" id="historicalLifers" name="name" required size={10}
-          onChange={historicalLifersOnChange}
+          <input type="text" id="ebirdPersonalData" name="name" required size={10}
            />
-          Historical Lifers Json
+          eBird Personal Data CSV
         </label>
 
       </div>
