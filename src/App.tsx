@@ -13,7 +13,6 @@ const INITIAL_CENTER = {
 const INITIAL_ZOOM = 10.12
 
 import defaultLifers from './lifers.json'
-import { getNearbyObservations } from './ebird';
 import { useDebounce } from 'use-debounce';
 
 type lifer = {
@@ -42,6 +41,7 @@ function lifersToGeoJson(lifers: lifer[]) {
   })
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function nearbyObservationsToGeoJson(lifers: any[]) {
   return lifers.map((lifer) => {
     return {
@@ -62,7 +62,7 @@ function nearbyObservationsToGeoJson(lifers: any[]) {
 
 function BirdMap() {
   const mapRef = useRef<Map>()
-  const mapContainerRef = useRef()
+  const mapContainerRef = useRef<HTMLElement>()
 
   const [center, setCenter] = useState(INITIAL_CENTER)
   const [zoom, setZoom] = useState(INITIAL_ZOOM)
@@ -76,8 +76,8 @@ function BirdMap() {
     mapboxgl.accessToken = TOKEN
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current!,
-      center: center,
-      zoom: zoom
+      center: INITIAL_CENTER,
+      zoom: INITIAL_ZOOM
     });
 
     mapRef.current!.on('load', () => {
@@ -88,8 +88,6 @@ function BirdMap() {
           mapRef.current!.addImage('custom-marker', image!);
 
           const lifersFeatures = lifersToGeoJson(defaultLifers);
-
-          console.log('lifersFeatures', JSON.stringify(lifersFeatures))
 
           mapRef.current!.addSource('historical_lifers', {
             type: 'geojson',
@@ -117,29 +115,33 @@ function BirdMap() {
             }
           });
 
-          mapRef.current!.addSource('new_lifers', {
-            type: 'geojson',
-            data: {
-              type: 'FeatureCollection',
-              features: [],
-            }
-          });
-    
-          mapRef.current!.addLayer({
-            id: 'new_lifers',
-            type: 'symbol',
-            source: 'new_lifers',
-            layout: {
-              'icon-image': 'custom-marker',
-              'text-field': ['get', 'title'],
-              'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
-              'text-offset': [0, 1.25],
-              'text-size': 15,
-              'text-anchor': 'top',
-              'text-variable-anchor': ['top', 'bottom'],
-              'icon-size': 0.5,
-              visibility: 'visible',
-            }
+          // todo: figure out DRY way of having new_lifers loaded initially
+          fetchNearbyObservations(INITIAL_CENTER.lat, INITIAL_CENTER.lng).then((data) => {
+            mapRef.current!.addSource('new_lifers', {
+              type: 'geojson',
+              data: {
+                type: 'FeatureCollection',
+                // @ts-expect-error: todo fix invalid error
+                features: nearbyObservationsToGeoJson(data),
+              }
+            });
+      
+            mapRef.current!.addLayer({
+              id: 'new_lifers',
+              type: 'symbol',
+              source: 'new_lifers',
+              layout: {
+                'icon-image': 'custom-marker',
+                'text-field': ['get', 'title'],
+                'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+                'text-offset': [0, 1.25],
+                'text-size': 15,
+                'text-anchor': 'top',
+                'text-variable-anchor': ['top', 'bottom'],
+                'icon-size': 0.5,
+                visibility: 'visible',
+              }
+            });
           });
         })
 
@@ -174,28 +176,25 @@ function BirdMap() {
 
     const allLayerIds = ['historical_lifers', 'new_lifers'];
 
-    // for each layerId, check whether it is included in activeLayerIds,
-    // show and hide accordingly by setting layer visibility
     allLayerIds.forEach((layerId) => {
-      if (!mapRef.current!.isStyleLoaded) return;
-      if (activeLayerIds.includes(layerId)) {
-        mapRef.current!.setLayoutProperty(layerId, 'visibility', 'visible');
-      } else {
-        mapRef.current!.setLayoutProperty(layerId, 'visibility', 'none');
+      if (mapRef.current!.getLayer(layerId)) {
+        if (activeLayerIds.includes(layerId)) {
+          mapRef.current!.setLayoutProperty(layerId, 'visibility', 'visible');
+        } else {
+          mapRef.current!.setLayoutProperty(layerId, 'visibility', 'none');
+        }
       }
     });
-  }, [activeLayerIds]);
+  }, [activeLayerIds, mapLoaded]);
 
 
   useEffect(() => {
     if (!mapLoaded) return;
 
+    console.log('Fetching nearby observations');
     fetchNearbyObservations(debouncedCenter.lat, debouncedCenter.lng).then((data) => {
-      console.log('found nearby observations', data);
-
       const lifersSource = mapRef.current!.getSource('new_lifers') as GeoJSONSource | undefined;
       if (!lifersSource) return;
-      console.log('setting data', nearbyObservationsToGeoJson(data))
       lifersSource.setData(
         {
           type: 'FeatureCollection',
@@ -205,7 +204,7 @@ function BirdMap() {
       )
     });
     
-  }, [debouncedCenter.lat, debouncedCenter.lng, mapLoaded])
+  }, [debouncedCenter.lat, debouncedCenter, mapLoaded])
 
   const handleClick = (e: { target: { id: string; }; }) => {
     const layerId = e.target.id;
@@ -246,7 +245,11 @@ function BirdMap() {
         </label>
 
       </div>
-      <div id='map-container' ref={mapContainerRef} />
+      <div 
+        id='map-container' 
+        // @ts-expect-error something something ref error
+        ref={mapContainerRef!} 
+      />
     </div>
   )
 }
@@ -263,17 +266,14 @@ const fetchNearbyObservations = async (latitude: number, longitude: number) => {
   // Construct the full URL with query parameters
   const url = `${baseUrl}?${params}`;
 
-  console.log(`url: ${url }`)
 
   try {
     const response = await fetch(url, {    });
-    console.log(response)
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log(data);
     return data
   } catch (error) {
     console.error('Fetch error:', error);
