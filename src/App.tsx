@@ -6,7 +6,9 @@ import { Feature, Geometry, GeoJsonProperties } from "geojson";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './App.css'
 
-const TOKEN = 'pk.eyJ1IjoiZGF2aWR0bWVhZG93cyIsImEiOiJjbTF0djNteTgwNzYzMnFvbGJrdjU3YzMzIn0.3sZJbLI9SKeK4Zs2ZFsuaA'
+console.log(import.meta.env)
+
+const apiBaseUrl = import.meta.env.VITE_BASE_URL;
 
 const INITIAL_CENTER = {
   lng: -74.0242,
@@ -73,8 +75,8 @@ function lifersToGeoJson(response: LocationByLiferResponse) {
   })
 }
 
-function addSourceAndLayer(mapRef: Map, sourceId: RootLayerIDs, features: Feature<Geometry, GeoJsonProperties>[]) {
-  console.log('Adding source and layer', sourceId);
+function addSourceAndLayer(mapRef: Map, sourceId: RootLayerIDs, features: Feature<Geometry, GeoJsonProperties>[], visibility: 'visible' | 'none') {
+  console.log(`Adding source and layer for ${sourceId}, visibility: ${visibility}`);
   mapRef.addSource(sourceId, {
     type: 'geojson',
     data: {
@@ -113,6 +115,9 @@ function addSourceAndLayer(mapRef: Map, sourceId: RootLayerIDs, features: Featur
         750,
         40
       ]
+    },
+    layout: {
+      visibility: visibility,
     }
   });
 
@@ -124,7 +129,8 @@ function addSourceAndLayer(mapRef: Map, sourceId: RootLayerIDs, features: Featur
     layout: {
       'text-field': ['get', 'sum'],
       'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-      'text-size': 12
+      'text-size': 12,
+      visibility: visibility,
     }
   });
 
@@ -141,32 +147,9 @@ function addSourceAndLayer(mapRef: Map, sourceId: RootLayerIDs, features: Featur
       'text-size': 15,
       'text-anchor': 'top',
       'icon-size': 0.5,
-      visibility: 'visible',
+      visibility: visibility,
     }
   });
-
-   // inspect a cluster on click
-          // mapRef.current!.on('mouseenter', RootLayerIDs.HistoricalLifers, function (e) {
-          //   mapRef.current!.getCanvas().style.cursor = 'pointer';
-          //   var features = mapRef.current!.queryRenderedFeatures(e.point, { layers: [RootLayerIDs.HistoricalLifers] });
-          //   var coordinates = e.features[0].geometry.coordinates.slice();
-          //   var clusterId = features[0].properties.cluster_id,
-          //     point_count = features[0].properties.point_count,
-          //     clusterSource = mapRef.current!.getSource(RootLayerIDs.HistoricalLifers);
-
-          //   clusterSource.getClusterLeaves(clusterId, point_count, 0, function (err, aFeatures) {
-          //     var turfPointArray = [];
-    
-          //     aFeatures.forEach((feature) => {
-          //       turfPointArray.push(feature)
-          //     })
-    
-          //     console.log(turfPointArray[0])
-          //     // var features = turf.featureCollection(turfPointArray);
-          //     // var convex = turf.convex(features);
-
-          //   });
-          // })
 
   mapRef.on('click', `${sourceId}.${SubLayerIDs.UnclusteredPoints}`, (e) => {
     // @ts-expect-error untyped event
@@ -245,7 +228,7 @@ function BirdMap() {
   const [mapLoaded, setMapLoaded] = useState(false);
 
   useEffect(() => {
-    mapboxgl.accessToken = TOKEN
+    mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current!,
       center: INITIAL_CENTER,
@@ -261,12 +244,12 @@ function BirdMap() {
 
           fetchLifers(INITIAL_CENTER.lat, INITIAL_CENTER.lng).then((data) => {
             const lifersFeatures = lifersToGeoJson(data);
-            addSourceAndLayer(mapRef.current!, RootLayerIDs.HistoricalLifers, lifersFeatures)
+            addSourceAndLayer(mapRef.current!, RootLayerIDs.HistoricalLifers, lifersFeatures, activeLayerId === RootLayerIDs.HistoricalLifers ? 'visible' : 'none');
             
           })
 
           fetchNearbyObservations(INITIAL_CENTER.lat, INITIAL_CENTER.lng).then((data) => {
-            addSourceAndLayer(mapRef.current!, RootLayerIDs.NewLifers, nearbyObservationsToGeoJson(data))
+            addSourceAndLayer(mapRef.current!, RootLayerIDs.NewLifers, nearbyObservationsToGeoJson(data), activeLayerId === RootLayerIDs.NewLifers ? 'visible' : 'none');
           });
         })
 
@@ -350,8 +333,9 @@ function BirdMap() {
   )
 }
 
+// todo: dedupe
 const fetchLifers = async (latitude: number, longitude: number) => {
-  const baseUrl = 'http://localhost:8000/v1/lifers_by_location';
+  const baseUrl = `${apiBaseUrl}v1/lifers_by_location`;
 
   const params = new URLSearchParams({
     latitude: latitude.toString(),
@@ -374,7 +358,7 @@ const fetchLifers = async (latitude: number, longitude: number) => {
 };
 
 const fetchNearbyObservations = async (latitude: number, longitude: number) => {
-  const baseUrl = 'http://localhost:8000/v1/nearby_observations';
+  const baseUrl = `${apiBaseUrl}v1/nearby_observations`;
 
   // Create a URLSearchParams object to handle query parameters
   const params = new URLSearchParams({
