@@ -323,7 +323,7 @@ function BirdMap() {
   }, [debouncedCenter.lat, debouncedCenter, mapLoaded])
 
   const handleClick = (e: { target: { id: string; }; }) => {
-    setActiveLayerId(e.target.id);
+    setActiveLayerId(e.target.id as RootLayerIDs);
   };
 
   return (
