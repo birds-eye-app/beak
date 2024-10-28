@@ -226,8 +226,10 @@ function BirdMap() {
 
   const [activeLayerId, setActiveLayerId] = useState(RootLayerIDs.HistoricalLifers);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [fileId, setFileId] = useState('')
 
   useEffect(() => {
+    if (fileId === '') return;
     mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current!,
@@ -242,13 +244,13 @@ function BirdMap() {
           if (error) throw error;
           mapRef.current!.addImage('custom-marker', image!);
 
-          fetchLifers(INITIAL_CENTER.lat, INITIAL_CENTER.lng).then((data) => {
+          fetchLifers(INITIAL_CENTER.lat, INITIAL_CENTER.lng, fileId).then((data) => {
             const lifersFeatures = lifersToGeoJson(data);
             addSourceAndLayer(mapRef.current!, RootLayerIDs.HistoricalLifers, lifersFeatures, activeLayerId === RootLayerIDs.HistoricalLifers ? 'visible' : 'none');
             
           })
 
-          fetchNearbyObservations(INITIAL_CENTER.lat, INITIAL_CENTER.lng).then((data) => {
+          fetchNearbyObservations(INITIAL_CENTER.lat, INITIAL_CENTER.lng, fileId).then((data) => {
             addSourceAndLayer(mapRef.current!, RootLayerIDs.NewLifers, nearbyObservationsToGeoJson(data), activeLayerId === RootLayerIDs.NewLifers ? 'visible' : 'none');
           });
         })
@@ -269,7 +271,7 @@ function BirdMap() {
     return () => {
       mapRef.current!.remove()
     }
-  }, [])
+  }, [fileId])
 
   useEffect(() => {
     if (!mapLoaded) return;
@@ -292,7 +294,7 @@ function BirdMap() {
   useEffect(() => {
     if (!mapLoaded) return;
 
-    fetchNearbyObservations(debouncedCenter.lat, debouncedCenter.lng).then((data) => {
+    fetchNearbyObservations(debouncedCenter.lat, debouncedCenter.lng, fileId).then((data) => {
       const lifersSource = mapRef.current!.getSource(RootLayerIDs.NewLifers) as GeoJSONSource | undefined;
       if (!lifersSource) return;
       lifersSource.setData(
@@ -303,10 +305,17 @@ function BirdMap() {
       )
     });
 
-  }, [debouncedCenter.lat, debouncedCenter, mapLoaded])
+  }, [debouncedCenter.lat, debouncedCenter, mapLoaded, fileId])
 
   const handleClick = (e: { target: { id: string; }; }) => {
     setActiveLayerId(e.target.id as RootLayerIDs);
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const { key } = await uploadCsv(e.target.files[0]);
+      setFileId(key);
+    }
   };
 
   return (
@@ -317,11 +326,7 @@ function BirdMap() {
         </div>
         <LayerToggle id={RootLayerIDs.HistoricalLifers} label='Show historical lifers' checked={activeLayerId ===RootLayerIDs.HistoricalLifers} onClick={handleClick} />
         <LayerToggle id={RootLayerIDs.NewLifers} label='Show new lifers' checked={activeLayerId ===RootLayerIDs.NewLifers} onClick={handleClick} />
-        <label >
-          <input type="text" id="ebirdPersonalData" name="name" required size={10}
-          />
-          eBird Personal Data CSV
-        </label>
+        <input id="file" type="file" onChange={handleFileChange} />
 
       </div>
       <div
@@ -333,13 +338,29 @@ function BirdMap() {
   )
 }
 
+const uploadCsv = async (file: File) => {
+  console.log('Uploading file:', file);
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch(`${apiBaseUrl}v1/upload_lifers_csv`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  const data = await response.json();
+  console.log('Upload response:', data);
+  return data as { key: string };
+}
+
 // todo: dedupe
-const fetchLifers = async (latitude: number, longitude: number) => {
+const fetchLifers = async (latitude: number, longitude: number, fileId: string) => {
   const baseUrl = `${apiBaseUrl}v1/lifers_by_location`;
 
   const params = new URLSearchParams({
     latitude: latitude.toString(),
     longitude: longitude.toString(),
+    file_id: fileId,
   });
 
   const url = `${baseUrl}?${params}`;
@@ -357,13 +378,14 @@ const fetchLifers = async (latitude: number, longitude: number) => {
   }
 };
 
-const fetchNearbyObservations = async (latitude: number, longitude: number) => {
+const fetchNearbyObservations = async (latitude: number, longitude: number, fileId: string) => {
   const baseUrl = `${apiBaseUrl}v1/nearby_observations`;
 
   // Create a URLSearchParams object to handle query parameters
   const params = new URLSearchParams({
     latitude: latitude.toString(),
     longitude: longitude.toString(),
+    file_id: fileId,
   });
 
   // Construct the full URL with query parameters
