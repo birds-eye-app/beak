@@ -25,27 +25,35 @@ export const WaitAndUploadModal = ({
 
   return (
     <ReactModal isOpen={showModal} contentLabel="WaitAndUploadModal">
-      <button onClick={onClose} disabled={!canClose}>Close</button>
+      <button onClick={onClose} disabled={!canClose}>
+        Close
+      </button>
       <p>
-        🦉👁️ Welcome to Birdseye! To get started, you'll need to upload your eBird
-        CSV export. You can request an export from Cornell here:{" "}
+        🦉👁️ Welcome to Birdseye! To get started, you'll need to upload your
+        eBird CSV export. You can request an export from Cornell here:{" "}
         <a href="https://ebird.org/downloadMyData" target="_blank">
           https://ebird.org/downloadMyData
         </a>
       </p>
       <p>
-        {healthCheck === null && "🛌 Waiting to hear from the server... this might take a minute or 2 if it's starting up. (Seriously!)"}
-        {healthCheck === false && "🚨 Server is unhealthy! Please try again later."}
-        {healthCheck === true && 
+        {healthCheck === null &&
+          "🛌 Waiting to hear from the server... this might take a minute or 2 if it's starting up. (Seriously!)"}
+        {healthCheck === false &&
+          "🚨 Server is unhealthy! Please try again later."}
+        {healthCheck === true && (
           <>
-          <label htmlFor="file">
-            📄 Upload your eBird export here:
-          </label>
-          <input id="file" name='file' type="file" onChange={handleFileChange} accept=".csv" />
+            <label htmlFor="file">📄 Upload your eBird export here:</label>
+            <input
+              id="file"
+              name="file"
+              type="file"
+              onChange={handleFileChange}
+              accept=".csv"
+            />
           </>
-          }
-        </p>
-      
+        )}
+      </p>
+
       <br />
     </ReactModal>
   );

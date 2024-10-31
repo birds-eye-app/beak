@@ -98,15 +98,28 @@ function addSourceAndLayer(
     filter: ["has", "point_count"],
     paint: {
       "circle-color": [
-        "step",
-        ["get", "point_count"],
-        "#51bbd6",
-        100,
-        "#f1f075",
-        750,
-        "#f28cb1",
+        "interpolate",
+        ["linear", 0.5],
+        ["get", "sum"],
+        15,
+        "#d2f28c",
+        50,
+        "#f2cd8c",
+        150,
+        "#f38377",
       ],
-      "circle-radius": ["step", ["get", "point_count"], 20, 100, 30, 750, 40],
+      // "circle-radius": ["step", ["get", "sum"], 20, 50, 30, 100, 40],
+      "circle-radius": [
+        "interpolate",
+        ["linear"],
+        ["get", "sum"],
+        10,
+        10,
+        20,
+        20,
+        100,
+        40,
+      ],
     },
     layout: {
       visibility: visibility,
@@ -143,23 +156,24 @@ function addSourceAndLayer(
     },
   });
 
-        // inspect a cluster on click
-        mapRef.on('click', `${sourceId}.${SubLayerIDs.ClusterCircles}`, (e) => {
-          const features = mapRef.queryRenderedFeatures(e.point, {
-            layers: [`${sourceId}.${SubLayerIDs.ClusterCircles}`,]
-          });
-          const clusterId = features[0].properties?.cluster_id;
-          mapRef.getSource<GeoJSONSource>(sourceId)!
-            .getClusterExpansionZoom(clusterId, (err, zoom) => {
-              if (err) return;
-  
-              mapRef.easeTo({
-                // @ts-expect-error untyped event
-                center: features[0].geometry.coordinates,
-                zoom: zoom!,
-              });
-            });
+  // inspect a cluster on click
+  mapRef.on("click", `${sourceId}.${SubLayerIDs.ClusterCircles}`, (e) => {
+    const features = mapRef.queryRenderedFeatures(e.point, {
+      layers: [`${sourceId}.${SubLayerIDs.ClusterCircles}`],
+    });
+    const clusterId = features[0].properties?.cluster_id;
+    mapRef
+      .getSource<GeoJSONSource>(sourceId)!
+      .getClusterExpansionZoom(clusterId, (err, zoom) => {
+        if (err) return;
+
+        mapRef.easeTo({
+          // @ts-expect-error untyped event
+          center: features[0].geometry.coordinates,
+          zoom: zoom!,
         });
+      });
+  });
 
   mapRef.on("click", `${sourceId}.${SubLayerIDs.UnclusteredPoints}`, (e) => {
     // @ts-expect-error untyped event
@@ -174,10 +188,13 @@ function addSourceAndLayer(
       coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
     }
 
-    const html: string[] = [];
+    const html: string[] = [
+      '<div style="max-height: 200px; overflow-y: auto;">',
+    ];
     lifers.map((lifer: Lifer) => {
-      html.push(`<div>${lifer.common_name} - ${lifer.date}</div>`);
+      html.push(`<div>${lifer.date} - ${lifer.common_name} </div>`);
     });
+    html.push("</div>");
 
     new mapboxgl.Popup()
       .setLngLat(coordinates)
