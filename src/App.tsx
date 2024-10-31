@@ -1,14 +1,13 @@
-import { useRef, useEffect, useState } from 'react'
-import mapboxgl, { GeoJSONSource, Map } from 'mapbox-gl'
-import { Feature, Geometry, GeoJsonProperties } from "geojson";
-
+import { Feature, GeoJsonProperties, Geometry } from "geojson";
+import mapboxgl, { GeoJSONSource, Map } from 'mapbox-gl';
+import { useEffect, useRef, useState } from 'react';
 
 import 'mapbox-gl/dist/mapbox-gl.css';
-import './App.css'
+import './App.css';
 
-console.log(import.meta.env)
-
-const apiBaseUrl = import.meta.env.VITE_BASE_URL;
+import { useDebounce } from 'use-debounce';
+import { WaitAndUploadModal } from './WaitAndUploadModal';
+import { fetchLifers, fetchNearbyObservations } from './api';
 
 const INITIAL_CENTER = {
   lng: -74.0242,
@@ -16,7 +15,6 @@ const INITIAL_CENTER = {
 }
 const INITIAL_ZOOM = 10.12
 
-import { useDebounce } from 'use-debounce';
 
 enum RootLayerIDs {
   HistoricalLifers = 'historical_lifers',
@@ -227,6 +225,7 @@ function BirdMap() {
   const [activeLayerId, setActiveLayerId] = useState(RootLayerIDs.HistoricalLifers);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [fileId, setFileId] = useState('')
+  const [showUploadModal, setShowUploadModal] = useState(true);
 
   useEffect(() => {
     if (fileId === '') return;
@@ -311,99 +310,31 @@ function BirdMap() {
     setActiveLayerId(e.target.id as RootLayerIDs);
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const { key } = await uploadCsv(e.target.files[0]);
-      setFileId(key);
-    }
-  };
-
   return (
     <div style={{ height: '100%', width: '100%', flexDirection: 'row' }}>
+      <WaitAndUploadModal showModal={showUploadModal} onClose={() => {setShowUploadModal(false)}} onUploadComplete={(fileId: string) => {
+        setFileId(fileId); 
+        setShowUploadModal(false);
+        }}/>
       <div style={{ flexDirection: 'column' }}>
-        <div className="sidebar">
-          Longitude: {center.lng.toFixed(4)} | Latitude: {center.lat.toFixed(4)} | Zoom: {zoom.toFixed(2)}
-        </div>
         <LayerToggle id={RootLayerIDs.HistoricalLifers} label='Show historical lifers' checked={activeLayerId ===RootLayerIDs.HistoricalLifers} onClick={handleClick} />
         <LayerToggle id={RootLayerIDs.NewLifers} label='Show new lifers' checked={activeLayerId ===RootLayerIDs.NewLifers} onClick={handleClick} />
-        <input id="file" type="file" onChange={handleFileChange} />
-
+        <button onClick={() => setShowUploadModal(true)}>Change CSV</button>
       </div>
       <div
         id='map-container'
         // @ts-expect-error something something ref error
         ref={mapContainerRef!}
       />
+      <br />
+      <div className="sidebar">
+          Longitude: {center.lng.toFixed(4)} | Latitude: {center.lat.toFixed(4)} | Zoom: {zoom.toFixed(2)}
+        </div>
     </div>
   )
 }
 
-const uploadCsv = async (file: File) => {
-  console.log('Uploading file:', file);
-  const formData = new FormData();
-  formData.append('file', file);
 
-  const response = await fetch(`${apiBaseUrl}v1/upload_lifers_csv`, {
-    method: 'POST',
-    body: formData,
-  });
-
-  const data = await response.json();
-  console.log('Upload response:', data);
-  return data as { key: string };
-}
-
-// todo: dedupe
-const fetchLifers = async (latitude: number, longitude: number, fileId: string) => {
-  const baseUrl = `${apiBaseUrl}v1/lifers_by_location`;
-
-  const params = new URLSearchParams({
-    latitude: latitude.toString(),
-    longitude: longitude.toString(),
-    file_id: fileId,
-  });
-
-  const url = `${baseUrl}?${params}`;
-
-  try {
-    const response = await fetch(url, {});
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data
-  } catch (error) {
-    console.error('Fetch error:', error);
-  }
-};
-
-const fetchNearbyObservations = async (latitude: number, longitude: number, fileId: string) => {
-  const baseUrl = `${apiBaseUrl}v1/nearby_observations`;
-
-  // Create a URLSearchParams object to handle query parameters
-  const params = new URLSearchParams({
-    latitude: latitude.toString(),
-    longitude: longitude.toString(),
-    file_id: fileId,
-  });
-
-  // Construct the full URL with query parameters
-  const url = `${baseUrl}?${params}`;
-
-
-  try {
-    const response = await fetch(url, {});
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data
-  } catch (error) {
-    console.error('Fetch error:', error);
-  }
-};
 
 
 function App() {
