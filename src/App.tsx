@@ -143,6 +143,24 @@ function addSourceAndLayer(
     },
   });
 
+        // inspect a cluster on click
+        mapRef.on('click', `${sourceId}.${SubLayerIDs.ClusterCircles}`, (e) => {
+          const features = mapRef.queryRenderedFeatures(e.point, {
+            layers: [`${sourceId}.${SubLayerIDs.ClusterCircles}`,]
+          });
+          const clusterId = features[0].properties?.cluster_id;
+          mapRef.getSource<GeoJSONSource>(sourceId)!
+            .getClusterExpansionZoom(clusterId, (err, zoom) => {
+              if (err) return;
+  
+              mapRef.easeTo({
+                // @ts-expect-error untyped event
+                center: features[0].geometry.coordinates,
+                zoom: zoom!,
+              });
+            });
+        });
+
   mapRef.on("click", `${sourceId}.${SubLayerIDs.UnclusteredPoints}`, (e) => {
     // @ts-expect-error untyped event
     const coordinates = e.features[0].geometry.coordinates.slice();

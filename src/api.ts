@@ -20,7 +20,7 @@ export const uploadCsv = async (file: File) => {
 export const checkHealthy = async () => {
     try {
         // sleep 2s 
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        // await new Promise((resolve) => setTimeout(resolve, 2000));
         const response = await fetch(`${apiBaseUrl}v1/health`);
         return response.ok;
     } catch (error) {
