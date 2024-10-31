@@ -350,6 +350,7 @@ function BirdMap() {
           setFileId(fileId);
           setShowUploadModal(false);
         }}
+        canClose={fileId !== ""}
       />
       <div style={{ flexDirection: "column" }}>
         <LayerToggle
