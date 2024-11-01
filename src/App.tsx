@@ -99,8 +99,8 @@ function addSourceAndLayer(
     source: sourceId,
     filter: ["has", "point_count"],
     paint: {
-      'circle-stroke-color': 'white',
-      'circle-stroke-width': 0.5,
+      "circle-stroke-color": "white",
+      "circle-stroke-width": 0.5,
       "circle-color": [
         "interpolate",
         ["linear", 0.5],
@@ -110,7 +110,7 @@ function addSourceAndLayer(
         250,
         "#ff70ba",
       ],
-      'fill-opacity': 0.75,
+      "fill-opacity": 0.75,
       "circle-radius": [
         "interpolate",
         ["linear"],
@@ -141,15 +141,15 @@ function addSourceAndLayer(
 
   mapRef.addLayer({
     id: `${sourceId}.${SubLayerIDs.UnclusteredPointsCircle}`,
-    type: 'circle',
+    type: "circle",
     source: sourceId,
     filter: ["!", ["has", "point_count"]],
     layout: {
-      visibility
+      visibility,
     },
     paint: {
-      'circle-stroke-color': 'black',
-      'circle-stroke-width': 2,
+      "circle-stroke-color": "black",
+      "circle-stroke-width": 2,
       "circle-color": [
         "interpolate",
         ["linear", 0.5],
@@ -173,14 +173,14 @@ function addSourceAndLayer(
 
   mapRef.addLayer({
     id: `${sourceId}.${SubLayerIDs.UnclusteredPointsCount}`,
-    type: 'symbol',
+    type: "symbol",
     source: sourceId,
     filter: ["!", ["has", "point_count"]],
     layout: {
-      'text-field': ["get", "liferCount"],
-      'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-      'text-size': 12,
-      visibility
+      "text-field": ["get", "liferCount"],
+      "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+      "text-size": 12,
+      visibility,
     },
   });
 
@@ -219,32 +219,36 @@ function addSourceAndLayer(
       });
   });
 
-  mapRef.on("click", `${sourceId}.${SubLayerIDs.UnclusteredPointsCircle}`, (e) => {
-    // @ts-expect-error untyped event
-    const coordinates = e.features[0].geometry.coordinates.slice();
-    // @ts-expect-error untyped event
-    const lifers = JSON.parse(e.features[0].properties.lifers);
+  mapRef.on(
+    "click",
+    `${sourceId}.${SubLayerIDs.UnclusteredPointsCircle}`,
+    (e) => {
+      // @ts-expect-error untyped event
+      const coordinates = e.features[0].geometry.coordinates.slice();
+      // @ts-expect-error untyped event
+      const lifers = JSON.parse(e.features[0].properties.lifers);
 
-    // Ensure that if the map is zoomed out such that
-    // multiple copies of the feature are visible, the
-    // popup appears over the copy being pointed to.
-    while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-      coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-    }
+      // Ensure that if the map is zoomed out such that
+      // multiple copies of the feature are visible, the
+      // popup appears over the copy being pointed to.
+      while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+        coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+      }
 
-    const html: string[] = [
-      '<div style="max-height: 200px; overflow-y: auto;">',
-    ];
-    lifers.map((lifer: Lifer) => {
-      html.push(`<div>${lifer.date} - ${lifer.common_name} </div>`);
-    });
-    html.push("</div>");
+      const html: string[] = [
+        '<div style="max-height: 200px; overflow-y: auto;">',
+      ];
+      lifers.map((lifer: Lifer) => {
+        html.push(`<div>${lifer.date} - ${lifer.common_name} </div>`);
+      });
+      html.push("</div>");
 
-    new mapboxgl.Popup()
-      .setLngLat(coordinates)
-      .setHTML(html.join("\n"))
-      .addTo(mapRef);
-  });
+      new mapboxgl.Popup()
+        .setLngLat(coordinates)
+        .setHTML(html.join("\n"))
+        .addTo(mapRef);
+    },
+  );
 }
 
 function nearbyObservationsToGeoJson(
