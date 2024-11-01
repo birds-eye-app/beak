@@ -110,7 +110,6 @@ function addSourceAndLayer(
         250,
         "#ff70ba",
       ],
-      "fill-opacity": 0.75,
       "circle-radius": [
         "interpolate",
         ["linear"],
@@ -145,7 +144,7 @@ function addSourceAndLayer(
     source: sourceId,
     filter: ["!", ["has", "point_count"]],
     layout: {
-      visibility,
+      visibility: visibility,
     },
     paint: {
       "circle-stroke-color": "black",
@@ -180,8 +179,8 @@ function addSourceAndLayer(
       "text-field": ["get", "liferCount"],
       "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
       "text-size": 12,
-      visibility,
-    },
+      visibility: visibility,
+    }
   });
 
   mapRef.addLayer({
@@ -255,7 +254,6 @@ function nearbyObservationsToGeoJson(
   lifers: LocationByLiferResponse,
 ): Feature<Geometry, GeoJsonProperties>[] {
   if (!lifers) return [];
-  console.log("lifers:", lifers);
   return Object.values(lifers).flatMap((entry) => {
     const feature = {
       type: "Feature",
