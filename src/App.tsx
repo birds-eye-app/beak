@@ -22,7 +22,9 @@ enum RootLayerIDs {
 enum SubLayerIDs {
   ClusterCircles = "cluster_circles",
   ClusterCount = "cluster_count",
-  UnclusteredPoints = "unclustered_points",
+  UnclusteredPointsLabel = "unclustered_points_label",
+  UnclusteredPointsCircle = "unclustered_point_circle",
+  UnclusteredPointsCount = "unclustered_point_count",
 }
 
 type Lifer = {
@@ -97,26 +99,24 @@ function addSourceAndLayer(
     source: sourceId,
     filter: ["has", "point_count"],
     paint: {
+      'circle-stroke-color': 'white',
+      'circle-stroke-width': 0.5,
       "circle-color": [
         "interpolate",
         ["linear", 0.5],
         ["get", "sum"],
         15,
-        "#d2f28c",
-        50,
-        "#f2cd8c",
-        150,
-        "#f38377",
+        "#fadd00",
+        250,
+        "#ff70ba",
       ],
-      // "circle-radius": ["step", ["get", "sum"], 20, 50, 30, 100, 40],
+      'fill-opacity': 0.75,
       "circle-radius": [
         "interpolate",
         ["linear"],
         ["get", "sum"],
         10,
-        10,
-        20,
-        20,
+        15,
         100,
         40,
       ],
@@ -140,13 +140,57 @@ function addSourceAndLayer(
   });
 
   mapRef.addLayer({
-    id: `${sourceId}.${SubLayerIDs.UnclusteredPoints}`,
+    id: `${sourceId}.${SubLayerIDs.UnclusteredPointsCircle}`,
+    type: 'circle',
+    source: sourceId,
+    filter: ["!", ["has", "point_count"]],
+    layout: {
+      visibility
+    },
+    paint: {
+      'circle-stroke-color': 'black',
+      'circle-stroke-width': 2,
+      "circle-color": [
+        "interpolate",
+        ["linear", 0.5],
+        ["get", "liferCount"],
+        15,
+        "#fadd00",
+        250,
+        "#ff70ba",
+      ],
+      "circle-radius": [
+        "interpolate",
+        ["linear"],
+        ["get", "liferCount"],
+        10,
+        10,
+        100,
+        40,
+      ],
+    },
+  });
+
+  mapRef.addLayer({
+    id: `${sourceId}.${SubLayerIDs.UnclusteredPointsCount}`,
+    type: 'symbol',
+    source: sourceId,
+    filter: ["!", ["has", "point_count"]],
+    layout: {
+      'text-field': ["get", "liferCount"],
+      'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+      'text-size': 12,
+      visibility
+    },
+  });
+
+  mapRef.addLayer({
+    id: `${sourceId}.${SubLayerIDs.UnclusteredPointsLabel}`,
     type: "symbol",
     filter: ["!", ["has", "point_count"]],
     source: sourceId,
     layout: {
-      "icon-image": "custom-marker",
-      "text-field": ["concat", ["get", "liferCount"], ": ", ["get", "title"]],
+      "text-field": ["get", "title"],
       "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
       "text-offset": [0, 1.25],
       "text-size": 15,
@@ -170,12 +214,12 @@ function addSourceAndLayer(
         mapRef.easeTo({
           // @ts-expect-error untyped event
           center: features[0].geometry.coordinates,
-          zoom: zoom!,
+          zoom: zoom! + 1,
         });
       });
   });
 
-  mapRef.on("click", `${sourceId}.${SubLayerIDs.UnclusteredPoints}`, (e) => {
+  mapRef.on("click", `${sourceId}.${SubLayerIDs.UnclusteredPointsCircle}`, (e) => {
     // @ts-expect-error untyped event
     const coordinates = e.features[0].geometry.coordinates.slice();
     // @ts-expect-error untyped event
