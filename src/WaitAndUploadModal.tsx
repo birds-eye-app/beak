@@ -14,9 +14,12 @@ export const WaitAndUploadModal = ({
   canClose: boolean;
 }) => {
   const [healthCheck, setHealthCheck] = useState<boolean | null>(null);
+  const [uploading, setUploading] = useState(false);
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
+      setUploading(true);
       const { key } = await uploadCsv(e.target.files[0]);
+      setUploading(false);
       onUploadComplete(key);
     }
   };
@@ -35,7 +38,12 @@ export const WaitAndUploadModal = ({
           https://ebird.org/downloadMyData
         </a>
       </p>
-      <p>
+      <Spinner animation="border" variant="dark"/>
+      <div>
+        {uploading && (<div>
+          <p>📡 Uploading... this might take a minute or 2.</p>
+          <Spinner animation="border" variant="dark"/>
+          </div>)}
         {healthCheck === null &&
           "🛌 Waiting to hear from the server... this might take a minute or 2 if it's starting up. (Seriously!)"}
         {healthCheck === false &&
@@ -52,7 +60,7 @@ export const WaitAndUploadModal = ({
             />
           </>
         )}
-      </p>
+      </div>
 
       <br />
     </ReactModal>
