@@ -38,11 +38,9 @@ export const WaitAndUploadModal = ({
           https://ebird.org/downloadMyData
         </a>
       </p>
-      <Spinner animation="border" variant="dark"/>
       <div>
         {uploading && (<div>
           <p>📡 Uploading... this might take a minute or 2.</p>
-          <Spinner animation="border" variant="dark"/>
           </div>)}
         {healthCheck === null &&
           "🛌 Waiting to hear from the server... this might take a minute or 2 if it's starting up. (Seriously!)"}
