@@ -328,7 +328,7 @@ function BirdMap() {
   const [zoom, setZoom] = useState(INITIAL_ZOOM);
   const [debouncedCenter] = useDebounce(center, 500);
 
-  const [activeLayerId, setActiveLayerId] = useState(RootLayerIDs.NewLifers);
+  const [activeLayerId, setActiveLayerId] = useState(RootLayerIDs.HistoricalLifers);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [fileId, setFileId] = useState("");
   const [showLoading, setShowLoading] = useState(false);
