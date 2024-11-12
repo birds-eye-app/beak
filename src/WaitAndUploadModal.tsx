@@ -39,9 +39,11 @@ export const WaitAndUploadModal = ({
         </a>
       </p>
       <div>
-        {uploading && (<div>
-          <p>📡 Uploading... this might take a minute or 2.</p>
-          </div>)}
+        {uploading && (
+          <div>
+            <p>📡 Uploading... this might take a minute or 2.</p>
+          </div>
+        )}
         {healthCheck === null &&
           "🛌 Waiting to hear from the server... this might take a minute or 2 if it's starting up. (Seriously!)"}
         {healthCheck === false &&

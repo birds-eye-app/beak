@@ -1,6 +1,6 @@
 import { Feature, GeoJsonProperties, Geometry } from "geojson";
-import mapboxgl, { GeoJSONSource, Map } from "mapbox-gl";
-import { useEffect, useRef, useState } from "react";
+import mapboxgl, { GeoJSONSource, Map, Marker } from "mapbox-gl";
+import { act, useCallback, useEffect, useRef, useState } from "react";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 import "./App.css";
@@ -19,6 +19,9 @@ enum RootLayerIDs {
   HistoricalLifers = "historical_lifers",
   NewLifers = "new_lifers",
 }
+
+const allLayerIdRoots = [RootLayerIDs.HistoricalLifers, RootLayerIDs.NewLifers];
+
 enum SubLayerIDs {
   ClusterCircles = "cluster_circles",
   ClusterCount = "cluster_count",
@@ -26,6 +29,14 @@ enum SubLayerIDs {
   UnclusteredPointsCircle = "unclustered_point_circle",
   UnclusteredPointsCount = "unclustered_point_count",
 }
+
+const allSubLayerIds = [
+  SubLayerIDs.ClusterCircles,
+  SubLayerIDs.ClusterCount,
+  SubLayerIDs.UnclusteredPointsLabel,
+  SubLayerIDs.UnclusteredPointsCircle,
+  SubLayerIDs.UnclusteredPointsCount,
+];
 
 type Lifer = {
   common_name: string;
@@ -35,6 +46,7 @@ type Lifer = {
   taxonomic_order: number;
   location: string;
   location_id: string;
+  species_code: string;
 };
 
 type Location = {
@@ -65,6 +77,7 @@ function lifersToGeoJson(response: LocationByLiferResponse) {
         title: l.location.location_name,
         lifers: l.lifers,
         liferCount: l.lifers.length,
+        speciesCodes: l.lifers.map((lifer) => lifer.species_code).join(","),
       },
     } as Feature<Geometry, GeoJsonProperties>;
   });
@@ -79,6 +92,7 @@ function addSourceAndLayer(
   console.log(
     `Adding source and layer for ${sourceId}, visibility: ${visibility}`,
   );
+  console.log("example feature", features[0]);
   mapRef.addSource(sourceId, {
     type: "geojson",
     data: {
@@ -90,53 +104,75 @@ function addSourceAndLayer(
     clusterRadius: 50,
     clusterProperties: {
       sum: ["+", ["get", "liferCount", ["properties"]]],
+      species_codes: [
+        "concat",
+        ["concat", ["get", "speciesCodes", ["properties"]], ","],
+      ],
+      distinct_species_codes: [
+        // ['accumulated'] is the current value iterated during the reduce (the property is defined at [1])
+        // ['get', 'distinctCountries'] is the accumulated / concatenated string
+        [
+          // Concat accumulated value + current value if not present in accumulated
+          "concat",
+          ["get", "distinct_species_codes"],
+          [
+            "case",
+            ["in", ["accumulated"], ["get", "distinct_species_codes"]], // If accumulated (user_id) has already been added
+            "", // Add EMPTY string
+            ["concat", ", ", ["accumulated"]], // Add the user_id (concatenated with a comma in your case)
+          ],
+        ],
+        ["get", "speciesCodes", ["properties"]], // [1]: source marker property iterated in the custom reduce function
+      ],
     },
   });
 
-  mapRef.addLayer({
-    id: `${sourceId}.${SubLayerIDs.ClusterCircles}`,
-    type: "circle",
-    source: sourceId,
-    filter: ["has", "point_count"],
-    paint: {
-      "circle-stroke-color": "white",
-      "circle-stroke-width": 0.5,
-      "circle-color": [
-        "interpolate",
-        ["linear", 0.5],
-        ["get", "sum"],
-        15,
-        "#fadd00",
-        250,
-        "#ff70ba",
-      ],
-      "circle-radius": [
-        "interpolate",
-        ["linear"],
-        ["get", "sum"],
-        10,
-        15,
-        250,
-        40,
-      ],
-    },
-    layout: {
-      visibility: visibility,
-    },
-  });
+  // mapRef.addLayer({
+  //   id: `${sourceId}.${SubLayerIDs.ClusterCircles}`,
+  //   type: "circle",
+  //   source: sourceId,
+  //   filter: ["has", "point_count"],
+  //   paint: {
+  //     "circle-stroke-color": "white",
+  //     "circle-stroke-width": 0.5,
+  //     "circle-color": [
+  //       "interpolate",
+  //       ["linear", 0.5],
+  //       ["get", "sum"],
+  //       15,
+  //       "#fadd00",
+  //       250,
+  //       "#ff70ba",
+  //     ],
+  //     "circle-radius": [
+  //       "interpolate",
+  //       ["linear"],
+  //       ["get", "sum"],
+  //       10,
+  //       15,
+  //       250,
+  //       40,
+  //     ],
+  //   },
+  //   layout: {
+  //     visibility: visibility,
+  //   },
+  // });
 
-  mapRef.addLayer({
-    id: `${sourceId}.${SubLayerIDs.ClusterCount}`,
-    type: "symbol",
-    source: sourceId,
-    filter: ["has", "point_count"],
-    layout: {
-      "text-field": ["get", "sum"],
-      "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-      "text-size": 12,
-      visibility: visibility,
-    },
-  });
+  // if (sourceId === RootLayerIDs.HistoricalLifers) {
+  //   mapRef.addLayer({
+  //     id: `${sourceId}.${SubLayerIDs.ClusterCount}`,
+  //     type: "symbol",
+  //     source: sourceId,
+  //     filter: ["has", "point_count"],
+  //     layout: {
+  //       "text-field": ["get", "sum"],
+  //       "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+  //       "text-size": 12,
+  //       visibility: visibility,
+  //     },
+  //   });
+  // }
 
   mapRef.addLayer({
     id: `${sourceId}.${SubLayerIDs.UnclusteredPointsCircle}`,
@@ -265,6 +301,7 @@ function nearbyObservationsToGeoJson(
         title: entry.location.location_name,
         lifers: entry.lifers,
         liferCount: entry.lifers.length,
+        speciesCodes: entry.lifers.map((lifer) => lifer.species_code).join(","),
       },
     };
 
@@ -307,6 +344,51 @@ function BirdMap() {
   const [mapLoaded, setMapLoaded] = useState(false);
   const [fileId, setFileId] = useState("");
   const [showUploadModal, setShowUploadModal] = useState(true);
+  const [markers, setMarkers] = useState<Marker[]>([]);
+  const [markersOnScreen, setMarkersOnScreen] = useState<{ [key: string]: {[key: string]: Marker} }>({});
+
+  const updateMarkers = useCallback((activeLayerId: RootLayerIDs) => {
+    // reset markers on screen for other layers
+    for (const key in markersOnScreen) {
+      if (key !== activeLayerId) {
+        for (const id in markersOnScreen[key]) {
+          markersOnScreen[key][id].remove();
+        }
+      }
+    }
+
+    const newMarkers: { [key: string]: Marker } = {};
+    const features = mapRef.current!.querySourceFeatures(activeLayerId);
+
+    // for every cluster on the screen, create an HTML marker for it (if we didn't yet),
+    // and add it to the map if it's not there already
+    for (const feature of features) {
+      const coords = feature.geometry.coordinates;
+      const props = feature.properties;
+      if (!props?.cluster) continue;
+      const id = props.cluster_id;
+
+      let marker = markers[id];
+      if (!marker) {
+        const el = createCustomHTMLMarker(props);
+        marker = markers[id] = new mapboxgl.Marker({
+          element: el,
+        }).setLngLat(coords);
+      }
+      newMarkers[id] = marker;
+
+      if (!markersOnScreen[id]) marker.addTo(mapRef.current!);
+    }
+    // for every marker we've added previously, remove those that are no longer visible
+    for (const id in markersOnScreen) {
+      if (!newMarkers[id]) markersOnScreen[activeLayerId][id].remove();
+    }
+
+    console.log(`adding new markers for ${activeLayerId}: ${newMarkers.length}`);
+
+    setMarkers(markers);
+    setMarkersOnScreen({ ...markersOnScreen, [activeLayerId]: newMarkers });
+  }, []);
 
   useEffect(() => {
     if (fileId === "") return;
@@ -318,40 +400,32 @@ function BirdMap() {
     });
 
     mapRef.current!.on("load", () => {
-      mapRef.current!.loadImage(
-        "https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png",
-        (error, image) => {
-          if (error) throw error;
-          mapRef.current!.addImage("custom-marker", image!);
-
-          fetchLifers(INITIAL_CENTER.lat, INITIAL_CENTER.lng, fileId).then(
-            (data) => {
-              const lifersFeatures = lifersToGeoJson(data);
-              addSourceAndLayer(
-                mapRef.current!,
-                RootLayerIDs.HistoricalLifers,
-                lifersFeatures,
-                activeLayerId === RootLayerIDs.HistoricalLifers
-                  ? "visible"
-                  : "none",
-              );
-            },
+      fetchLifers(INITIAL_CENTER.lat, INITIAL_CENTER.lng, fileId).then(
+        (data) => {
+          const lifersFeatures = lifersToGeoJson(data);
+          addSourceAndLayer(
+            mapRef.current!,
+            RootLayerIDs.HistoricalLifers,
+            lifersFeatures,
+            activeLayerId === RootLayerIDs.HistoricalLifers
+              ? "visible"
+              : "none",
           );
-
-          fetchNearbyObservations(
-            INITIAL_CENTER.lat,
-            INITIAL_CENTER.lng,
-            fileId,
-          ).then((data) => {
-            addSourceAndLayer(
-              mapRef.current!,
-              RootLayerIDs.NewLifers,
-              nearbyObservationsToGeoJson(data),
-              activeLayerId === RootLayerIDs.NewLifers ? "visible" : "none",
-            );
-          });
         },
       );
+
+      addSourceAndLayer(
+        mapRef.current!,
+        RootLayerIDs.NewLifers,
+        nearbyObservationsToGeoJson({}),
+        activeLayerId === RootLayerIDs.NewLifers ? "visible" : "none",
+      );
+
+      // after the GeoJSON data is loaded, update markers on the screen on every frame
+      mapRef.current!.on("render", () => {
+        if (!mapRef.current!.isSourceLoaded(activeLayerId)) return;
+        updateMarkers(activeLayerId);
+      });
 
       setMapLoaded(true);
     });
@@ -374,18 +448,8 @@ function BirdMap() {
   useEffect(() => {
     if (!mapLoaded) return;
 
-    const allLayerIdRoots = [
-      RootLayerIDs.HistoricalLifers,
-      RootLayerIDs.NewLifers,
-    ];
-    const subLayerIds = [
-      "cluster_circles",
-      "cluster_count",
-      "unclustered_points",
-    ];
-
     allLayerIdRoots.forEach((rootLayerId) => {
-      const layerIds = subLayerIds.map(
+      const layerIds = allSubLayerIds.map(
         (subLayerId) => `${rootLayerId}.${subLayerId}`,
       );
       layerIds.forEach((layerId) => {
@@ -460,6 +524,100 @@ function BirdMap() {
       </div>
     </div>
   );
+}
+
+function createCustomHTMLMarker(props: { species_codes: string }) {
+  const speciesCodes = [...new Set(props.species_codes.split(","))].filter(
+    (code) => code.trim().length > 1,
+  );
+
+  let classification = "";
+  if (speciesCodes.length <= 10) {
+    classification = "small";
+  } else if (speciesCodes.length <= 50) {
+    classification = "medium";
+  } else {
+    classification = "large";
+  }
+  let width = 20;
+  let height = 20;
+  const backgroundColor = interpolateColors(
+    "#fadd00",
+    "#ff70ba",
+    speciesCodes.length,
+    1,
+    250,
+  );
+  switch (classification) {
+    case "small":
+      width = 20;
+      height = 20;
+      break;
+    case "medium":
+      width = 50;
+      height = 50;
+      break;
+    case "large":
+      width = 100;
+      height = 100;
+      break;
+  }
+
+  const html = `<div>
+        <circle class="cluster-classification" class="cluster-classification-${classification}" style="width: ${width}px; height: ${height}px; background-color: ${backgroundColor};">
+          <text dominant-baseline="central">
+            ${speciesCodes.length}
+          </text>
+        </circle>
+      </div>`;
+
+  const el = document.createElement("div");
+  el.innerHTML = html;
+  return el.firstChild!;
+}
+
+function interpolateColors(
+  startColor: string,
+  endColor: string,
+  value: number,
+  minValue: number,
+  maxValue: number,
+) {
+  // Convert hex colors to RGB
+  const startRGB = hexToRgb(startColor);
+  const endRGB = hexToRgb(endColor);
+
+  // Calculate interpolation factor
+  const t = (value - minValue) / (maxValue - minValue);
+
+  // Interpolate RGB values
+  const r = Math.round(startRGB.r + t * (endRGB.r - startRGB.r));
+  const g = Math.round(startRGB.g + t * (endRGB.g - startRGB.g));
+  const b = Math.round(startRGB.b + t * (endRGB.b - startRGB.b));
+
+  // Return interpolated color as hex
+  return rgbToHex(r, g, b);
+}
+
+function hexToRgb(hex: string) {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if (!result) {
+    throw new Error(`Invalid hex color: ${hex}`);
+  }
+  return {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16),
+  };
+}
+
+function componentToHex(c: number) {
+  const hex = c.toString(16);
+  return hex.length == 1 ? "0" + hex : hex;
+}
+
+function rgbToHex(r: number, g: number, b: number) {
+  return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
 }
 
 function App() {
