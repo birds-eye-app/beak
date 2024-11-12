@@ -522,7 +522,7 @@ function BirdMap() {
         />
         <LayerToggle
           id={RootLayerIDs.NewLifers}
-          label="Show new lifers. Note: you need be fairly zoomed in for these to display properly."
+          label="Show potential new lifers. Note: you need be fairly zoomed in for these to display properly."
           checked={activeLayerId === RootLayerIDs.NewLifers}
           onClick={handleClick}
         />
