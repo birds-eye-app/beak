@@ -8,6 +8,7 @@ import "./App.css";
 import { useDebounce } from "use-debounce";
 import { WaitAndUploadModal } from "./WaitAndUploadModal";
 import { fetchLifers, fetchNearbyObservations } from "./api";
+import { BarLoader } from "react-spinners";
 
 const INITIAL_CENTER = {
   lng: -74.0242,
@@ -330,6 +331,7 @@ function BirdMap() {
   const [activeLayerId, setActiveLayerId] = useState(RootLayerIDs.NewLifers);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [fileId, setFileId] = useState("");
+  const [showLoading, setShowLoading] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(true);
 
   useEffect(() => {
@@ -474,22 +476,24 @@ function BirdMap() {
 
   useEffect(() => {
     if (!mapLoaded) return;
+    if (activeLayerId !== RootLayerIDs.NewLifers) return;
 
-    fetchNearbyObservations(
-      debouncedCenter.lat,
-      debouncedCenter.lng,
-      fileId,
-    ).then((data) => {
-      const lifersSource = mapRef.current!.getSource(RootLayerIDs.NewLifers) as
-        | GeoJSONSource
-        | undefined;
-      if (!lifersSource) return;
-      lifersSource.setData({
-        type: "FeatureCollection",
-        features: nearbyObservationsToGeoJson(data),
+    setShowLoading(true);
+    fetchNearbyObservations(debouncedCenter.lat, debouncedCenter.lng, fileId)
+      .then((data) => {
+        const lifersSource = mapRef.current!.getSource(
+          RootLayerIDs.NewLifers,
+        ) as GeoJSONSource | undefined;
+        if (!lifersSource) return;
+        lifersSource.setData({
+          type: "FeatureCollection",
+          features: nearbyObservationsToGeoJson(data),
+        });
+      })
+      .finally(() => {
+        setShowLoading(false);
       });
-    });
-  }, [debouncedCenter.lat, debouncedCenter, mapLoaded, fileId]);
+  }, [debouncedCenter.lat, debouncedCenter, mapLoaded, fileId, activeLayerId]);
 
   const handleClick = useCallback((e: { target: { id: string } }) => {
     console.log(`clicked on ${e.target.id}`);
@@ -497,7 +501,7 @@ function BirdMap() {
   }, []);
 
   return (
-    <div style={{ height: "100%", width: "100%", flexDirection: "row" }}>
+    <div className="root-container">
       <WaitAndUploadModal
         showModal={showUploadModal}
         onClose={() => {
@@ -509,7 +513,7 @@ function BirdMap() {
         }}
         canClose={fileId !== ""}
       />
-      <div style={{ flexDirection: "column" }}>
+      <div className="topBar" style={{ flexDirection: "column" }}>
         <LayerToggle
           id={RootLayerIDs.HistoricalLifers}
           label="Show historical lifers"
@@ -529,7 +533,7 @@ function BirdMap() {
         // @ts-expect-error something something ref error
         ref={mapContainerRef!}
       />
-      <br />
+      {showLoading && <BarLoader className="loadingBar" width={200} />}
       <div className="sidebar">
         Longitude: {center.lng.toFixed(4)} | Latitude: {center.lat.toFixed(4)} |
         Zoom: {zoom.toFixed(2)}

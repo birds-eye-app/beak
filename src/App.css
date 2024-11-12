@@ -6,23 +6,48 @@
   left: 0;
 }
 
-#map-container {
+.root-container {
+  display: flex;
+  flex-direction: column;
   height: 100%;
-  width: 100%;
+}
+
+#map-container {
+  display: flex;
+  flex: 1;
   /* temporarily set the background color so we can tell where the map container is positioned */
   background-color: lightgrey;
 }
 
-.sidebar {
-  background-color: rgb(35 55 75 / 90%);
+.topBar {
+  background-color: rgba(36, 35, 75, 0.95);
   color: #fff;
   padding: 6px 12px;
   font-family: monospace;
-  z-index: 1;
   margin: 12px;
   border-radius: 4px;
+  position: absolute;
+  top: 50;
+  left: 0;
+  z-index: 1;
 }
-
+.sidebar {
+  background-color: rgba(36, 35, 75, 0.95);
+  color: #fff;
+  padding: 6px 12px;
+  font-family: monospace;
+  margin: 12px;
+  border-radius: 4px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+.loadingBar {
+  position: absolute;
+  bottom: 0;
+  left: 40vw;
+  z-index: 1;
+}
 .cluster-classification {
   border-radius: 50%;
   display: flex;
