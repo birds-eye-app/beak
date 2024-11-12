@@ -1,6 +1,6 @@
 import { Feature, GeoJsonProperties, Geometry } from "geojson";
 import mapboxgl, { GeoJSONSource, Map, Marker } from "mapbox-gl";
-import { act, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 import "./App.css";
@@ -111,44 +111,44 @@ function addSourceAndLayer(
     },
   });
 
-  
   // we're leaving the cluster circles here even for the ones with the opacity set to 0
   // this is so we want the cluster click mechanics still.
-  // the downside is that this will render too much and also cause unncessary collisions
+  // the downside is that this will render too much and also cause unnecessary collisions
 
-    mapRef.addLayer({
-      id: `${sourceId}.${SubLayerIDs.ClusterCircles}`,
-      type: "circle",
-      source: sourceId,
-      filter: ["has", "point_count"],
-      paint: {
-        "circle-stroke-color": "white",
-        "circle-stroke-width": 0.5,
-        'circle-stroke-opacity': sourceId === RootLayerIDs.HistoricalLifers ? 1 : 0,
-        "circle-color": [
-          "interpolate",
-          ["linear", 0.5],
-          ["get", "sum"],
-          15,
-          "#fadd00",
-          250,
-          "#ff70ba",
-        ],
-        "circle-radius": [
-          "interpolate",
-          ["linear"],
-          ["get", "sum"],
-          10,
-          15,
-          250,
-          40,
-        ],
-        'circle-opacity': sourceId === RootLayerIDs.HistoricalLifers ? 1 : 0,
-      },
-      layout: {
-        visibility: visibility,
-      },
-    });
+  mapRef.addLayer({
+    id: `${sourceId}.${SubLayerIDs.ClusterCircles}`,
+    type: "circle",
+    source: sourceId,
+    filter: ["has", "point_count"],
+    paint: {
+      "circle-stroke-color": "white",
+      "circle-stroke-width": 0.5,
+      "circle-stroke-opacity":
+        sourceId === RootLayerIDs.HistoricalLifers ? 1 : 0,
+      "circle-color": [
+        "interpolate",
+        ["linear", 0.5],
+        ["get", "sum"],
+        15,
+        "#fadd00",
+        250,
+        "#ff70ba",
+      ],
+      "circle-radius": [
+        "interpolate",
+        ["linear"],
+        ["get", "sum"],
+        10,
+        15,
+        250,
+        40,
+      ],
+      "circle-opacity": sourceId === RootLayerIDs.HistoricalLifers ? 1 : 0,
+    },
+    layout: {
+      visibility: visibility,
+    },
+  });
 
   mapRef.addLayer({
     id: `${sourceId}.${SubLayerIDs.ClusterCount}`,
@@ -357,8 +357,8 @@ function BirdMap() {
       );
 
       fetchNearbyObservations(
-        debouncedCenter.lat,
-        debouncedCenter.lng,
+        INITIAL_CENTER.lat,
+        INITIAL_CENTER.lng,
         fileId,
       ).then((data) => {
         addSourceAndLayer(
@@ -368,7 +368,6 @@ function BirdMap() {
           activeLayerId === RootLayerIDs.NewLifers ? "visible" : "none",
         );
       });
-
 
       const markers: { [key: string]: Marker } = {};
       const markersOnScreen: { [key: string]: { [key: string]: Marker } } = {};
@@ -394,6 +393,7 @@ function BirdMap() {
         // for every cluster on the screen, create an HTML marker for it (if we didn't yet),
         // and add it to the map if it's not there already
         for (const feature of features) {
+          // @ts-expect-error untyped feature
           const coords = feature.geometry.coordinates;
           const props = feature.properties;
           if (!props?.cluster) continue;
@@ -401,8 +401,10 @@ function BirdMap() {
 
           let marker = markers[id];
           if (!marker) {
+            // @ts-expect-error untyped props
             const el = createCustomHTMLMarker(props);
             marker = markers[id] = new mapboxgl.Marker({
+              // @ts-expect-error mismatched types
               element: el,
             }).setLngLat(coords);
           }
@@ -450,6 +452,7 @@ function BirdMap() {
     return () => {
       mapRef.current!.remove();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fileId]);
 
   useEffect(() => {
@@ -535,7 +538,10 @@ function BirdMap() {
   );
 }
 
-function createCustomHTMLMarker(props: { species_codes: string }) {
+function createCustomHTMLMarker(props: {
+  [x: string]: unknown;
+  species_codes: string;
+}) {
   const speciesCodes = [...new Set(props.species_codes.split(","))].filter(
     (code) => code.trim().length > 1,
   );
