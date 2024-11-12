@@ -111,39 +111,45 @@ function addSourceAndLayer(
     },
   });
 
-  mapRef.addLayer({
-    id: `${sourceId}.${SubLayerIDs.ClusterCircles}`,
-    type: "circle",
-    source: sourceId,
-    filter: ["has", "point_count"],
-    paint: {
-      "circle-stroke-color": "white",
-      "circle-stroke-width": 0.5,
-      "circle-color": [
-        "interpolate",
-        ["linear", 0.5],
-        ["get", "sum"],
-        15,
-        "#fadd00",
-        250,
-        "#ff70ba",
-      ],
-      "circle-radius": [
-        "interpolate",
-        ["linear"],
-        ["get", "sum"],
-        10,
-        15,
-        250,
-        40,
-      ],
-    },
-    layout: {
-      visibility: visibility,
-    },
-  });
+  
+  // we're leaving the cluster circles here even for the ones with the opacity set to 0
+  // this is so we want the cluster click mechanics still.
+  // the downside is that this will render too much and also cause unncessary collisions
 
-  // if (sourceId === RootLayerIDs.HistoricalLifers) {
+    mapRef.addLayer({
+      id: `${sourceId}.${SubLayerIDs.ClusterCircles}`,
+      type: "circle",
+      source: sourceId,
+      filter: ["has", "point_count"],
+      paint: {
+        "circle-stroke-color": "white",
+        "circle-stroke-width": 0.5,
+        'circle-stroke-opacity': sourceId === RootLayerIDs.HistoricalLifers ? 1 : 0,
+        "circle-color": [
+          "interpolate",
+          ["linear", 0.5],
+          ["get", "sum"],
+          15,
+          "#fadd00",
+          250,
+          "#ff70ba",
+        ],
+        "circle-radius": [
+          "interpolate",
+          ["linear"],
+          ["get", "sum"],
+          10,
+          15,
+          250,
+          40,
+        ],
+        'circle-opacity': sourceId === RootLayerIDs.HistoricalLifers ? 1 : 0,
+      },
+      layout: {
+        visibility: visibility,
+      },
+    });
+
   mapRef.addLayer({
     id: `${sourceId}.${SubLayerIDs.ClusterCount}`,
     type: "symbol",
@@ -152,11 +158,10 @@ function addSourceAndLayer(
     layout: {
       "text-field": ["get", "sum"],
       "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-      "text-size": 12,
+      "text-size": sourceId === RootLayerIDs.HistoricalLifers ? 12 : 0,
       visibility: visibility,
     },
   });
-  // }
 
   mapRef.addLayer({
     id: `${sourceId}.${SubLayerIDs.UnclusteredPointsCircle}`,
@@ -351,12 +356,19 @@ function BirdMap() {
         },
       );
 
-      addSourceAndLayer(
-        mapRef.current!,
-        RootLayerIDs.NewLifers,
-        nearbyObservationsToGeoJson({}),
-        activeLayerId === RootLayerIDs.NewLifers ? "visible" : "none",
-      );
+      fetchNearbyObservations(
+        debouncedCenter.lat,
+        debouncedCenter.lng,
+        fileId,
+      ).then((data) => {
+        addSourceAndLayer(
+          mapRef.current!,
+          RootLayerIDs.NewLifers,
+          nearbyObservationsToGeoJson(data),
+          activeLayerId === RootLayerIDs.NewLifers ? "visible" : "none",
+        );
+      });
+
 
       const markers: { [key: string]: Marker } = {};
       const markersOnScreen: { [key: string]: { [key: string]: Marker } } = {};
@@ -538,13 +550,7 @@ function createCustomHTMLMarker(props: { species_codes: string }) {
   }
   let width = 20;
   let height = 20;
-  const backgroundColor = interpolateColors(
-    "#fadd00",
-    "#ff70ba",
-    speciesCodes.length,
-    1,
-    250,
-  );
+  let backgroundColor = "#fadd00";
   switch (classification) {
     case "small":
       width = 20;
@@ -553,10 +559,12 @@ function createCustomHTMLMarker(props: { species_codes: string }) {
     case "medium":
       width = 50;
       height = 50;
+      backgroundColor = "#F2C74D";
       break;
     case "large":
       width = 100;
       height = 100;
+      backgroundColor = "#ff70ba";
       break;
   }
 
@@ -571,50 +579,6 @@ function createCustomHTMLMarker(props: { species_codes: string }) {
   const el = document.createElement("div");
   el.innerHTML = html;
   return el.firstChild!;
-}
-
-function interpolateColors(
-  startColor: string,
-  endColor: string,
-  value: number,
-  minValue: number,
-  maxValue: number,
-) {
-  // Convert hex colors to RGB
-  const startRGB = hexToRgb(startColor);
-  const endRGB = hexToRgb(endColor);
-
-  // Calculate interpolation factor
-  const t = (value - minValue) / (maxValue - minValue);
-
-  // Interpolate RGB values
-  const r = Math.round(startRGB.r + t * (endRGB.r - startRGB.r));
-  const g = Math.round(startRGB.g + t * (endRGB.g - startRGB.g));
-  const b = Math.round(startRGB.b + t * (endRGB.b - startRGB.b));
-
-  // Return interpolated color as hex
-  return rgbToHex(r, g, b);
-}
-
-function hexToRgb(hex: string) {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  if (!result) {
-    throw new Error(`Invalid hex color: ${hex}`);
-  }
-  return {
-    r: parseInt(result[1], 16),
-    g: parseInt(result[2], 16),
-    b: parseInt(result[3], 16),
-  };
-}
-
-function componentToHex(c: number) {
-  const hex = c.toString(16);
-  return hex.length == 1 ? "0" + hex : hex;
-}
-
-function rgbToHex(r: number, g: number, b: number) {
-  return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
 }
 
 function App() {
