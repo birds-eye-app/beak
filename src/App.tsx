@@ -108,70 +108,54 @@ function addSourceAndLayer(
         "concat",
         ["concat", ["get", "speciesCodes", ["properties"]], ","],
       ],
-      distinct_species_codes: [
-        // ['accumulated'] is the current value iterated during the reduce (the property is defined at [1])
-        // ['get', 'distinctCountries'] is the accumulated / concatenated string
-        [
-          // Concat accumulated value + current value if not present in accumulated
-          "concat",
-          ["get", "distinct_species_codes"],
-          [
-            "case",
-            ["in", ["accumulated"], ["get", "distinct_species_codes"]], // If accumulated (user_id) has already been added
-            "", // Add EMPTY string
-            ["concat", ", ", ["accumulated"]], // Add the user_id (concatenated with a comma in your case)
-          ],
-        ],
-        ["get", "speciesCodes", ["properties"]], // [1]: source marker property iterated in the custom reduce function
-      ],
     },
   });
 
-  // mapRef.addLayer({
-  //   id: `${sourceId}.${SubLayerIDs.ClusterCircles}`,
-  //   type: "circle",
-  //   source: sourceId,
-  //   filter: ["has", "point_count"],
-  //   paint: {
-  //     "circle-stroke-color": "white",
-  //     "circle-stroke-width": 0.5,
-  //     "circle-color": [
-  //       "interpolate",
-  //       ["linear", 0.5],
-  //       ["get", "sum"],
-  //       15,
-  //       "#fadd00",
-  //       250,
-  //       "#ff70ba",
-  //     ],
-  //     "circle-radius": [
-  //       "interpolate",
-  //       ["linear"],
-  //       ["get", "sum"],
-  //       10,
-  //       15,
-  //       250,
-  //       40,
-  //     ],
-  //   },
-  //   layout: {
-  //     visibility: visibility,
-  //   },
-  // });
+  mapRef.addLayer({
+    id: `${sourceId}.${SubLayerIDs.ClusterCircles}`,
+    type: "circle",
+    source: sourceId,
+    filter: ["has", "point_count"],
+    paint: {
+      "circle-stroke-color": "white",
+      "circle-stroke-width": 0.5,
+      "circle-color": [
+        "interpolate",
+        ["linear", 0.5],
+        ["get", "sum"],
+        15,
+        "#fadd00",
+        250,
+        "#ff70ba",
+      ],
+      "circle-radius": [
+        "interpolate",
+        ["linear"],
+        ["get", "sum"],
+        10,
+        15,
+        250,
+        40,
+      ],
+    },
+    layout: {
+      visibility: visibility,
+    },
+  });
 
   // if (sourceId === RootLayerIDs.HistoricalLifers) {
-  //   mapRef.addLayer({
-  //     id: `${sourceId}.${SubLayerIDs.ClusterCount}`,
-  //     type: "symbol",
-  //     source: sourceId,
-  //     filter: ["has", "point_count"],
-  //     layout: {
-  //       "text-field": ["get", "sum"],
-  //       "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-  //       "text-size": 12,
-  //       visibility: visibility,
-  //     },
-  //   });
+  mapRef.addLayer({
+    id: `${sourceId}.${SubLayerIDs.ClusterCount}`,
+    type: "symbol",
+    source: sourceId,
+    filter: ["has", "point_count"],
+    layout: {
+      "text-field": ["get", "sum"],
+      "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+      "text-size": 12,
+      visibility: visibility,
+    },
+  });
   // }
 
   mapRef.addLayer({
@@ -338,57 +322,10 @@ function BirdMap() {
   const [zoom, setZoom] = useState(INITIAL_ZOOM);
   const [debouncedCenter] = useDebounce(center, 500);
 
-  const [activeLayerId, setActiveLayerId] = useState(
-    RootLayerIDs.HistoricalLifers,
-  );
+  const [activeLayerId, setActiveLayerId] = useState(RootLayerIDs.NewLifers);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [fileId, setFileId] = useState("");
   const [showUploadModal, setShowUploadModal] = useState(true);
-  const [markers, setMarkers] = useState<Marker[]>([]);
-  const [markersOnScreen, setMarkersOnScreen] = useState<{ [key: string]: {[key: string]: Marker} }>({});
-
-  const updateMarkers = useCallback((activeLayerId: RootLayerIDs) => {
-    // reset markers on screen for other layers
-    for (const key in markersOnScreen) {
-      if (key !== activeLayerId) {
-        for (const id in markersOnScreen[key]) {
-          markersOnScreen[key][id].remove();
-        }
-      }
-    }
-
-    const newMarkers: { [key: string]: Marker } = {};
-    const features = mapRef.current!.querySourceFeatures(activeLayerId);
-
-    // for every cluster on the screen, create an HTML marker for it (if we didn't yet),
-    // and add it to the map if it's not there already
-    for (const feature of features) {
-      const coords = feature.geometry.coordinates;
-      const props = feature.properties;
-      if (!props?.cluster) continue;
-      const id = props.cluster_id;
-
-      let marker = markers[id];
-      if (!marker) {
-        const el = createCustomHTMLMarker(props);
-        marker = markers[id] = new mapboxgl.Marker({
-          element: el,
-        }).setLngLat(coords);
-      }
-      newMarkers[id] = marker;
-
-      if (!markersOnScreen[id]) marker.addTo(mapRef.current!);
-    }
-    // for every marker we've added previously, remove those that are no longer visible
-    for (const id in markersOnScreen) {
-      if (!newMarkers[id]) markersOnScreen[activeLayerId][id].remove();
-    }
-
-    console.log(`adding new markers for ${activeLayerId}: ${newMarkers.length}`);
-
-    setMarkers(markers);
-    setMarkersOnScreen({ ...markersOnScreen, [activeLayerId]: newMarkers });
-  }, []);
 
   useEffect(() => {
     if (fileId === "") return;
@@ -421,10 +358,68 @@ function BirdMap() {
         activeLayerId === RootLayerIDs.NewLifers ? "visible" : "none",
       );
 
+      const markers: { [key: string]: Marker } = {};
+      const markersOnScreen: { [key: string]: { [key: string]: Marker } } = {};
+
+      const updateMarkers = () => {
+        // reset markers on screen for other layers
+        for (const rootLayer in markersOnScreen) {
+          if (rootLayer !== activeLayerId) {
+            console.log(`removing markers for ${rootLayer}`);
+            for (const id in markersOnScreen[rootLayer]) {
+              markersOnScreen[rootLayer][id].remove();
+            }
+          }
+        }
+
+        const newMarkers: { [key: string]: Marker } = {};
+        const features = mapRef.current!.querySourceFeatures(activeLayerId);
+
+        console.log(
+          `updating markers for ${activeLayerId}: ${features.length}`,
+        );
+
+        // for every cluster on the screen, create an HTML marker for it (if we didn't yet),
+        // and add it to the map if it's not there already
+        for (const feature of features) {
+          const coords = feature.geometry.coordinates;
+          const props = feature.properties;
+          if (!props?.cluster) continue;
+          const id = props.cluster_id;
+
+          let marker = markers[id];
+          if (!marker) {
+            const el = createCustomHTMLMarker(props);
+            marker = markers[id] = new mapboxgl.Marker({
+              element: el,
+            }).setLngLat(coords);
+          }
+          newMarkers[id] = marker;
+
+          if (!markersOnScreen[id]) marker.addTo(mapRef.current!);
+        }
+        // for every marker we've added previously, remove those that are no longer visible
+        let deleted = 0;
+        for (const id in markersOnScreen[activeLayerId]) {
+          if (!newMarkers[id]) {
+            markersOnScreen[activeLayerId][id].remove();
+            deleted++;
+          }
+        }
+        console.log(`deleted ${deleted} markers`);
+
+        console.log(
+          `adding new markers for ${activeLayerId}: ${newMarkers.length}`,
+        );
+
+        markersOnScreen[activeLayerId] = newMarkers;
+      };
+
       // after the GeoJSON data is loaded, update markers on the screen on every frame
       mapRef.current!.on("render", () => {
+        console.log("rendering");
         if (!mapRef.current!.isSourceLoaded(activeLayerId)) return;
-        updateMarkers(activeLayerId);
+        updateMarkers();
       });
 
       setMapLoaded(true);
@@ -455,6 +450,7 @@ function BirdMap() {
       layerIds.forEach((layerId) => {
         if (mapRef.current!.getLayer(layerId)) {
           const visibility = activeLayerId === rootLayerId ? "visible" : "none";
+          console.log(`Setting visibility for ${layerId} to ${visibility}`);
           mapRef.current!.setLayoutProperty(layerId, "visibility", visibility);
         }
       });
@@ -480,9 +476,10 @@ function BirdMap() {
     });
   }, [debouncedCenter.lat, debouncedCenter, mapLoaded, fileId]);
 
-  const handleClick = (e: { target: { id: string } }) => {
+  const handleClick = useCallback((e: { target: { id: string } }) => {
+    console.log(`clicked on ${e.target.id}`);
     setActiveLayerId(e.target.id as RootLayerIDs);
-  };
+  }, []);
 
   return (
     <div style={{ height: "100%", width: "100%", flexDirection: "row" }}>
