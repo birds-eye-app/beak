@@ -49,6 +49,7 @@
   z-index: 1;
 }
 .cluster-classification {
+  border: #000 1px solid;
   border-radius: 50%;
   display: flex;
   justify-content: center;
