@@ -93,7 +93,6 @@ function addSourceAndLayer(
   console.log(
     `Adding source and layer for ${sourceId}, visibility: ${visibility}`,
   );
-  console.log("example feature", features[0]);
   mapRef.addSource(sourceId, {
     type: "geojson",
     data: {
@@ -328,7 +327,9 @@ function BirdMap() {
   const [zoom, setZoom] = useState(INITIAL_ZOOM);
   const [debouncedCenter] = useDebounce(center, 500);
 
-  const [activeLayerId, setActiveLayerId] = useState(RootLayerIDs.HistoricalLifers);
+  const [activeLayerId, setActiveLayerId] = useState(
+    RootLayerIDs.HistoricalLifers,
+  );
   const [mapLoaded, setMapLoaded] = useState(false);
   const [fileId, setFileId] = useState("");
   const [showLoading, setShowLoading] = useState(false);
@@ -371,73 +372,6 @@ function BirdMap() {
         );
       });
 
-      const markers: { [key: string]: Marker } = {};
-      const markersOnScreen: { [key: string]: { [key: string]: Marker } } = {};
-
-      const updateMarkers = () => {
-        // reset markers on screen for other layers
-        for (const rootLayer in markersOnScreen) {
-          if (rootLayer !== activeLayerId) {
-            console.log(`removing markers for ${rootLayer}`);
-            for (const id in markersOnScreen[rootLayer]) {
-              markersOnScreen[rootLayer][id].remove();
-            }
-          }
-        }
-
-        const newMarkers: { [key: string]: Marker } = {};
-        const features = mapRef.current!.querySourceFeatures(activeLayerId);
-
-        console.log(
-          `updating markers for ${activeLayerId}: ${features.length}`,
-        );
-
-        // for every cluster on the screen, create an HTML marker for it (if we didn't yet),
-        // and add it to the map if it's not there already
-        for (const feature of features) {
-          // @ts-expect-error untyped feature
-          const coords = feature.geometry.coordinates;
-          const props = feature.properties;
-          if (!props?.cluster) continue;
-          const id = props.cluster_id;
-
-          let marker = markers[id];
-          if (!marker) {
-            // @ts-expect-error untyped props
-            const el = createCustomHTMLMarker(props);
-            marker = markers[id] = new mapboxgl.Marker({
-              // @ts-expect-error mismatched types
-              element: el,
-            }).setLngLat(coords);
-          }
-          newMarkers[id] = marker;
-
-          if (!markersOnScreen[id]) marker.addTo(mapRef.current!);
-        }
-        // for every marker we've added previously, remove those that are no longer visible
-        let deleted = 0;
-        for (const id in markersOnScreen[activeLayerId]) {
-          if (!newMarkers[id]) {
-            markersOnScreen[activeLayerId][id].remove();
-            deleted++;
-          }
-        }
-        console.log(`deleted ${deleted} markers`);
-
-        console.log(
-          `adding new markers for ${activeLayerId}: ${newMarkers.length}`,
-        );
-
-        markersOnScreen[activeLayerId] = newMarkers;
-      };
-
-      // after the GeoJSON data is loaded, update markers on the screen on every frame
-      mapRef.current!.on("render", () => {
-        console.log("rendering");
-        if (!mapRef.current!.isSourceLoaded(activeLayerId)) return;
-        updateMarkers();
-      });
-
       setMapLoaded(true);
     });
 
@@ -456,6 +390,72 @@ function BirdMap() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fileId]);
+
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const markers: { [key: string]: Marker } = {};
+    const markersOnScreen: { [key: string]: { [key: string]: Marker } } = {};
+
+    const updateMarkers = () => {
+      // reset markers on screen for other layers
+      for (const rootLayer in markersOnScreen) {
+        if (rootLayer !== activeLayerId) {
+          console.log(`removing markers for ${rootLayer}`);
+          for (const id in markersOnScreen[rootLayer]) {
+            markersOnScreen[rootLayer][id].remove();
+          }
+        }
+      }
+
+      const newMarkers: { [key: string]: Marker } = {};
+      const features = mapRef.current!.querySourceFeatures(activeLayerId);
+
+      console.log(`updating markers for ${activeLayerId}: ${features.length}`);
+
+      // for every cluster on the screen, create an HTML marker for it (if we didn't yet),
+      // and add it to the map if it's not there already
+      for (const feature of features) {
+        // @ts-expect-error untyped feature
+        const coords = feature.geometry.coordinates;
+        const props = feature.properties;
+        if (!props?.cluster) continue;
+        const id = props.cluster_id;
+
+        let marker = markers[id];
+        if (!marker) {
+          // @ts-expect-error untyped props
+          const el = createCustomHTMLMarker(props);
+          marker = markers[id] = new mapboxgl.Marker({
+            // @ts-expect-error mismatched types
+            element: el,
+          }).setLngLat(coords);
+        }
+        newMarkers[id] = marker;
+
+        if (!markersOnScreen[id]) marker.addTo(mapRef.current!);
+      }
+      // for every marker we've added previously, remove those that are no longer visible
+      let deleted = 0;
+      for (const id in markersOnScreen[activeLayerId]) {
+        if (!newMarkers[id]) {
+          markersOnScreen[activeLayerId][id].remove();
+          deleted++;
+        }
+      }
+      console.log(
+        `markers updated for ${activeLayerId}, deleted: ${deleted}, added ${Object.keys(newMarkers).length}`,
+      );
+
+      markersOnScreen[activeLayerId] = newMarkers;
+    };
+
+    // after the GeoJSON data is loaded, update markers on the screen on every frame
+    mapRef.current.on("render", () => {
+      if (!mapRef.current!.isSourceLoaded(activeLayerId)) return;
+      console.log("rendering");
+      updateMarkers();
+    });
+  }, [activeLayerId]);
 
   useEffect(() => {
     if (!mapLoaded) return;
