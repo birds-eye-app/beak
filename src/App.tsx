@@ -1,4 +1,3 @@
-
 import mapboxgl, { GeoJSONSource, Map, Marker } from "mapbox-gl";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -7,9 +6,20 @@ import "./App.css";
 
 import { useDebounce } from "use-debounce";
 import { WaitAndUploadModal } from "./WaitAndUploadModal";
-import { fetchLifers, fetchNearbyObservations, lifersToGeoJson, nearbyObservationsToGeoJson } from "./api";
+import {
+  fetchLifers,
+  fetchNearbyObservations,
+  lifersToGeoJson,
+  nearbyObservationsToGeoJson,
+} from "./api";
 import { BarLoader } from "react-spinners";
-import { RootLayerIDs, allLayerIdRoots, allSubLayerIds, INITIAL_CENTER, INITIAL_ZOOM } from "./constants";
+import {
+  RootLayerIDs,
+  allLayerIdRoots,
+  allSubLayerIds,
+  INITIAL_CENTER,
+  INITIAL_ZOOM,
+} from "./constants";
 import { addSourceAndLayer } from "./map";
 
 const LayerToggle = ({
@@ -111,6 +121,7 @@ function BirdMap() {
     const markersOnScreen: { [key: string]: { [key: string]: Marker } } = {};
 
     const updateMarkers = () => {
+      if (activeLayerId !== RootLayerIDs.NewLifers) return;
       // reset markers on screen for other layers
       for (const rootLayer in markersOnScreen) {
         if (rootLayer !== activeLayerId) {
@@ -272,25 +283,22 @@ function createCustomHTMLMarker(props: {
   } else {
     classification = "large";
   }
-  let width = 20;
-  let height = 20;
+  let radius = 30;
   let backgroundColor = "#fadd00";
   switch (classification) {
     case "small":
-      width = 20;
-      height = 20;
       break;
     case "medium":
-      width = 50;
-      height = 50;
+      radius = 30;
       backgroundColor = "#F2C74D";
       break;
     case "large":
-      width = 100;
-      height = 100;
+      radius = 50;
       backgroundColor = "#ff70ba";
       break;
   }
+  const width = radius;
+  const height = radius;
 
   const html = `<div>
         <circle class="cluster-classification" class="cluster-classification-${classification}" style="width: ${width}px; height: ${height}px; background-color: ${backgroundColor};">

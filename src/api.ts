@@ -1,4 +1,4 @@
-import {Feature, GeoJsonProperties, Geometry} from 'geojson';
+import { Feature, GeoJsonProperties, Geometry } from "geojson";
 const apiBaseUrl = import.meta.env.VITE_BASE_URL;
 
 export type Lifer = {
