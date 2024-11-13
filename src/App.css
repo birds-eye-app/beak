@@ -90,6 +90,11 @@
   border-bottom-color: #91c949;
 }
 
+.hotspot-popup-container {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
 .ebird-hotspot-link {
   display: block;
   margin-bottom: 5px;
