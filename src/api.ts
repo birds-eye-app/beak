@@ -12,6 +12,12 @@ export type Lifer = {
   species_code: string;
 };
 
+export type Species = {
+  species_code: string;
+  common_name: string;
+  taxonomic_order: number;
+};
+
 type Location = {
   location_name: string;
   latitude: number;

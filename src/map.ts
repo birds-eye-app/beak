@@ -189,17 +189,15 @@ export function addSourceAndLayer(
           return new Date(b.date).getTime() - new Date(a.date).getTime();
         })
         .map((lifer: Lifer) => {
-        const date = new Date(lifer.date);
-        const localeDate = date.toLocaleDateString(undefined, {
-          year: "numeric",
-          month: "short",
-          day: '2-digit',
-        })
+          const date = new Date(lifer.date);
+          const localeDate = date.toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "short",
+            day: "2-digit",
+          });
 
-        html.push(
-          `<div>${localeDate} - ${lifer.common_name} </div>`,
-        );
-      });
+          html.push(`<div>${localeDate} - ${lifer.common_name} </div>`);
+        });
       html.push("</div>");
 
       new mapboxgl.Popup()

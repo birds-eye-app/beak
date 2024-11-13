@@ -1,4 +1,9 @@
-import mapboxgl, { GeoJSONFeature, GeoJSONSource, Map, Marker } from "mapbox-gl";
+import mapboxgl, {
+  GeoJSONFeature,
+  GeoJSONSource,
+  Map,
+  Marker,
+} from "mapbox-gl";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -9,9 +14,11 @@ import { WaitAndUploadModal } from "./WaitAndUploadModal";
 import {
   fetchLifers,
   fetchNearbyObservations,
+  Lifer,
   lifersToGeoJson,
   LocationByLiferResponse,
   nearbyObservationsToGeoJson,
+  Species,
 } from "./api";
 import { BarLoader } from "react-spinners";
 import {
@@ -44,6 +51,27 @@ const LayerToggle = ({
   );
 };
 
+function filterResponseToSpecies(
+  response: LocationByLiferResponse,
+  speciesFilter: string[],
+) {
+  const filteredData: LocationByLiferResponse = {};
+  Object.entries(response).forEach(([key, value]) => {
+    const matchingLifers = value.lifers.filter((lifer) => {
+      return speciesFilter.includes(lifer.species_code);
+    });
+
+    if (matchingLifers.length > 0) {
+      filteredData[key] = {
+        location: value.location,
+        lifers: matchingLifers,
+      };
+    }
+  });
+
+  return filteredData;
+}
+
 function BirdMap() {
   const mapRef = useRef<Map>();
   const mapContainerRef = useRef<HTMLElement>();
@@ -59,7 +87,10 @@ function BirdMap() {
   const [fileId, setFileId] = useState("");
   const [showLoading, setShowLoading] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(true);
-  const [renderedFeatures, setRenderedFeatures] = useState<GeoJSONFeature[] | null>(null);
+  const [renderedFeatures, setRenderedFeatures] = useState<
+    GeoJSONFeature[] | null
+  >(null);
+  const [speciesFilter, setSpeciesFilter] = useState<string[]>(["dunlin"]);
 
   useEffect(() => {
     if (fileId === "") return;
@@ -93,7 +124,9 @@ function BirdMap() {
         addSourceAndLayer(
           mapRef.current!,
           RootLayerIDs.NewLifers,
-          nearbyObservationsToGeoJson(data),
+          nearbyObservationsToGeoJson(
+            filterResponseToSpecies(data, speciesFilter),
+          ),
           activeLayerId === RootLayerIDs.NewLifers ? "visible" : "none",
         );
       });
@@ -180,30 +213,39 @@ function BirdMap() {
     // after the GeoJSON data is loaded, update markers on the screen on every frame
     mapRef.current.on("render", () => {
       if (!mapRef.current!.isSourceLoaded(activeLayerId)) return;
-      console.log("rendering");
+      // console.log("rendering");
       updateMarkers();
     });
   }, [activeLayerId]);
 
-  let visibleSpecies: string[] = [];
+  const visibleLifers: Lifer[] = [];
   renderedFeatures?.forEach((feature) => {
     if (!feature.properties) return;
+    // todo: for showing the count we actually need to parse out the cluster count from here... which ain't gonna be fun cause the cluster count
+    // for multiple species would be misleading for each species
     if (!!feature.properties?.cluster === true) return;
-    const {speciesCodes} = feature.properties;
-    // console.log('properties', feature.properties);
-    if (!speciesCodes) return;
-    const codes = parseSpeciesCodeStringToList(speciesCodes);
 
-    // add codes to set
-    visibleSpecies = [...visibleSpecies, ...codes];
+    visibleLifers.push(...(JSON.parse(feature.properties.lifers) as Lifer[]));
   });
-  // console.log('renderedFeatures', renderedFeatures);
-  console.log('visibleSpecies', visibleSpecies);
-  const visibleSpeciesWithCounts = visibleSpecies.reduce((acc, code) => {
-    acc[code] = (acc[code] || 0) + 1;
-    return acc;
-  }, {} as { [key: string]: number });
-  // console.log('visibleSpeciesWithCounts', visibleSpeciesWithCounts);
+
+  // get speci
+  const visibleSpeciesWithLocation: {
+    [key: string]: { species: Species; lifers: Lifer[] };
+  } = {};
+  visibleLifers.forEach((lifer) => {
+    if (!visibleSpeciesWithLocation[lifer.species_code]) {
+      visibleSpeciesWithLocation[lifer.species_code] = {
+        species: {
+          common_name: lifer.common_name,
+          species_code: lifer.species_code,
+          taxonomic_order: lifer.taxonomic_order,
+        },
+        lifers: [],
+      };
+    }
+
+    visibleSpeciesWithLocation[lifer.species_code].lifers.push(lifer);
+  });
 
   useEffect(() => {
     if (!mapLoaded) return;
@@ -233,28 +275,24 @@ function BirdMap() {
           RootLayerIDs.NewLifers,
         ) as GeoJSONSource | undefined;
         if (!lifersSource) return;
-        const filteredData: LocationByLiferResponse = {};
-        Object.entries(data).forEach(([key, value]) => {
-          const matchingLifers = value.lifers.filter((lifer) => {
-            return lifer.species_code == 'lbbgul';
-          });
-
-          if (matchingLifers.length > 0) {
-            filteredData[key] = {
-              location: value.location,
-              lifers: matchingLifers,
-            };
-          }
-        })
         lifersSource.setData({
           type: "FeatureCollection",
-          features: nearbyObservationsToGeoJson(filteredData),
+          features: nearbyObservationsToGeoJson(
+            filterResponseToSpecies(data, speciesFilter),
+          ),
         });
       })
       .finally(() => {
         setShowLoading(false);
       });
-  }, [debouncedCenter.lat, debouncedCenter, mapLoaded, fileId, activeLayerId]);
+  }, [
+    debouncedCenter.lat,
+    debouncedCenter,
+    mapLoaded,
+    fileId,
+    activeLayerId,
+    speciesFilter,
+  ]);
 
   const handleClick = useCallback((e: { target: { id: string } }) => {
     console.log(`clicked on ${e.target.id}`);
@@ -291,11 +329,13 @@ function BirdMap() {
       </div>
       <div className="right-species-bar">
         <h1>Species</h1>
-          {Object.entries(visibleSpeciesWithCounts).map(([code, count]) => (
-            <div key={code}>
-              {code} - {count}
-            </div>
-          ))}
+        {Object.entries(visibleSpeciesWithLocation).map(([code, info]) => (
+          <div key={code}>
+            {info.species.common_name} -{" "}
+            {new Set(info.lifers.map((lifer) => lifer.location_id)).size}{" "}
+            locations
+          </div>
+        ))}
       </div>
       <div
         id="map-container"
@@ -314,7 +354,7 @@ function BirdMap() {
 function parseSpeciesCodeStringToSet(speciesCodes: string) {
   return [...new Set(speciesCodes.split(","))].filter(
     (code) => code.trim().length > 1,
-  )
+  );
 }
 
 function parseSpeciesCodeStringToList(speciesCodes: string) {
@@ -325,7 +365,9 @@ function createCustomHTMLMarker(props: {
   [x: string]: unknown;
   species_codes: string;
 }) {
-  const speciesCodes = parseSpeciesCodeStringToSet(props.species_codes as string);
+  const speciesCodes = parseSpeciesCodeStringToSet(
+    props.species_codes as string,
+  );
 
   let classification = "";
   if (speciesCodes.length <= 10) {
