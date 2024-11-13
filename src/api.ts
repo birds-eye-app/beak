@@ -24,7 +24,7 @@ export type LocationToLifers = {
   lifers: Lifer[];
 };
 
-type LocationByLiferResponse = {
+export type LocationByLiferResponse = {
   [key: string]: LocationToLifers;
 };
 

@@ -1,4 +1,4 @@
-import mapboxgl, { GeoJSONSource, Map, Marker } from "mapbox-gl";
+import mapboxgl, { GeoJSONFeature, GeoJSONSource, Map, Marker } from "mapbox-gl";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -10,6 +10,7 @@ import {
   fetchLifers,
   fetchNearbyObservations,
   lifersToGeoJson,
+  LocationByLiferResponse,
   nearbyObservationsToGeoJson,
 } from "./api";
 import { BarLoader } from "react-spinners";
@@ -58,6 +59,7 @@ function BirdMap() {
   const [fileId, setFileId] = useState("");
   const [showLoading, setShowLoading] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(true);
+  const [renderedFeatures, setRenderedFeatures] = useState<GeoJSONFeature[] | null>(null);
 
   useEffect(() => {
     if (fileId === "") return;
@@ -134,6 +136,7 @@ function BirdMap() {
 
       const newMarkers: { [key: string]: Marker } = {};
       const features = mapRef.current!.querySourceFeatures(activeLayerId);
+      setRenderedFeatures(features);
 
       console.log(`updating markers for ${activeLayerId}: ${features.length}`);
 
@@ -182,6 +185,26 @@ function BirdMap() {
     });
   }, [activeLayerId]);
 
+  let visibleSpecies: string[] = [];
+  renderedFeatures?.forEach((feature) => {
+    if (!feature.properties) return;
+    if (!!feature.properties?.cluster === true) return;
+    const {speciesCodes} = feature.properties;
+    // console.log('properties', feature.properties);
+    if (!speciesCodes) return;
+    const codes = parseSpeciesCodeStringToList(speciesCodes);
+
+    // add codes to set
+    visibleSpecies = [...visibleSpecies, ...codes];
+  });
+  // console.log('renderedFeatures', renderedFeatures);
+  console.log('visibleSpecies', visibleSpecies);
+  const visibleSpeciesWithCounts = visibleSpecies.reduce((acc, code) => {
+    acc[code] = (acc[code] || 0) + 1;
+    return acc;
+  }, {} as { [key: string]: number });
+  // console.log('visibleSpeciesWithCounts', visibleSpeciesWithCounts);
+
   useEffect(() => {
     if (!mapLoaded) return;
 
@@ -205,14 +228,27 @@ function BirdMap() {
 
     setShowLoading(true);
     fetchNearbyObservations(debouncedCenter.lat, debouncedCenter.lng, fileId)
-      .then((data) => {
+      .then((data: LocationByLiferResponse) => {
         const lifersSource = mapRef.current!.getSource(
           RootLayerIDs.NewLifers,
         ) as GeoJSONSource | undefined;
         if (!lifersSource) return;
+        const filteredData: LocationByLiferResponse = {};
+        Object.entries(data).forEach(([key, value]) => {
+          const matchingLifers = value.lifers.filter((lifer) => {
+            return lifer.species_code == 'lbbgul';
+          });
+
+          if (matchingLifers.length > 0) {
+            filteredData[key] = {
+              location: value.location,
+              lifers: matchingLifers,
+            };
+          }
+        })
         lifersSource.setData({
           type: "FeatureCollection",
-          features: nearbyObservationsToGeoJson(data),
+          features: nearbyObservationsToGeoJson(filteredData),
         });
       })
       .finally(() => {
@@ -253,6 +289,14 @@ function BirdMap() {
         />
         <button onClick={() => setShowUploadModal(true)}>Change CSV</button>
       </div>
+      <div className="right-species-bar">
+        <h1>Species</h1>
+          {Object.entries(visibleSpeciesWithCounts).map(([code, count]) => (
+            <div key={code}>
+              {code} - {count}
+            </div>
+          ))}
+      </div>
       <div
         id="map-container"
         // @ts-expect-error something something ref error
@@ -267,13 +311,21 @@ function BirdMap() {
   );
 }
 
+function parseSpeciesCodeStringToSet(speciesCodes: string) {
+  return [...new Set(speciesCodes.split(","))].filter(
+    (code) => code.trim().length > 1,
+  )
+}
+
+function parseSpeciesCodeStringToList(speciesCodes: string) {
+  return speciesCodes.split(",").filter((code) => code.trim().length > 1);
+}
+
 function createCustomHTMLMarker(props: {
   [x: string]: unknown;
   species_codes: string;
 }) {
-  const speciesCodes = [...new Set(props.species_codes.split(","))].filter(
-    (code) => code.trim().length > 1,
-  );
+  const speciesCodes = parseSpeciesCodeStringToSet(props.species_codes as string);
 
   let classification = "";
   if (speciesCodes.length <= 10) {
