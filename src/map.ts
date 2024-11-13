@@ -170,8 +170,7 @@ export function addSourceAndLayer(
     (e) => {
       // @ts-expect-error untyped event
       const coordinates = e.features[0].geometry.coordinates.slice();
-      // @ts-expect-error untyped event
-      const lifers = JSON.parse(e.features[0].properties.lifers);
+      const lifers = JSON.parse(e.features![0].properties!.lifers) as Lifer[];
 
       // Ensure that if the map is zoomed out such that
       // multiple copies of the feature are visible, the
@@ -181,10 +180,19 @@ export function addSourceAndLayer(
       }
 
       const html: string[] = [
-        '<div style="max-height: 200px; overflow-y: auto;">',
+        "<div class=hotspot-popup-container >",
+        `<a class=ebird-hotspot-link href="https://ebird.org/hotspot/${lifers[0].location_id}/" target="_blank">eBird↗</a>`,
       ];
       lifers.map((lifer: Lifer) => {
-        html.push(`<div>${lifer.date} - ${lifer.common_name} </div>`);
+        const date = new Date(lifer.date);
+
+        html.push(
+          `<div>${date.toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })} - ${lifer.common_name} </div>`,
+        );
       });
       html.push("</div>");
 

@@ -19,7 +19,7 @@ type Location = {
   location_id: string;
 };
 
-type LocationToLifers = {
+export type LocationToLifers = {
   location: Location;
   lifers: Lifer[];
 };

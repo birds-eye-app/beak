@@ -65,3 +65,32 @@
   z-index: 1;
   border-radius: 4px;
 }
+
+.mapboxgl-popup {
+  z-index: 2;
+}
+
+.mapboxgl-popup-content {
+  border: 1px solid rgba(45, 57, 77, 0.95);
+  background-color: rgb(250, 250, 251);
+  color: rgba(45, 57, 77, 0.95);
+  font:
+    400 12px "Source Sans Pro",
+    "Helvetica Neue",
+    sans-serif;
+  padding: 5px;
+  display: flex;
+}
+
+.mapboxgl-popup-anchor-top > .mapboxgl-popup-content {
+  margin-top: 15px;
+}
+
+.mapboxgl-popup-anchor-top > .mapboxgl-popup-tip {
+  border-bottom-color: #91c949;
+}
+
+.ebird-hotspot-link {
+  display: block;
+  margin-bottom: 5px;
+}
