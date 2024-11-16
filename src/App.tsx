@@ -1,5 +1,10 @@
-import mapboxgl, { GeoJSONSource, Map, Marker } from "mapbox-gl";
-import { useCallback, useEffect, useRef, useState } from "react";
+import mapboxgl, {
+  GeoJSONFeature,
+  GeoJSONSource,
+  Map,
+  Marker,
+} from "mapbox-gl";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 import "./App.css";
@@ -9,8 +14,11 @@ import { WaitAndUploadModal } from "./WaitAndUploadModal";
 import {
   fetchLifers,
   fetchNearbyObservations,
+  Lifer,
   lifersToGeoJson,
+  LocationByLiferResponse,
   nearbyObservationsToGeoJson,
+  Species,
 } from "./api";
 import { BarLoader } from "react-spinners";
 import {
@@ -21,6 +29,8 @@ import {
   INITIAL_ZOOM,
 } from "./constants";
 import { addSourceAndLayer } from "./map";
+import { Feature, GeoJsonProperties, Geometry } from "geojson";
+import { SpeciesSelectionList } from "./SpeciesSelectionList";
 
 const LayerToggle = ({
   id,
@@ -43,6 +53,31 @@ const LayerToggle = ({
   );
 };
 
+function filterResponseToSpecies(
+  response: LocationByLiferResponse,
+  speciesFilter: SpeciesFilter,
+) {
+  if (speciesFilter === "all") return response;
+  if (speciesFilter === "none") return {};
+  const filteredData: LocationByLiferResponse = {};
+  Object.entries(response).forEach(([key, value]) => {
+    const matchingLifers = value.lifers.filter((lifer) => {
+      return speciesFilter.includes(lifer.species_code);
+    });
+
+    if (matchingLifers.length > 0) {
+      filteredData[key] = {
+        location: value.location,
+        lifers: matchingLifers,
+      };
+    }
+  });
+
+  return filteredData;
+}
+
+export type SpeciesFilter = "all" | "none" | string[];
+
 function BirdMap() {
   const mapRef = useRef<Map>();
   const mapContainerRef = useRef<HTMLElement>();
@@ -58,6 +93,10 @@ function BirdMap() {
   const [fileId, setFileId] = useState("");
   const [showLoading, setShowLoading] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(true);
+  const [speciesFilter, setSpeciesFilter] = useState<SpeciesFilter>("all");
+  const [visibleSpecies, setVisibleSpecies] = useState<Lifer[]>([]);
+  // debouncing this since it seems to flicker a lot due to rendering?
+  const [debouncedVisibleSpecies] = useDebounce(visibleSpecies, 50);
 
   useEffect(() => {
     if (fileId === "") return;
@@ -91,7 +130,9 @@ function BirdMap() {
         addSourceAndLayer(
           mapRef.current!,
           RootLayerIDs.NewLifers,
-          nearbyObservationsToGeoJson(data),
+          nearbyObservationsToGeoJson(
+            filterResponseToSpecies(data, speciesFilter),
+          ),
           activeLayerId === RootLayerIDs.NewLifers ? "visible" : "none",
         );
       });
@@ -119,6 +160,70 @@ function BirdMap() {
     if (!mapRef.current) return;
     const markers: { [key: string]: Marker } = {};
     const markersOnScreen: { [key: string]: { [key: string]: Marker } } = {};
+
+    const updateVisibleSpecies = () => {
+      const source = mapRef.current?.getSource(
+        RootLayerIDs.NewLifers,
+      ) as GeoJSONSource;
+      if (!source) return;
+
+      const renderedFeatures =
+        mapRef.current!.querySourceFeatures(activeLayerId);
+
+      console.log(
+        `updating visible species with ${renderedFeatures?.length} features`,
+      );
+
+      const visibleSpeciesTemp: Lifer[] = [];
+      const clusterIdToLifers: { [key: string]: Lifer[] } = {};
+      renderedFeatures?.forEach((feature) => {
+        if (!feature.properties) return;
+        if (!!feature.properties?.cluster === true) {
+          const clusterId = feature.properties.cluster_id;
+          const point_count = feature.properties.point_count;
+
+          if (clusterIdToLifers[clusterId]) {
+            visibleSpeciesTemp.push(...clusterIdToLifers[clusterId]);
+            return;
+          }
+
+          // todo probably should cache this smartly?
+          source.getClusterLeaves(
+            clusterId,
+            point_count,
+            0,
+            function (
+              err,
+              aFeatures:
+                | Feature<Geometry, GeoJsonProperties>[]
+                | null
+                | undefined,
+            ): void {
+              if (err) return;
+              if (!aFeatures) return;
+              const lifersForCluster = aFeatures
+                .flatMap((f) => {
+                  return f.properties?.lifers as Lifer[];
+                })
+                .flat();
+              clusterIdToLifers[clusterId] = lifersForCluster;
+              visibleSpeciesTemp.push(...lifersForCluster);
+            },
+          );
+        } else {
+          // console.log('adding location', feature.properties?.title);
+          visibleSpeciesTemp.push(
+            ...(JSON.parse(feature.properties.lifers) as Lifer[]),
+          );
+        }
+
+        console.log(
+          `setting visible species with ${visibleSpeciesTemp.length} temp species`,
+        );
+
+        setVisibleSpecies(visibleSpeciesTemp);
+      });
+    };
 
     const updateMarkers = () => {
       if (activeLayerId !== RootLayerIDs.NewLifers) return;
@@ -177,10 +282,16 @@ function BirdMap() {
     // after the GeoJSON data is loaded, update markers on the screen on every frame
     mapRef.current.on("render", () => {
       if (!mapRef.current!.isSourceLoaded(activeLayerId)) return;
-      console.log("rendering");
       updateMarkers();
+      updateVisibleSpecies();
     });
   }, [activeLayerId]);
+
+  console.log(`visible species: ${visibleSpecies.length}`);
+
+  const visibleSpeciesWithLocation = useMemo(() => {
+    return groupVisibleSpeciesByLocation(debouncedVisibleSpecies);
+  }, [debouncedVisibleSpecies]);
 
   useEffect(() => {
     if (!mapLoaded) return;
@@ -205,20 +316,29 @@ function BirdMap() {
 
     setShowLoading(true);
     fetchNearbyObservations(debouncedCenter.lat, debouncedCenter.lng, fileId)
-      .then((data) => {
+      .then((data: LocationByLiferResponse) => {
         const lifersSource = mapRef.current!.getSource(
           RootLayerIDs.NewLifers,
         ) as GeoJSONSource | undefined;
         if (!lifersSource) return;
         lifersSource.setData({
           type: "FeatureCollection",
-          features: nearbyObservationsToGeoJson(data),
+          features: nearbyObservationsToGeoJson(
+            filterResponseToSpecies(data, speciesFilter),
+          ),
         });
       })
       .finally(() => {
         setShowLoading(false);
       });
-  }, [debouncedCenter.lat, debouncedCenter, mapLoaded, fileId, activeLayerId]);
+  }, [
+    debouncedCenter.lat,
+    debouncedCenter,
+    mapLoaded,
+    fileId,
+    activeLayerId,
+    speciesFilter,
+  ]);
 
   const handleClick = useCallback((e: { target: { id: string } }) => {
     console.log(`clicked on ${e.target.id}`);
@@ -253,6 +373,15 @@ function BirdMap() {
         />
         <button onClick={() => setShowUploadModal(true)}>Change CSV</button>
       </div>
+      {Object.keys(visibleSpeciesWithLocation).length > 0 && (
+        <SpeciesSelectionList
+          visibleSpeciesWithLocation={visibleSpeciesWithLocation}
+          onUpdateToCheckedCodes={(checkedCodes: string[]) => {
+            console.log(`updating species filter to ${checkedCodes}`);
+            setSpeciesFilter(checkedCodes);
+          }}
+        />
+      )}
       <div
         id="map-container"
         // @ts-expect-error something something ref error
@@ -267,12 +396,48 @@ function BirdMap() {
   );
 }
 
+export type VisibleSpeciesWithLocation = {
+  [key: string]: { species: Species; lifers: Lifer[] };
+};
+
+function groupVisibleSpeciesByLocation(
+  visibleSpecies: Lifer[],
+): VisibleSpeciesWithLocation {
+  const visibleSpeciesWithLocation: VisibleSpeciesWithLocation = {};
+  visibleSpecies.forEach((lifer) => {
+    if (!visibleSpeciesWithLocation[lifer.species_code]) {
+      visibleSpeciesWithLocation[lifer.species_code] = {
+        species: {
+          common_name: lifer.common_name,
+          species_code: lifer.species_code,
+          taxonomic_order: lifer.taxonomic_order,
+        },
+        lifers: [],
+      };
+    }
+
+    visibleSpeciesWithLocation[lifer.species_code].lifers.push(lifer);
+  });
+
+  return visibleSpeciesWithLocation;
+}
+
+function parseSpeciesCodeStringToSet(speciesCodes: string) {
+  return [...new Set(speciesCodes.split(","))].filter(
+    (code) => code.trim().length > 1,
+  );
+}
+
+function parseSpeciesCodeStringToList(speciesCodes: string) {
+  return speciesCodes.split(",").filter((code) => code.trim().length > 1);
+}
+
 function createCustomHTMLMarker(props: {
   [x: string]: unknown;
   species_codes: string;
 }) {
-  const speciesCodes = [...new Set(props.species_codes.split(","))].filter(
-    (code) => code.trim().length > 1,
+  const speciesCodes = parseSpeciesCodeStringToSet(
+    props.species_codes as string,
   );
 
   let classification = "";

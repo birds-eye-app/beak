@@ -183,17 +183,21 @@ export function addSourceAndLayer(
         "<div class=hotspot-popup-container >",
         `<a class=ebird-hotspot-link href="https://ebird.org/hotspot/${lifers[0].location_id}/" target="_blank">eBird↗</a>`,
       ];
-      lifers.map((lifer: Lifer) => {
-        const date = new Date(lifer.date);
-
-        html.push(
-          `<div>${date.toLocaleDateString(undefined, {
+      lifers
+        // sort by most recent
+        .sort((a: Lifer, b: Lifer) => {
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+        })
+        .map((lifer: Lifer) => {
+          const date = new Date(lifer.date);
+          const localeDate = date.toLocaleDateString(undefined, {
             year: "numeric",
             month: "short",
-            day: "numeric",
-          })} - ${lifer.common_name} </div>`,
-        );
-      });
+            day: "2-digit",
+          });
+
+          html.push(`<div>${localeDate} - ${lifer.common_name} </div>`);
+        });
       html.push("</div>");
 
       new mapboxgl.Popup()
