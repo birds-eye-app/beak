@@ -112,3 +112,14 @@
   margin: 12px;
   border-radius: 4px;
 }
+
+.checkbox-scroll-list {
+  max-height: 65vh;
+  overflow-y: auto;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}

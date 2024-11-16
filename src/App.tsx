@@ -4,7 +4,7 @@ import mapboxgl, {
   Map,
   Marker,
 } from "mapbox-gl";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 import "./App.css";
@@ -29,6 +29,8 @@ import {
   INITIAL_ZOOM,
 } from "./constants";
 import { addSourceAndLayer } from "./map";
+import { Feature, GeoJsonProperties, Geometry } from "geojson";
+import { SpeciesSelectionList } from "./SpeciesSelectionList";
 
 const LayerToggle = ({
   id,
@@ -53,8 +55,10 @@ const LayerToggle = ({
 
 function filterResponseToSpecies(
   response: LocationByLiferResponse,
-  speciesFilter: string[],
+  speciesFilter: SpeciesFilter,
 ) {
+  if (speciesFilter === "all") return response;
+  if (speciesFilter === "none") return {};
   const filteredData: LocationByLiferResponse = {};
   Object.entries(response).forEach(([key, value]) => {
     const matchingLifers = value.lifers.filter((lifer) => {
@@ -72,6 +76,8 @@ function filterResponseToSpecies(
   return filteredData;
 }
 
+export type SpeciesFilter = "all" | "none" | string[];
+
 function BirdMap() {
   const mapRef = useRef<Map>();
   const mapContainerRef = useRef<HTMLElement>();
@@ -87,10 +93,10 @@ function BirdMap() {
   const [fileId, setFileId] = useState("");
   const [showLoading, setShowLoading] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(true);
-  const [renderedFeatures, setRenderedFeatures] = useState<
-    GeoJSONFeature[] | null
-  >(null);
-  const [speciesFilter, setSpeciesFilter] = useState<string[]>(["dunlin"]);
+  const [speciesFilter, setSpeciesFilter] = useState<SpeciesFilter>("all");
+  const [visibleSpecies, setVisibleSpecies] = useState<Lifer[]>([]);
+  // debouncing this since it seems to flicker a lot due to rendering?
+  const [debouncedVisibleSpecies] = useDebounce(visibleSpecies, 50);
 
   useEffect(() => {
     if (fileId === "") return;
@@ -155,6 +161,70 @@ function BirdMap() {
     const markers: { [key: string]: Marker } = {};
     const markersOnScreen: { [key: string]: { [key: string]: Marker } } = {};
 
+    const updateVisibleSpecies = () => {
+      const source = mapRef.current?.getSource(
+        RootLayerIDs.NewLifers,
+      ) as GeoJSONSource;
+      if (!source) return;
+
+      const renderedFeatures =
+        mapRef.current!.querySourceFeatures(activeLayerId);
+
+      console.log(
+        `updating visible species with ${renderedFeatures?.length} features`,
+      );
+
+      const visibleSpeciesTemp: Lifer[] = [];
+      const clusterIdToLifers: { [key: string]: Lifer[] } = {};
+      renderedFeatures?.forEach((feature) => {
+        if (!feature.properties) return;
+        if (!!feature.properties?.cluster === true) {
+          const clusterId = feature.properties.cluster_id;
+          const point_count = feature.properties.point_count;
+
+          if (clusterIdToLifers[clusterId]) {
+            visibleSpeciesTemp.push(...clusterIdToLifers[clusterId]);
+            return;
+          }
+
+          // todo probably should cache this smartly?
+          source.getClusterLeaves(
+            clusterId,
+            point_count,
+            0,
+            function (
+              err,
+              aFeatures:
+                | Feature<Geometry, GeoJsonProperties>[]
+                | null
+                | undefined,
+            ): void {
+              if (err) return;
+              if (!aFeatures) return;
+              const lifersForCluster = aFeatures
+                .flatMap((f) => {
+                  return f.properties?.lifers as Lifer[];
+                })
+                .flat();
+              clusterIdToLifers[clusterId] = lifersForCluster;
+              visibleSpeciesTemp.push(...lifersForCluster);
+            },
+          );
+        } else {
+          // console.log('adding location', feature.properties?.title);
+          visibleSpeciesTemp.push(
+            ...(JSON.parse(feature.properties.lifers) as Lifer[]),
+          );
+        }
+
+        console.log(
+          `setting visible species with ${visibleSpeciesTemp.length} temp species`,
+        );
+
+        setVisibleSpecies(visibleSpeciesTemp);
+      });
+    };
+
     const updateMarkers = () => {
       if (activeLayerId !== RootLayerIDs.NewLifers) return;
       // reset markers on screen for other layers
@@ -169,7 +239,6 @@ function BirdMap() {
 
       const newMarkers: { [key: string]: Marker } = {};
       const features = mapRef.current!.querySourceFeatures(activeLayerId);
-      setRenderedFeatures(features);
 
       console.log(`updating markers for ${activeLayerId}: ${features.length}`);
 
@@ -213,39 +282,16 @@ function BirdMap() {
     // after the GeoJSON data is loaded, update markers on the screen on every frame
     mapRef.current.on("render", () => {
       if (!mapRef.current!.isSourceLoaded(activeLayerId)) return;
-      // console.log("rendering");
       updateMarkers();
+      updateVisibleSpecies();
     });
   }, [activeLayerId]);
 
-  const visibleLifers: Lifer[] = [];
-  renderedFeatures?.forEach((feature) => {
-    if (!feature.properties) return;
-    // todo: for showing the count we actually need to parse out the cluster count from here... which ain't gonna be fun cause the cluster count
-    // for multiple species would be misleading for each species
-    if (!!feature.properties?.cluster === true) return;
+  console.log(`visible species: ${visibleSpecies.length}`);
 
-    visibleLifers.push(...(JSON.parse(feature.properties.lifers) as Lifer[]));
-  });
-
-  // get speci
-  const visibleSpeciesWithLocation: {
-    [key: string]: { species: Species; lifers: Lifer[] };
-  } = {};
-  visibleLifers.forEach((lifer) => {
-    if (!visibleSpeciesWithLocation[lifer.species_code]) {
-      visibleSpeciesWithLocation[lifer.species_code] = {
-        species: {
-          common_name: lifer.common_name,
-          species_code: lifer.species_code,
-          taxonomic_order: lifer.taxonomic_order,
-        },
-        lifers: [],
-      };
-    }
-
-    visibleSpeciesWithLocation[lifer.species_code].lifers.push(lifer);
-  });
+  const visibleSpeciesWithLocation = useMemo(() => {
+    return groupVisibleSpeciesByLocation(debouncedVisibleSpecies);
+  }, [debouncedVisibleSpecies]);
 
   useEffect(() => {
     if (!mapLoaded) return;
@@ -327,16 +373,15 @@ function BirdMap() {
         />
         <button onClick={() => setShowUploadModal(true)}>Change CSV</button>
       </div>
-      <div className="right-species-bar">
-        <h1>Species</h1>
-        {Object.entries(visibleSpeciesWithLocation).map(([code, info]) => (
-          <div key={code}>
-            {info.species.common_name} -{" "}
-            {new Set(info.lifers.map((lifer) => lifer.location_id)).size}{" "}
-            locations
-          </div>
-        ))}
-      </div>
+      {Object.keys(visibleSpeciesWithLocation).length > 0 && (
+        <SpeciesSelectionList
+          visibleSpeciesWithLocation={visibleSpeciesWithLocation}
+          onUpdateToCheckedCodes={(checkedCodes: string[]) => {
+            console.log(`updating species filter to ${checkedCodes}`);
+            setSpeciesFilter(checkedCodes);
+          }}
+        />
+      )}
       <div
         id="map-container"
         // @ts-expect-error something something ref error
@@ -349,6 +394,32 @@ function BirdMap() {
       </div>
     </div>
   );
+}
+
+export type VisibleSpeciesWithLocation = {
+  [key: string]: { species: Species; lifers: Lifer[] };
+};
+
+function groupVisibleSpeciesByLocation(
+  visibleSpecies: Lifer[],
+): VisibleSpeciesWithLocation {
+  const visibleSpeciesWithLocation: VisibleSpeciesWithLocation = {};
+  visibleSpecies.forEach((lifer) => {
+    if (!visibleSpeciesWithLocation[lifer.species_code]) {
+      visibleSpeciesWithLocation[lifer.species_code] = {
+        species: {
+          common_name: lifer.common_name,
+          species_code: lifer.species_code,
+          taxonomic_order: lifer.taxonomic_order,
+        },
+        lifers: [],
+      };
+    }
+
+    visibleSpeciesWithLocation[lifer.species_code].lifers.push(lifer);
+  });
+
+  return visibleSpeciesWithLocation;
 }
 
 function parseSpeciesCodeStringToSet(speciesCodes: string) {
