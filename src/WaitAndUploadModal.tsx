@@ -39,9 +39,13 @@ export const WaitAndUploadModal = ({
           Close
         </button>
         <p>
-          🦉👁️ Welcome to Birdseye! To get started, you'll need to upload your
-          eBird CSV export. You can request an export from Cornell here:{" "}
-          <a href="https://ebird.org/downloadMyData" target="_blank">
+          🦉👁️ Welcome to Birdseye! To get started, you&apos;ll need to upload
+          your eBird CSV export. You can request an export from Cornell here:{" "}
+          <a
+            href="https://ebird.org/downloadMyData"
+            target="_blank"
+            rel="noreferrer"
+          >
             https://ebird.org/downloadMyData
           </a>
         </p>

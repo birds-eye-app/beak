@@ -244,14 +244,14 @@ function BirdMap() {
       for (const feature of features) {
         // @ts-expect-error untyped feature
         const coords = feature.geometry.coordinates;
-        const props = feature.properties;
-        if (!props?.cluster) continue;
-        const id = props.cluster_id;
+        const properties = feature.properties;
+        if (!properties?.cluster) continue;
+        const id = properties.cluster_id;
 
         let marker = markers[id];
         if (!marker) {
-          // @ts-expect-error untyped props
-          const el = createCustomHTMLMarker(props);
+          // @ts-expect-error untyped properties
+          const el = createCustomHTMLMarker(properties);
           marker = markers[id] = new mapboxgl.Marker({
             // @ts-expect-error mismatched types
             element: el,
