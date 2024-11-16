@@ -9,6 +9,8 @@ export const SpeciesSelectionList = ({
   onUpdateToCheckedCodes: (filter: SpeciesFilter) => void;
 }) => {
   const allCodes = Object.keys(visibleSpeciesWithLocation);
+  const [preConfirmCheckedCodes, setPreConfirmCheckedCodes] =
+    useState<SpeciesFilter>("all");
   const [checkedCodes, setCheckedCodes] = useState<SpeciesFilter>("all");
   const updateCode = (code: string) => {
     if (checkedCodes === "all") {
@@ -36,13 +38,21 @@ export const SpeciesSelectionList = ({
         </button>
         <button onClick={() => setCheckedCodes([])}>None</button>
         <div style={{ flex: 1 }} />
-        <button onClick={() => onUpdateToCheckedCodes(checkedCodes)}>
+        <button
+          disabled={checkedCodes === preConfirmCheckedCodes}
+          onClick={() => {
+            onUpdateToCheckedCodes(checkedCodes);
+            setPreConfirmCheckedCodes(checkedCodes);
+          }}
+        >
           Confirm
         </button>
         <button
+          disabled={checkedCodes === "all"}
           onClick={() => {
             onUpdateToCheckedCodes("all");
             setCheckedCodes("all");
+            setPreConfirmCheckedCodes("all");
           }}
         >
           Reset
@@ -59,7 +69,14 @@ export const SpeciesSelectionList = ({
       </div>
       <div className="checkbox-scroll-list">
         {Object.entries(visibleSpeciesWithLocation).map(([code, info]) => (
-          <div key={code}>
+          <div
+            key={code}
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
             <input
               type="checkbox"
               checked={checkedCodes === "all" || checkedCodes.includes(code)}
@@ -70,12 +87,12 @@ export const SpeciesSelectionList = ({
                 updateCode(code);
               }}
             />
-            <label htmlFor={code}>
+            <label style={{ flex: 1 }} htmlFor={code}>
               {info.species.common_name} - <span>{info.lifers.length}</span> obs
               / {new Set(info.lifers.map((lifer) => lifer.location_id)).size}{" "}
               location(s)
             </label>
-            {/* add link to show only this species */}
+
             <button
               onClick={() => {
                 setCheckedCodes([code]);
