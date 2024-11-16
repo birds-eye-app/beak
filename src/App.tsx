@@ -41,8 +41,8 @@ const LayerToggle = ({
   onClick: (e: { target: { id: string } }) => void;
 }) => {
   return (
-    <div className="sidebar-right">
-      <label>
+    <div style={{ display: "flex", flexDirection: "row" }}>
+      <label htmlFor={id}>
         <input type="radio" id={id} checked={checked} onChange={onClick} />
         {label}
       </label>
