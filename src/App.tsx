@@ -1,8 +1,4 @@
-import mapboxgl, {
-  GeoJSONSource,
-  Map,
-  Marker
-} from "mapbox-gl";
+import mapboxgl, { GeoJSONSource, Map, Marker } from "mapbox-gl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -30,6 +26,8 @@ import {
   RootLayerIDs,
 } from "./constants";
 import { addSourceAndLayer } from "./map";
+
+const MODE = import.meta.env.MODE; // 'development' or 'production'
 
 const LayerToggle = ({
   id,
@@ -372,6 +370,18 @@ function BirdMap() {
         />
         <button onClick={() => setShowUploadModal(true)}>Change CSV</button>
       </div>
+      <div
+        id="map-container"
+        // @ts-expect-error something something ref error
+        ref={mapContainerRef!}
+      />
+      {showLoading && <BarLoader className="loadingBar" width={200} />}
+      {MODE === "development" && (
+        <div className="sidebar">
+          Longitude: {center.lng.toFixed(4)} | Latitude: {center.lat.toFixed(4)}{" "}
+          | Zoom: {zoom.toFixed(2)} | Mode: {MODE}
+        </div>
+      )}
       {Object.keys(visibleSpeciesWithLocation).length > 0 && (
         <SpeciesSelectionList
           visibleSpeciesWithLocation={visibleSpeciesWithLocation}
@@ -381,16 +391,6 @@ function BirdMap() {
           }}
         />
       )}
-      <div
-        id="map-container"
-        // @ts-expect-error something something ref error
-        ref={mapContainerRef!}
-      />
-      {showLoading && <BarLoader className="loadingBar" width={200} />}
-      <div className="sidebar">
-        Longitude: {center.lng.toFixed(4)} | Latitude: {center.lat.toFixed(4)} |
-        Zoom: {zoom.toFixed(2)}
-      </div>
     </div>
   );
 }

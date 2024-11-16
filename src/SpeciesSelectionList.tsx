@@ -67,6 +67,7 @@ export const SpeciesSelectionList = ({
           observations
         </h2>
       </div>
+      <h3>Species - Observations - Locations</h3>
       <div className="checkbox-scroll-list">
         {Object.entries(visibleSpeciesWithLocation).map(([code, info]) => (
           <div
@@ -75,6 +76,7 @@ export const SpeciesSelectionList = ({
               display: "flex",
               flexDirection: "row",
               alignItems: "center",
+              gap: 10,
             }}
           >
             <input
@@ -87,10 +89,15 @@ export const SpeciesSelectionList = ({
                 updateCode(code);
               }}
             />
-            <label style={{ flex: 1 }} htmlFor={code}>
-              {info.species.common_name} - <span>{info.lifers.length}</span> obs
-              / {new Set(info.lifers.map((lifer) => lifer.location_id)).size}{" "}
-              location(s)
+            <label
+              style={{ flex: 1, flexDirection: "row", display: "flex" }}
+              htmlFor={code}
+            >
+              <div style={{ flex: 1 }}>{info.species.common_name} </div>
+              <div>
+                {info.lifers.length} /{" "}
+                {new Set(info.lifers.map((lifer) => lifer.location_id)).size}
+              </div>
             </label>
 
             <button

@@ -101,21 +101,41 @@
 }
 
 .right-species-bar {
-  position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 1;
   background-color: rgba(45, 57, 77, 0.95);
   color: #fff;
   padding: 6px 12px;
   font-family: monospace;
-  margin: 12px;
-  border-radius: 4px;
 }
 
 .checkbox-scroll-list {
-  max-height: 65vh;
   overflow-y: auto;
+}
+
+@media only screen and (min-width: 768px) {
+  .right-species-bar {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    right: 0;
+    margin: 12px;
+    border-radius: 4px;
+  }
+
+  .checkbox-scroll-list {
+    max-height: 65vh;
+  }
+}
+
+/* if we're on mobile, put the species bar on the bottom */
+@media only screen and (max-width: 768px) {
+  .right-species-bar {
+    bottom: 0;
+    right: 0;
+  }
+
+  .checkbox-scroll-list {
+    max-height: 20vh;
+  }
 }
 
 .checkbox-group {
