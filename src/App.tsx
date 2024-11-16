@@ -1,15 +1,17 @@
 import mapboxgl, {
-  GeoJSONFeature,
   GeoJSONSource,
   Map,
-  Marker,
+  Marker
 } from "mapbox-gl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 import "./App.css";
 
+import { Feature, GeoJsonProperties, Geometry } from "geojson";
+import { BarLoader } from "react-spinners";
 import { useDebounce } from "use-debounce";
+import { SpeciesSelectionList } from "./SpeciesSelectionList";
 import { WaitAndUploadModal } from "./WaitAndUploadModal";
 import {
   fetchLifers,
@@ -20,17 +22,14 @@ import {
   nearbyObservationsToGeoJson,
   Species,
 } from "./api";
-import { BarLoader } from "react-spinners";
 import {
-  RootLayerIDs,
   allLayerIdRoots,
   allSubLayerIds,
   INITIAL_CENTER,
   INITIAL_ZOOM,
+  RootLayerIDs,
 } from "./constants";
 import { addSourceAndLayer } from "./map";
-import { Feature, GeoJsonProperties, Geometry } from "geojson";
-import { SpeciesSelectionList } from "./SpeciesSelectionList";
 
 const LayerToggle = ({
   id,
@@ -376,7 +375,7 @@ function BirdMap() {
       {Object.keys(visibleSpeciesWithLocation).length > 0 && (
         <SpeciesSelectionList
           visibleSpeciesWithLocation={visibleSpeciesWithLocation}
-          onUpdateToCheckedCodes={(checkedCodes: string[]) => {
+          onUpdateToCheckedCodes={(checkedCodes) => {
             console.log(`updating species filter to ${checkedCodes}`);
             setSpeciesFilter(checkedCodes);
           }}
@@ -426,10 +425,6 @@ function parseSpeciesCodeStringToSet(speciesCodes: string) {
   return [...new Set(speciesCodes.split(","))].filter(
     (code) => code.trim().length > 1,
   );
-}
-
-function parseSpeciesCodeStringToList(speciesCodes: string) {
-  return speciesCodes.split(",").filter((code) => code.trim().length > 1);
 }
 
 function createCustomHTMLMarker(props: {
