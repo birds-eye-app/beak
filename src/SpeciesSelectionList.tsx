@@ -101,6 +101,7 @@ export const SpeciesSelectionList = ({
             </label>
 
             <button
+              style={{ paddingTop: 0, paddingBottom: 0 }}
               onClick={() => {
                 setCheckedCodes([code]);
               }}

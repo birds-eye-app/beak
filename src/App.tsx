@@ -41,12 +41,10 @@ const LayerToggle = ({
   onClick: (e: { target: { id: string } }) => void;
 }) => {
   return (
-    <div className="sidebar-right">
-      <label>
-        <input type="radio" id={id} checked={checked} onChange={onClick} />
-        {label}
-      </label>
-    </div>
+    <label className="form-control" htmlFor={id}>
+      <input type="radio" id={id} checked={checked} onChange={onClick} />
+      {label}
+    </label>
   );
 };
 
@@ -355,7 +353,7 @@ function BirdMap() {
         }}
         canClose={fileId !== ""}
       />
-      <div className="topBar" style={{ flexDirection: "column" }}>
+      <div className="topBar">
         <LayerToggle
           id={RootLayerIDs.HistoricalLifers}
           label="Show historical lifers"
