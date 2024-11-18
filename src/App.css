@@ -231,23 +231,20 @@ input[type="checkbox"]:focus {
 input[type="radio"] {
   /* Add if not using autoprefixer */
   -webkit-appearance: none;
-  /* Remove most all native input styles */
   appearance: none;
-  /* For iOS < 15 */
-  background-color: var(--form-background);
+  /* For iOS < 15 to remove gradient background */
+  background-color: #fff;
   /* Not removed via appearance */
   margin: 0;
-
   font: inherit;
-  color: rgb(250, 250, 251);
+  color: currentColor;
   width: 1.15em;
   height: 1.15em;
   border: 0.15em solid rgb(250, 250, 251);
   border-radius: 50%;
-  transform: translateY(-0.075em); 
-
   display: grid;
   place-content: center;
+  transform: translateY(-0.1em);
 }
 
 input[type="radio"]::before {
@@ -257,32 +254,19 @@ input[type="radio"]::before {
   border-radius: 50%;
   transform: scale(0);
   transition: 120ms transform ease-in-out;
+  box-shadow: inset 1em 1em rgb(120, 120, 133);
   /* Windows High Contrast Mode */
-  background-color: rgb(250, 250, 251);
+  background-color: CanvasText;
 }
 
 input[type="radio"]:checked::before {
   transform: scale(1);
 }
 
-form {
-  display: flex;
-}
-
 .form-control {
-  font-family: system-ui, sans-serif;
-  font-size: 2rem;
-  font-weight: bold;
   line-height: 1.1;
   display: grid;
   grid-template-columns: 1em auto;
   gap: 0.5em;
-}
-
-.form-control + .form-control {
-  margin-top: 1em;
-}
-
-.form-control:focus-within {
-  color: var(--form-control-color);
+  margin: 5px 0;
 }
