@@ -11,7 +11,7 @@ export function addSourceAndLayer(
   features: Feature<Geometry, GeoJsonProperties>[],
   visibility: "visible" | "none",
 ) {
-  console.log(
+  console.debug(
     `Adding source and layer for ${sourceId}, visibility: ${visibility}`,
   );
   mapRef.addSource(sourceId, {

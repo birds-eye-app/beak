@@ -11,7 +11,7 @@ import { SpeciesSelectionList } from "./SpeciesSelectionList";
 import { WaitAndUploadModal } from "./WaitAndUploadModal";
 import {
   fetchLifers,
-  fetchNearbyObservations,
+  fetchRegionalAndNearbyLifers,
   Lifer,
   lifersToGeoJson,
   LocationByLiferResponse,
@@ -117,11 +117,12 @@ function BirdMap() {
         },
       );
 
-      fetchNearbyObservations(
+      fetchRegionalAndNearbyLifers(
         INITIAL_CENTER.lat,
         INITIAL_CENTER.lng,
         fileId,
       ).then((data) => {
+        if (!data) return;
         addSourceAndLayer(
           mapRef.current!,
           RootLayerIDs.NewLifers,
@@ -153,6 +154,7 @@ function BirdMap() {
 
   useEffect(() => {
     if (!mapRef.current) return;
+    // const timeOfLastRender = performance.now();
     const markers: { [key: string]: Marker } = {};
     const markersOnScreen: { [key: string]: { [key: string]: Marker } } = {};
 
@@ -164,10 +166,6 @@ function BirdMap() {
 
       const renderedFeatures =
         mapRef.current!.querySourceFeatures(activeLayerId);
-
-      console.log(
-        `updating visible species with ${renderedFeatures?.length} features`,
-      );
 
       const visibleSpeciesTemp: Lifer[] = [];
       const clusterIdToLifers: { [key: string]: Lifer[] } = {};
@@ -206,15 +204,10 @@ function BirdMap() {
             },
           );
         } else {
-          // console.log('adding location', feature.properties?.title);
           visibleSpeciesTemp.push(
             ...(JSON.parse(feature.properties.lifers) as Lifer[]),
           );
         }
-
-        console.log(
-          `setting visible species with ${visibleSpeciesTemp.length} temp species`,
-        );
 
         setVisibleSpecies(visibleSpeciesTemp);
       });
@@ -225,7 +218,7 @@ function BirdMap() {
       // reset markers on screen for other layers
       for (const rootLayer in markersOnScreen) {
         if (rootLayer !== activeLayerId) {
-          console.log(`removing markers for ${rootLayer}`);
+          console.debug(`removing markers for ${rootLayer}`);
           for (const id in markersOnScreen[rootLayer]) {
             markersOnScreen[rootLayer][id].remove();
           }
@@ -234,8 +227,6 @@ function BirdMap() {
 
       const newMarkers: { [key: string]: Marker } = {};
       const features = mapRef.current!.querySourceFeatures(activeLayerId);
-
-      console.log(`updating markers for ${activeLayerId}: ${features.length}`);
 
       // for every cluster on the screen, create an HTML marker for it (if we didn't yet),
       // and add it to the map if it's not there already
@@ -260,29 +251,22 @@ function BirdMap() {
         if (!markersOnScreen[id]) marker.addTo(mapRef.current!);
       }
       // for every marker we've added previously, remove those that are no longer visible
-      let deleted = 0;
       for (const id in markersOnScreen[activeLayerId]) {
         if (!newMarkers[id]) {
           markersOnScreen[activeLayerId][id].remove();
-          deleted++;
         }
       }
-      console.log(
-        `markers updated for ${activeLayerId}, deleted: ${deleted}, added ${Object.keys(newMarkers).length}`,
-      );
 
       markersOnScreen[activeLayerId] = newMarkers;
     };
 
     // after the GeoJSON data is loaded, update markers on the screen on every frame
-    mapRef.current.on("render", () => {
+    mapRef.current!.on("render", () => {
       if (!mapRef.current!.isSourceLoaded(activeLayerId)) return;
-      updateMarkers();
       updateVisibleSpecies();
+      updateMarkers();
     });
   }, [activeLayerId]);
-
-  console.log(`visible species: ${visibleSpecies.length}`);
 
   const visibleSpeciesWithLocation = useMemo(() => {
     return groupVisibleSpeciesByLocation(debouncedVisibleSpecies);
@@ -298,7 +282,7 @@ function BirdMap() {
       layerIds.forEach((layerId) => {
         if (mapRef.current!.getLayer(layerId)) {
           const visibility = activeLayerId === rootLayerId ? "visible" : "none";
-          console.log(`Setting visibility for ${layerId} to ${visibility}`);
+          console.debug(`Setting visibility for ${layerId} to ${visibility}`);
           mapRef.current!.setLayoutProperty(layerId, "visibility", visibility);
         }
       });
@@ -309,9 +293,21 @@ function BirdMap() {
     if (!mapLoaded) return;
     if (activeLayerId !== RootLayerIDs.NewLifers) return;
 
+    // we do this since for now:
+    // 1. We have regional lifers that don't recompute past the initial load
+    // 2. At this level you can't really see the nearby ones
+    if (zoom < 6) {
+      return;
+    }
+
     setShowLoading(true);
-    fetchNearbyObservations(debouncedCenter.lat, debouncedCenter.lng, fileId)
-      .then((data: LocationByLiferResponse) => {
+    fetchRegionalAndNearbyLifers(
+      debouncedCenter.lat,
+      debouncedCenter.lng,
+      fileId,
+    )
+      .then((data) => {
+        if (!data) return;
         const lifersSource = mapRef.current!.getSource(
           RootLayerIDs.NewLifers,
         ) as GeoJSONSource | undefined;
@@ -336,7 +332,6 @@ function BirdMap() {
   ]);
 
   const handleClick = useCallback((e: { target: { id: string } }) => {
-    console.log(`clicked on ${e.target.id}`);
     setActiveLayerId(e.target.id as RootLayerIDs);
   }, []);
 
@@ -384,7 +379,7 @@ function BirdMap() {
         <SpeciesSelectionList
           visibleSpeciesWithLocation={visibleSpeciesWithLocation}
           onUpdateToCheckedCodes={(checkedCodes) => {
-            console.log(`updating species filter to ${checkedCodes}`);
+            console.debug(`updating species filter to ${checkedCodes}`);
             setSpeciesFilter(checkedCodes);
           }}
         />
