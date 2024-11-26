@@ -114,7 +114,7 @@ export async function fetchRegionalAndNearbyLifers(
     return;
   }
 
-  console.log(
+  console.debug(
     `[fetchRegionalAndNearbyLifers] regionalLifers: ${regionalLifers?.length}, nearbyObservations: ${Object.keys(nearbyObservations).length}`,
   );
 
@@ -147,7 +147,7 @@ export async function fetchRegionalAndNearbyLifers(
 
 // todo: dedupe all of this
 export const uploadCsv = async (file: File) => {
-  console.log("Uploading file:", file);
+  console.debug("Uploading file:", file);
   const formData = new FormData();
   formData.append("file", file);
 
@@ -157,7 +157,7 @@ export const uploadCsv = async (file: File) => {
   });
 
   const data = await response.json();
-  console.log("Upload response:", data);
+  console.debug("Upload response:", data);
   return data as { key: string };
 };
 
