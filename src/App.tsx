@@ -11,7 +11,7 @@ import { SpeciesSelectionList } from "./SpeciesSelectionList";
 import { WaitAndUploadModal } from "./WaitAndUploadModal";
 import {
   fetchLifers,
-  fetchNearbyObservations,
+  fetchRegionalAndNearbyLifers,
   Lifer,
   lifersToGeoJson,
   LocationByLiferResponse,
@@ -117,11 +117,12 @@ function BirdMap() {
         },
       );
 
-      fetchNearbyObservations(
+      fetchRegionalAndNearbyLifers(
         INITIAL_CENTER.lat,
         INITIAL_CENTER.lng,
         fileId,
       ).then((data) => {
+        if (!data) return;
         addSourceAndLayer(
           mapRef.current!,
           RootLayerIDs.NewLifers,
@@ -153,6 +154,7 @@ function BirdMap() {
 
   useEffect(() => {
     if (!mapRef.current) return;
+    const timeOfLastRender = performance.now();
     const markers: { [key: string]: Marker } = {};
     const markersOnScreen: { [key: string]: { [key: string]: Marker } } = {};
 
@@ -212,10 +214,6 @@ function BirdMap() {
           );
         }
 
-        console.log(
-          `setting visible species with ${visibleSpeciesTemp.length} temp species`,
-        );
-
         setVisibleSpecies(visibleSpeciesTemp);
       });
     };
@@ -235,7 +233,9 @@ function BirdMap() {
       const newMarkers: { [key: string]: Marker } = {};
       const features = mapRef.current!.querySourceFeatures(activeLayerId);
 
-      console.log(`updating markers for ${activeLayerId}: ${features.length}`);
+      console.log(
+        `updating markers for ${activeLayerId}: ${features.length} zoom: ${zoom}`,
+      );
 
       // for every cluster on the screen, create an HTML marker for it (if we didn't yet),
       // and add it to the map if it's not there already
@@ -267,7 +267,7 @@ function BirdMap() {
           deleted++;
         }
       }
-      console.log(
+      console.debug(
         `markers updated for ${activeLayerId}, deleted: ${deleted}, added ${Object.keys(newMarkers).length}`,
       );
 
@@ -275,14 +275,21 @@ function BirdMap() {
     };
 
     // after the GeoJSON data is loaded, update markers on the screen on every frame
-    mapRef.current.on("render", () => {
+    mapRef.current!.on("render", () => {
       if (!mapRef.current!.isSourceLoaded(activeLayerId)) return;
-      updateMarkers();
-      updateVisibleSpecies();
+      const now = performance.now();
+
+      if (now - timeOfLastRender < 1000) {
+        console.debug(
+          `skipping render, time since last: ${now - timeOfLastRender}`,
+        );
+      } else {
+        console.debug(`updating markers on screen`);
+        updateVisibleSpecies();
+        updateMarkers();
+      }
     });
   }, [activeLayerId]);
-
-  console.log(`visible species: ${visibleSpecies.length}`);
 
   const visibleSpeciesWithLocation = useMemo(() => {
     return groupVisibleSpeciesByLocation(debouncedVisibleSpecies);
@@ -310,8 +317,13 @@ function BirdMap() {
     if (activeLayerId !== RootLayerIDs.NewLifers) return;
 
     setShowLoading(true);
-    fetchNearbyObservations(debouncedCenter.lat, debouncedCenter.lng, fileId)
-      .then((data: LocationByLiferResponse) => {
+    fetchRegionalAndNearbyLifers(
+      debouncedCenter.lat,
+      debouncedCenter.lng,
+      fileId,
+    )
+      .then((data) => {
+        if (!data) return;
         const lifersSource = mapRef.current!.getSource(
           RootLayerIDs.NewLifers,
         ) as GeoJSONSource | undefined;

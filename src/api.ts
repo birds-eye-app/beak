@@ -52,6 +52,29 @@ export function lifersToGeoJson(response: LocationByLiferResponse) {
   });
 }
 
+// for now at least turn the lifers list into the previously used LocationByLifeResponse
+
+export function lifersListToLocation(lifersList: Lifer[]) {
+  const locationByLiferResponse: LocationByLiferResponse = {};
+  lifersList.forEach((lifer) => {
+    const locationId = lifer.location_id;
+    if (locationByLiferResponse[locationId]) {
+      locationByLiferResponse[locationId].lifers.push(lifer);
+    } else {
+      locationByLiferResponse[locationId] = {
+        location: {
+          location_name: lifer.location,
+          latitude: lifer.latitude,
+          longitude: lifer.longitude,
+          location_id: locationId,
+        },
+        lifers: [lifer],
+      };
+    }
+  });
+
+  return locationByLiferResponse;
+}
 export function nearbyObservationsToGeoJson(
   lifers: LocationByLiferResponse,
 ): Feature<Geometry, GeoJsonProperties>[] {
@@ -75,8 +98,54 @@ export function nearbyObservationsToGeoJson(
   });
 }
 
-// todo: dedupe all of this
+export async function fetchRegionalAndNearbyLifers(
+  latitude: number,
+  longitude: number,
+  fileId: string,
+) {
+  const regionalLifers = await fetchRegionalLifers(latitude, longitude, fileId);
+  const nearbyObservations = await fetchNearbyObservations(
+    latitude,
+    longitude,
+    fileId,
+  );
 
+  if (!regionalLifers || !nearbyObservations) {
+    return;
+  }
+
+  console.log(
+    `[fetchRegionalAndNearbyLifers] regionalLifers: ${regionalLifers?.length}, nearbyObservations: ${Object.keys(nearbyObservations).length}`,
+  );
+
+  regionalLifers.forEach((lifer) => {
+    const existingLocation = nearbyObservations[lifer.location_id];
+    if (existingLocation) {
+      // only add it if we don't already have it
+      const existingObservation = existingLocation.lifers.find(
+        // todo: maybe use a unique id?
+        (l) => l.species_code === lifer.species_code && l.date === lifer.date,
+      );
+      if (!existingObservation) {
+        existingLocation.lifers.push(lifer);
+      }
+    } else {
+      nearbyObservations[lifer.location_id] = {
+        location: {
+          location_name: lifer.location,
+          latitude: lifer.latitude,
+          longitude: lifer.longitude,
+          location_id: lifer.location_id,
+        },
+        lifers: [lifer],
+      };
+    }
+  });
+
+  return nearbyObservations;
+}
+
+// todo: dedupe all of this
 export const uploadCsv = async (file: File) => {
   console.log("Uploading file:", file);
   const formData = new FormData();
@@ -136,8 +205,38 @@ export const fetchNearbyObservations = async (
   latitude: number,
   longitude: number,
   fileId: string,
-) => {
+): Promise<LocationByLiferResponse | undefined> => {
   const baseUrl = `${apiBaseUrl}v1/nearby_observations`;
+
+  // Create a URLSearchParams object to handle query parameters
+  const params = new URLSearchParams({
+    latitude: latitude.toString(),
+    longitude: longitude.toString(),
+    file_id: fileId,
+  });
+
+  // Construct the full URL with query parameters
+  const url = `${baseUrl}?${params}`;
+
+  try {
+    const response = await fetch(url, {});
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = (await response.json()) as LocationByLiferResponse;
+    return data;
+  } catch (error) {
+    console.error("Fetch error:", error);
+  }
+};
+
+export const fetchRegionalLifers = async (
+  latitude: number,
+  longitude: number,
+  fileId: string,
+): Promise<Lifer[] | undefined> => {
+  const baseUrl = `${apiBaseUrl}v1/regional_new_potential_lifers`;
 
   // Create a URLSearchParams object to handle query parameters
   const params = new URLSearchParams({
