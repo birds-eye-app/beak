@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SpeciesFilter, VisibleSpeciesWithLocation } from "./App";
+import { SpeciesFilter, VisibleSpeciesWithLocation } from "./BirdMap";
 
 export const SpeciesSelectionList = ({
   visibleSpeciesWithLocation,
