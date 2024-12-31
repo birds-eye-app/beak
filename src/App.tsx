@@ -1,6 +1,5 @@
 import { Route, Routes } from "react-router-dom";
 import { BirdMap } from "./BirdMap";
-import { Home } from "./Home";
 import { Chirped } from "./chirped/Chirped";
 
 const NotFound = () => <h1>🐦 Not Found 🐦</h1>;
@@ -17,7 +16,7 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Chirped />} />
         <Route path="/birds_eye" element={<BirdMap />} />
         <Route path="/chirped" element={<Chirped />} />
         <Route path="/error" element={<ErrorCausingPage />} />
