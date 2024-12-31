@@ -222,6 +222,18 @@ export async function performChirpedCalculations(
     .slice(0, 5)
     .map(([, stats]) => stats);
 
+  // calculate number of families and genera
+  const families = new Set<string>();
+  const genera = new Set<string>();
+  chirpedObservations.yearObservations.forEach((observation) => {
+    families.add(observation.taxonomy.familyCode);
+    const genus = observation.taxonomy.scientificName.trim().split(" ")[0];
+    genera.add(genus);
+  });
+
+  chirpedObservations.yearStats.families = families.size;
+  chirpedObservations.yearStats.genera = genera.size;
+
   // console.debug("internal stats", {
   //   lifeList,
   //   speciesForYear,

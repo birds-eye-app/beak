@@ -12,9 +12,10 @@ const Slide3 = () => {
       <Typography gutterBottom sx={{ color: "text.primary", fontSize: 14 }}>
         You saw <b>{yearStats.species}</b> species of birds in {CurrentYear}{" "}
       </Typography>
-      {/* <Typography gutterBottom sx={{ color: "text.primary", fontSize: 14 }}>
-        That&apos;s across XXX_Genus_Count genera and XXX_Family_Count families!
-      </Typography> */}
+      <Typography gutterBottom sx={{ color: "text.primary", fontSize: 14 }}>
+        That&apos;s across <b>{yearStats.genera}</b> genera and{" "}
+        <b>{yearStats.families}</b> families!
+      </Typography>
       <Typography gutterBottom sx={{ color: "text.primary", fontSize: 14 }}>
         {" "}
         You took the safe option and left things as a spuh{" "}

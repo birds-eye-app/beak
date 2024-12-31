@@ -21,6 +21,8 @@ export function makeNewChirpedContext(): ChirpedContextType {
         stationary: 0,
         traveling: 0,
       },
+      families: 0,
+      genera: 0,
     },
   };
 }

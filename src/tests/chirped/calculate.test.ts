@@ -309,6 +309,8 @@ describe("performChirpedCalculations", () => {
           stationary: 0,
           traveling: 3,
         },
+        families: 1,
+        genera: 1,
       } as ChirpedContextType["yearStats"];
 
       expect(result.yearStats).toEqual(expectedStats);
@@ -422,6 +424,8 @@ describe("performChirpedCalculations", () => {
         totalBirdsCounted: 34120,
         totalDistanceKm: 672.567,
         totalTimeSpentMinutes: 23286,
+        families: 78,
+        genera: 353,
       };
 
       expect(result.yearStats).toEqual(expectedStats);
