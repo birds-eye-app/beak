@@ -29,6 +29,11 @@ export type ChirpedContextType = {
     // total distance traveled in kilometers
     totalDistanceKm: number;
     numberOfSpuhs: number;
+    checlistsByType: {
+      incidental: number;
+      stationary: number;
+      traveling: number;
+    };
   };
 };
 

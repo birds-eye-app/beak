@@ -117,6 +117,18 @@ export async function performChirpedCalculations(
         });
       }
 
+      switch (observation.protocol) {
+        case "eBird - Casual Observation":
+          chirpedObservations.yearStats.checlistsByType.incidental += 1;
+          break;
+        case "eBird - Stationary Count":
+          chirpedObservations.yearStats.checlistsByType.stationary += 1;
+          break;
+        case "eBird - Traveling Count":
+          chirpedObservations.yearStats.checlistsByType.traveling += 1;
+          break;
+      }
+
       if (observation.durationMinutes && !isNaN(observation.durationMinutes)) {
         chirpedObservations.yearStats.totalTimeSpentMinutes +=
           observation.durationMinutes;
