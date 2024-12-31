@@ -8,10 +8,10 @@ import { ErrorBoundary } from "react-error-boundary";
 createRoot(document.getElementById("root")!).render(
   <ErrorBoundary
     fallback={
-      <div>
-        Something went wrong. We have our wisest owls and our fastest peregrines
-        looking into it...
-      </div>
+      <h1>
+        🚨🔥 Something went wrong. We have our wisest owls and our fastest
+        peregrines looking into it... 🦉🔧🔨
+      </h1>
     }
   >
     <StrictMode>
