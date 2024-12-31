@@ -10,21 +10,21 @@ const Slide3 = () => {
   const yearStats = chirped.yearStats;
   return (
     <OutlinedCard justifyContent="flex-start">
-      <Typography gutterBottom sx={{ color: "text.primary", fontSize: 14 }}>
+      <Typography variant="body1">
         Sometimes it&apos;s not just about adding species to the list...
       </Typography>
-      <Typography gutterBottom sx={{ color: "text.primary", fontSize: 14 }}>
+      <Typography variant="body1">
         {" "}
         It&apos;s also about counting the birds!
       </Typography>
       <br />
-      <Typography gutterBottom sx={{ color: "text.primary", fontSize: 18 }}>
+      <Typography variant="h5">
         {" "}
         You counted a total of{" "}
         <b>{yearStats.totalBirdsCounted.toLocaleString()}</b> birds this year
       </Typography>
       <br />
-      <Typography gutterBottom sx={{ color: "text.secondary", fontSize: 14 }}>
+      <Typography variant="body2">
         {" "}
         (If you&apos;re curious, that&apos;s an average of about{" "}
         <b>
@@ -35,16 +35,15 @@ const Slide3 = () => {
         birds per minute)
       </Typography>
       <br />
-      <Typography gutterBottom sx={{ color: "text.primary", fontSize: 14 }}>
+      <Typography variant="body2" sx={{ mb: 2 }}>
         {" "}
-        Here are the birds that topped the counts for the year
+        Here are the birds that topped the counts for the year:
       </Typography>
       <Container
         disableGutters
         sx={{
           width: "100%",
-          maxHeight: 100,
-          bgcolor: "background.paper",
+          maxHeight: 150,
           overflowY: "auto",
         }}
       >
@@ -56,21 +55,16 @@ const Slide3 = () => {
                 sx={{ flexDirection: "row", display: "flex" }}
               >
                 <Typography
+                  variant="body2"
                   sx={{
-                    color: "text.secondary",
-                    fontSize: 14,
                     marginRight: 1,
                   }}
                 >
                   {index + 1}.{" "}
                 </Typography>
-                <Typography sx={{ color: "text.secondary", fontSize: 14 }}>
-                  {species.species}
-                </Typography>
+                <Typography variant="body2">{species.species}</Typography>
                 <Container sx={{ flex: 1 }} />
-                <Typography sx={{ color: "text.primary", fontSize: 14 }}>
-                  {species.totalCounts}
-                </Typography>
+                <Typography variant="body2">{species.totalCounts}</Typography>
               </Container>
             </ListItem>
           ))}

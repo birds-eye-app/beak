@@ -1,4 +1,4 @@
-import { Button, styled, Typography } from "@mui/material";
+import { Button, Link, styled, Typography } from "@mui/material";
 import OutlinedCard from "../Card";
 
 const VisuallyHiddenInput = styled("input")({
@@ -30,32 +30,37 @@ const UploadCSV = ({
         gutterBottom
         sx={{
           fontSize: 24,
+          color: "text.primary",
         }}
       >
-        Welcome!
+        🐦🕰️ Welcome!
       </Typography>
+      <br />
       <Typography
         gutterBottom
         sx={{
           fontSize: 14,
           color: "text.primary",
+          textAlign: "center",
         }}
       >
-        🐦🕰️ Welcome to Chirped! To get started, you&apos;ll need to upload your
-        eBird CSV export. You can request an export from eBird here:{" "}
-        <a
+        To get started, you&apos;ll need to upload your eBird CSV export. You
+        can request an export from eBird here:{" "}
+        <Link
           href="https://ebird.org/downloadMyData"
           target="_blank"
           rel="noreferrer"
         >
           https://ebird.org/downloadMyData
-        </a>
+        </Link>
       </Typography>
+      <br />
       <Button
         component="label"
         role={undefined}
         variant="contained"
         tabIndex={-1}
+        color="primary"
       >
         📄 Upload eBird CSV
         <VisuallyHiddenInput type="file" onChange={handleFileChange} multiple />

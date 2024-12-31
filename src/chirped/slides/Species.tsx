@@ -11,19 +11,19 @@ const Slide3 = () => {
   const yearStats = chirped.yearStats;
   return (
     <OutlinedCard>
-      <Typography gutterBottom sx={{ color: "text.primary", fontSize: 18 }}>
+      <Typography variant="h5" sx={{ mb: 1, textAlign: "center" }}>
         You saw <b>{yearStats.species}</b> species of birds in {CurrentYear}{" "}
       </Typography>
-      <Typography gutterBottom sx={{ color: "text.primary", fontSize: 14 }}>
+      <Typography variant="body1" sx={{ mb: 1, textAlign: "center" }}>
         That&apos;s across <b>{yearStats.genera}</b> genera and{" "}
         <b>{yearStats.families}</b> families!
       </Typography>
-      <Typography gutterBottom sx={{ color: "text.secondary", fontSize: 14 }}>
+      <Typography variant="body2" sx={{ mb: 1, textAlign: "center" }}>
         {" "}
         You took the safe option and left things as a spuh{" "}
         <b>{yearStats.numberOfSpuhs}</b> times...
       </Typography>
-      <Typography gutterBottom sx={{ color: "text.primary", fontSize: 18 }}>
+      <Typography variant="body1" sx={{ mb: 1, textAlign: "center" }}>
         Your most observed bird by checklist frequency was{" "}
         <b>{chirped.rankings.mostObservedByChecklistFrequency[0].species}</b>{" "}
         with{" "}
@@ -36,7 +36,7 @@ const Slide3 = () => {
         sightings.
       </Typography>
       <br />
-      <Typography gutterBottom sx={{ color: "text.primary", fontSize: 14 }}>
+      <Typography variant="body2" sx={{ mb: 1, textAlign: "center" }}>
         Here&apos;s the full list:
       </Typography>
       <Container
@@ -44,7 +44,7 @@ const Slide3 = () => {
         sx={{
           width: "100%",
           maxHeight: 200,
-          bgcolor: "background.paper",
+
           overflowY: "auto",
         }}
       >
@@ -57,19 +57,14 @@ const Slide3 = () => {
                   sx={{ flexDirection: "row", display: "flex" }}
                 >
                   <Typography
-                    sx={{
-                      color: "text.secondary",
-                      fontSize: 14,
-                      marginRight: 1,
-                    }}
+                    variant="body2"
+                    sx={{ mr: 1, textAlign: "center" }}
                   >
                     {index + 1}.{" "}
                   </Typography>
-                  <Typography sx={{ color: "text.secondary", fontSize: 14 }}>
-                    {species.species}
-                  </Typography>
+                  <Typography variant="body2">{species.species}</Typography>
                   <Container sx={{ flex: 1 }} />
-                  <Typography sx={{ color: "text.primary", fontSize: 14 }}>
+                  <Typography variant="body2">
                     {species.totalObservations}
                   </Typography>
                 </Container>

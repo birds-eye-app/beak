@@ -3,32 +3,55 @@ import OutlinedCard from "../Card";
 import { ChirpedContext } from "../Context";
 import { Typography, Container, ListItem } from "@mui/material";
 import List from "@mui/material/List";
+import { CurrentYear } from "../Chirped";
+
+const BigNumberWithLabelBelow = ({
+  number,
+  label,
+}: {
+  number: number;
+  label: string;
+}) => (
+  <Container disableGutters sx={{ textAlign: "center" }}>
+    <Typography variant="h4">{number.toLocaleString()}</Typography>
+    <Typography variant="body1" sx={{ color: "text.secondary" }}>
+      {label}
+    </Typography>
+  </Container>
+);
 
 const Slide3 = () => {
   const chirped = useContext(ChirpedContext);
   const yearStats = chirped.yearStats;
   return (
     <OutlinedCard>
-      <Typography gutterBottom>Thanks and good luck in 2025!</Typography>
-      <Typography>
-        New lifers: <b>{yearStats.newLifersCount}</b>
+      <Typography variant="h5" sx={{ mb: 2 }}>
+        Chirped {CurrentYear}
       </Typography>
-      <Typography>
-        Total lifers now: <b>{chirped.lifeList.length}</b>
-      </Typography>
-      <Typography>
-        Checklists submitted: <b>{chirped.yearStats.checklists}</b>
-      </Typography>
-      <Typography>
-        Hotspots visited: <b>{chirped.yearStats.numberOfHotspots}</b>
-      </Typography>
+      <Container disableGutters sx={{ display: "flex", flexDirection: "row" }}>
+        <BigNumberWithLabelBelow number={yearStats.species} label="Species" />
+        <BigNumberWithLabelBelow
+          number={chirped.lifeList.length}
+          label="Lifers now"
+        />
+      </Container>
+      <Container disableGutters sx={{ display: "flex", flexDirection: "row" }}>
+        <BigNumberWithLabelBelow
+          number={yearStats.checklists}
+          label="Checklists"
+        />
+        <BigNumberWithLabelBelow
+          number={yearStats.numberOfHotspots}
+          label="Hotspots"
+        />
+      </Container>
       <br />
       <Container
         disableGutters
         sx={{
           width: "100%",
           maxHeight: 300,
-          bgcolor: "background.paper",
+
           display: "flex",
           flexDirection: "row",
         }}
@@ -40,7 +63,6 @@ const Slide3 = () => {
             sx={{
               width: "100%",
               maxHeight: 300,
-              bgcolor: "background.paper",
               overflowY: "auto",
             }}
           >
@@ -54,19 +76,14 @@ const Slide3 = () => {
                       sx={{ flexDirection: "row", display: "flex" }}
                     >
                       <Typography
+                        variant="body2"
                         sx={{
-                          color: "text.secondary",
-                          fontSize: 14,
                           marginRight: 1,
                         }}
                       >
                         {index + 1}.{" "}
                       </Typography>
-                      <Typography
-                        sx={{ color: "text.secondary", fontSize: 14 }}
-                      >
-                        {species.species}
-                      </Typography>
+                      <Typography variant="body2">{species.species}</Typography>
                     </Container>
                   </ListItem>
                 ))}
@@ -80,7 +97,6 @@ const Slide3 = () => {
             sx={{
               width: "100%",
               maxHeight: 300,
-              bgcolor: "background.paper",
               overflowY: "auto",
             }}
           >
@@ -98,17 +114,14 @@ const Slide3 = () => {
                       sx={{ flexDirection: "row", display: "flex" }}
                     >
                       <Typography
+                        variant="body2"
                         sx={{
-                          color: "text.secondary",
-                          fontSize: 14,
                           marginRight: 1,
                         }}
                       >
                         {index + 1}.{" "}
                       </Typography>
-                      <Typography
-                        sx={{ color: "text.secondary", fontSize: 14 }}
-                      >
+                      <Typography variant="body2">
                         {hotspot.locationName}
                       </Typography>
                     </Container>

@@ -1,3 +1,8 @@
+:root {
+  --swiper-navigation-color: #4caf50;
+  --swiper-pagination-color: #4caf50;
+  --swiper-theme-color: #4caf50;
+}
 #app {
     height: 100%;
   }

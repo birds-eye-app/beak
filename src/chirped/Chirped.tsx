@@ -70,28 +70,28 @@ export function Chirped() {
           modules={[Navigation]}
           className="mySwiper"
         >
-          <SwiperSlide>
+          <SwiperSlide style={{ background: "#555555" }}>
             <Totals />
           </SwiperSlide>
-          <SwiperSlide>
+          <SwiperSlide style={{ background: "#555555" }}>
             <Checklists />
           </SwiperSlide>
-          <SwiperSlide>
+          <SwiperSlide style={{ background: "#555555" }}>
             <Lifers />
           </SwiperSlide>
-          <SwiperSlide>
+          <SwiperSlide style={{ background: "#555555" }}>
             <Species />
           </SwiperSlide>
-          <SwiperSlide>
+          <SwiperSlide style={{ background: "#555555" }}>
             <Counts />
           </SwiperSlide>
-          <SwiperSlide>
+          <SwiperSlide style={{ background: "#555555" }}>
             <Hotspots />
           </SwiperSlide>
-          <SwiperSlide>
+          <SwiperSlide style={{ background: "#555555" }}>
             <Summary />
           </SwiperSlide>
-          {/* <SwiperSlide>
+          {/* <SwiperSlide style={{background: '#eee'}}>
             <div style={{ maxHeight: "400px", overflowY: "auto" }}>
               <table>
                 <thead>
@@ -117,7 +117,7 @@ export function Chirped() {
               </table>
             </div>
           </SwiperSlide>
-          <SwiperSlide>
+          <SwiperSlide style={{background: '#eee'}}>
             <DebugSlide />
           </SwiperSlide> */}
         </Swiper>

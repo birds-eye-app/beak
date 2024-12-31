@@ -9,12 +9,9 @@ const Slide1 = () => {
   const yearStats = chirped.yearStats;
   return (
     <OutlinedCard>
-      <Typography gutterBottom sx={{ color: "text.primary", fontSize: 14 }}>
-        This was quite the year for birding!
-      </Typography>
       <br />
       <br />
-      <Typography sx={{ color: "text.primary", mb: 1.5 }}>
+      <Typography variant="h5">
         You submitted <b>{yearStats.checklists.toLocaleString()}</b> checklists
         in {CurrentYear} and spent a total of{" "}
         <b>{yearStats.totalTimeSpentMinutes.toLocaleString()}</b> minutes
@@ -22,7 +19,7 @@ const Slide1 = () => {
       </Typography>
       <br />
       <br />
-      <Typography variant="body2">
+      <Typography variant="body1">
         Let&apos;s see how those checklists broke down...
       </Typography>
     </OutlinedCard>
