@@ -235,6 +235,34 @@ export function Chirped() {
               </div>
             </SwiperSlide>
             <SwiperSlide>
+              <div style={{ maxHeight: "400px", overflowY: "auto" }}>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Species</th>
+                      <th>Observation Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {chirpedObservations.lifeList
+                      .sort(
+                        (a, b) =>
+                          new Date(b.dateTime).getTime() -
+                          new Date(a.dateTime).getTime(),
+                      )
+                      .map((bird) => (
+                        <tr key={bird.scientificName}>
+                          <td>{bird.commonName}</td>
+                          <td>
+                            {new Date(bird.dateTime).toLocaleDateString()}
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </SwiperSlide>
+            <SwiperSlide>
               <DebugSlide />
             </SwiperSlide>
           </>
