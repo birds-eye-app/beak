@@ -12,6 +12,7 @@ export function shouldIncludeInSpeciesCounts(observation: Observation) {
   // - spuhs: `gull sp.` or `sparrow sp.`
   // - hybrids: `Mallard x American Black Duck`
   if (isSpuh(observation) || observation.commonName.includes("(hybrid)")) {
+    console.debug("skipping spuh/hybrid", observation.commonName);
     return false;
   }
 
@@ -19,11 +20,13 @@ export function shouldIncludeInSpeciesCounts(observation: Observation) {
   // exclude:
   // - groupings (genus species [something group])
   // - subspecies (genus species subspecies)
-
+  // - slashes (Empidonax alnorum/traillii)
   if (
     observation.scientificName.includes("[") ||
+    observation.scientificName.includes("/") ||
     observation.scientificName.trim().split(" ").length > 2
   ) {
+    console.debug("skipping scientific name", observation.scientificName);
     return false;
   }
 

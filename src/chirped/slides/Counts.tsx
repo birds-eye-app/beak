@@ -17,7 +17,8 @@ const Slide3 = () => {
       </Typography>
       <Typography gutterBottom sx={{ color: "text.primary", fontSize: 14 }}>
         {" "}
-        You counted a total of <b>{yearStats.totalBirdsCounted}</b> birds
+        You counted a total of{" "}
+        <b>{yearStats.totalBirdsCounted.toLocaleString()}</b> birds
       </Typography>
       <Typography gutterBottom sx={{ color: "text.primary", fontSize: 14 }}>
         {" "}
