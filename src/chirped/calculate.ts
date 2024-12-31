@@ -46,6 +46,14 @@ export type SpeciesStats = {
 export type SpeciesStatsMap = Map<string, SpeciesStats>;
 export type SpeciesStatsRanking = SpeciesStats[];
 
+export type HotSpotStats = {
+  locationID: string;
+  locationName: string;
+  checklistCount: number;
+  timeSpentMinutes: number;
+};
+export type HotSpotStatsRanking = HotSpotStats[];
+
 export async function performChirpedCalculations(
   allObservations: Observation[],
   currentYear: number,
@@ -64,6 +72,7 @@ export async function performChirpedCalculations(
   const speciesForYear = new Set<string>();
   const checklistsForYear = new Set<string>();
   const speciesStats = new Map<string, SpeciesStats>();
+  const locationStatsMapping = new Map<string, HotSpotStats>();
 
   console.debug("sample observation", sortedObservations[0]);
 
@@ -95,6 +104,18 @@ export async function performChirpedCalculations(
 
     if (!checklistsForYear.has(observation.submissionId)) {
       chirpedObservations.yearStats.checklists += 1;
+      const stats = locationStatsMapping.get(observation.locationId);
+      if (stats) {
+        stats.checklistCount += 1;
+        stats.timeSpentMinutes += observation.durationMinutes || 0;
+      } else {
+        locationStatsMapping.set(observation.locationId, {
+          locationID: observation.locationId,
+          locationName: observation.location,
+          checklistCount: 1,
+          timeSpentMinutes: observation.durationMinutes || 0,
+        });
+      }
 
       if (observation.durationMinutes && !isNaN(observation.durationMinutes)) {
         chirpedObservations.yearStats.totalTimeSpentMinutes +=
@@ -147,6 +168,13 @@ export async function performChirpedCalculations(
   speciesStatsArray.sort((a, b) => b[1].totalCounts - a[1].totalCounts);
   // set the top 5 most observed species
   chirpedObservations.yearStats.mostObservedByTotalCount = speciesStatsArray
+    .slice(0, 5)
+    .map(([, stats]) => stats);
+
+  // find top hotspots
+  const locationCountArray = Array.from(locationStatsMapping.entries());
+  locationCountArray.sort((a, b) => b[1].checklistCount - a[1].checklistCount);
+  chirpedObservations.yearStats.topHotspots = locationCountArray
     .slice(0, 5)
     .map(([, stats]) => stats);
 

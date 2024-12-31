@@ -28,7 +28,6 @@ const TestComponent = () => {
             <td>{chirped.lifeList.length}</td>
             <td>{chirped.lifeList[0]?.scientificName}</td>
           </tr>
-          <pre>{JSON.stringify(chirped.yearStats, null, 2)}</pre>
         </tbody>
       </table>
     </>
@@ -85,6 +84,7 @@ export function Chirped() {
     <div>
       <ChirpedContext.Provider value={chirpedObservations}>
         <TestComponent />
+        <pre>{JSON.stringify(chirpedObservations.yearStats, null, 2)}</pre>
       </ChirpedContext.Provider>
     </div>
   );

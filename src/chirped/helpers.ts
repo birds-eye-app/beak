@@ -14,7 +14,6 @@ export function makeNewChirpedContext(): ChirpedContextType {
       totalBirdsCounted: 0,
       mostObservedByChecklistFrequency: [],
       mostObservedByTotalCount: [],
-      mostObservedFamilies: [],
       numberOfSpuhs: 0,
       topHotspots: [],
     },

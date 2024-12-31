@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import { SpeciesStatsRanking } from "./calculate";
+import { HotSpotStatsRanking, SpeciesStatsRanking } from "./calculate";
 import { makeNewChirpedContext } from "./helpers";
 import { Observation } from "./parse";
 
@@ -21,9 +21,9 @@ export type ChirpedContextType = {
     // species with highest total count
     mostObservedByTotalCount: SpeciesStatsRanking;
     // most observed families
-    mostObservedFamilies: string[];
+    // mostObservedFamilies: string[];
     // top hotspots
-    topHotspots: string[];
+    topHotspots: HotSpotStatsRanking;
     // total time spent birding in minutes
     totalTimeSpentMinutes: number;
     // total distance traveled in kilometers

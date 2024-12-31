@@ -238,7 +238,6 @@ describe("performChirpedCalculations", () => {
             totalObservations: 4,
           },
         ],
-        mostObservedFamilies: [],
         numberOfSpuhs: 0,
         topHotspots: [],
       } as ChirpedContextType["yearStats"];
@@ -315,7 +314,6 @@ describe("performChirpedCalculations", () => {
             totalObservations: 76,
           },
         ],
-        mostObservedFamilies: [],
         numberOfSpuhs: 22,
         topHotspots: [],
       } as ChirpedContextType["yearStats"];
