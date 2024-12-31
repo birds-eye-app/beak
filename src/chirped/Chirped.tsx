@@ -3,7 +3,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { performChirpedCalculations } from "./calculate";
 import { ChirpedContext, ChirpedContextType } from "./Context";
 import { makeNewChirpedContext } from "./helpers";
-import { parseObservations } from "./parse";
+import { parseObservations } from "./parseEbirdExport";
 import Upload from "./slides/Upload";
 
 import "swiper/css";

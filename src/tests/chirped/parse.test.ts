@@ -1,4 +1,4 @@
-import { Observation, parseObservations } from "../../chirped/parse";
+import { Observation, parseObservations } from "../../chirped/parseEbirdExport";
 import * as path from "path";
 import * as fs from "fs";
 import { expect, test } from "vitest";

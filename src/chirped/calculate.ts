@@ -1,6 +1,6 @@
 import { ChirpedContextType } from "./Context";
 import { makeNewChirpedContext } from "./helpers";
-import { Observation } from "./parse";
+import { Observation } from "./parseEbirdExport";
 
 function isSpuh(observation: Observation) {
   return observation.commonName.includes("sp.");
