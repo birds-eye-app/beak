@@ -239,7 +239,19 @@ describe("performChirpedCalculations", () => {
           },
         ],
         numberOfSpuhs: 0,
-        topHotspots: [],
+        topHotspots: [
+          {
+            checklistCount: 3,
+            locationID: "L109145",
+            locationName: "Jamaica Bay Wildlife Refuge--West Pond",
+            timeSpentMinutes: 60,
+          },
+        ],
+        checlistsByType: {
+          incidental: 0,
+          stationary: 0,
+          traveling: 3,
+        },
       } as ChirpedContextType["yearStats"];
 
       expect(result.yearStats).toEqual(expectedStats);
@@ -315,7 +327,44 @@ describe("performChirpedCalculations", () => {
           },
         ],
         numberOfSpuhs: 22,
-        topHotspots: [],
+        topHotspots: [
+          {
+            checklistCount: 30,
+            locationID: "L2987624",
+            locationName: "McGolrick Park",
+            timeSpentMinutes: 1344,
+          },
+          {
+            checklistCount: 18,
+            locationID: "L109518",
+            locationName: "Central Park--The Ramble",
+            timeSpentMinutes: 1765,
+          },
+          {
+            checklistCount: 8,
+            locationID: "L23333013",
+            locationName: "26 King",
+            timeSpentMinutes: 179,
+          },
+          {
+            checklistCount: 8,
+            locationID: "L2617135",
+            locationName:
+              "Hudson River Park--Tribeca Upland (Chambers to W Houston St.)",
+            timeSpentMinutes: 142,
+          },
+          {
+            checklistCount: 8,
+            locationID: "L436229",
+            locationName: "Arenal Observatory Lodge",
+            timeSpentMinutes: 623,
+          },
+        ],
+        checlistsByType: {
+          incidental: 48,
+          stationary: 23,
+          traveling: 284,
+        },
       } as ChirpedContextType["yearStats"];
 
       expect(result.yearStats).toEqual(expectedStats);
