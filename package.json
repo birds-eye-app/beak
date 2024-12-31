@@ -6,18 +6,25 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
+    "lint": "eslint . && yarn typecheck",
     "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest --watch",
     "preview": "vite preview",
     "prepare": "husky"
   },
   "dependencies": {
+    "@types/papaparse": "^5.3.15",
+    "date-fns": "^4.1.0",
     "mapbox-gl": "^3.7.0",
+    "papaparse": "^5.4.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-modal": "^3.16.1",
     "react-router-dom": "^7.1.0",
     "react-spinners": "^0.14.1",
+    "swiper": "^11.1.15",
     "use-debounce": "^10.0.3"
   },
   "devDependencies": {
@@ -38,6 +45,7 @@
     "prettier": "3.3.3",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
-    "vite": "^5.4.1"
+    "vite": "^5.4.1",
+    "vitest": "^2.1.8"
   }
 }
