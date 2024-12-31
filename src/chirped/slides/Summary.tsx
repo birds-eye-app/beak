@@ -48,7 +48,7 @@ const Slide3 = () => {
               {chirped.rankings.mostObservedByTotalCount
                 .slice(0, 5)
                 .map((species, index) => (
-                  <ListItem key={species.species}>
+                  <ListItem disableGutters disablePadding key={species.species}>
                     <Container
                       disableGutters
                       sx={{ flexDirection: "row", display: "flex" }}
@@ -88,7 +88,11 @@ const Slide3 = () => {
               {chirped.rankings.topHotspots
                 .slice(0, 5)
                 .map((hotspot, index) => (
-                  <ListItem key={hotspot.locationID}>
+                  <ListItem
+                    disableGutters
+                    disablePadding
+                    key={hotspot.locationID}
+                  >
                     <Container
                       disableGutters
                       sx={{ flexDirection: "row", display: "flex" }}

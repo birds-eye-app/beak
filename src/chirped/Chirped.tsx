@@ -12,7 +12,6 @@ import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
 import Checklists from "./slides/Checklists";
 import Counts from "./slides/Counts";
-import DebugSlide from "./slides/DebugSlide";
 import Hotspots from "./slides/Hotspots";
 import Lifers from "./slides/Lifers";
 import Species from "./slides/Species";
@@ -92,7 +91,7 @@ export function Chirped() {
           <SwiperSlide>
             <Summary />
           </SwiperSlide>
-          <SwiperSlide>
+          {/* <SwiperSlide>
             <div style={{ maxHeight: "400px", overflowY: "auto" }}>
               <table>
                 <thead>
@@ -120,7 +119,7 @@ export function Chirped() {
           </SwiperSlide>
           <SwiperSlide>
             <DebugSlide />
-          </SwiperSlide>
+          </SwiperSlide> */}
         </Swiper>
       </ChirpedContext.Provider>
     </>

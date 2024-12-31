@@ -51,7 +51,7 @@ const Slide3 = () => {
         <List component="ol">
           {chirped.rankings.mostObservedByChecklistFrequency.map(
             (species, index) => (
-              <ListItem key={species.species}>
+              <ListItem disableGutters disablePadding key={species.species}>
                 <Container
                   disableGutters
                   sx={{ flexDirection: "row", display: "flex" }}

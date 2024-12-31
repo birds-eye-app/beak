@@ -33,14 +33,14 @@ const Slide3 = () => {
         disableGutters
         sx={{
           width: "100%",
-          maxHeight: 300,
+          maxHeight: 200,
           bgcolor: "background.paper",
           overflowY: "auto",
         }}
       >
         <List component="ol">
           {chirped.rankings.topHotspots.map((hotspot, index) => (
-            <ListItem key={hotspot.locationID}>
+            <ListItem disableGutters disablePadding key={hotspot.locationID}>
               <Container
                 disableGutters
                 sx={{ flexDirection: "row", display: "flex" }}

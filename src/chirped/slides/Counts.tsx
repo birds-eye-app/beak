@@ -43,14 +43,14 @@ const Slide3 = () => {
         disableGutters
         sx={{
           width: "100%",
-          maxHeight: 200,
+          maxHeight: 100,
           bgcolor: "background.paper",
           overflowY: "auto",
         }}
       >
         <List component="ol">
           {chirped.rankings.mostObservedByTotalCount.map((species, index) => (
-            <ListItem key={species.species}>
+            <ListItem disableGutters disablePadding key={species.species}>
               <Container
                 disableGutters
                 sx={{ flexDirection: "row", display: "flex" }}
