@@ -1,6 +1,7 @@
 import { createContext } from "react";
-import { Observation } from "./parse";
+import { SpeciesStatsRanking } from "./calculate";
 import { makeNewChirpedContext } from "./helpers";
+import { Observation } from "./parse";
 
 export type ChirpedContextType = {
   allObservations: Observation[];
@@ -13,18 +14,21 @@ export type ChirpedContextType = {
     checklists: number;
     // total number of birds counted
     totalBirdsCounted: number;
-    // list of new lifers observed
-    newLifers: Observation[];
     // count of new lifers observed
     newLifersCount: number;
     // most observed species
-    mostObserved: string;
-    // most observed family
-    topFamily: string;
+    mostObservedByChecklistFrequency: SpeciesStatsRanking;
+    // species with highest total count
+    mostObservedByTotalCount: SpeciesStatsRanking;
+    // most observed families
+    mostObservedFamilies: string[];
+    // top hotspots
+    topHotspots: string[];
     // total time spent birding in minutes
     totalTimeSpentMinutes: number;
     // total distance traveled in kilometers
     totalDistanceKm: number;
+    numberOfSpuhs: number;
   };
 };
 

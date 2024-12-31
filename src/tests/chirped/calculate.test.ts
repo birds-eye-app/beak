@@ -220,13 +220,27 @@ describe("performChirpedCalculations", () => {
       const expectedStats = {
         species: 4,
         checklists: 3,
-        newLifers: [],
-        newLifersCount: 0,
-        mostObserved: "",
-        topFamily: "",
+        newLifersCount: 4,
         totalTimeSpentMinutes: 60,
         totalDistanceKm: 6,
         totalBirdsCounted: 20,
+        mostObservedByChecklistFrequency: [
+          {
+            species: "Snow Goose",
+            totalCounts: 20,
+            totalObservations: 4,
+          },
+        ],
+        mostObservedByTotalCount: [
+          {
+            species: "Snow Goose",
+            totalCounts: 20,
+            totalObservations: 4,
+          },
+        ],
+        mostObservedFamilies: [],
+        numberOfSpuhs: 0,
+        topHotspots: [],
       } as ChirpedContextType["yearStats"];
 
       expect(result.yearStats).toEqual(expectedStats);
@@ -243,13 +257,67 @@ describe("performChirpedCalculations", () => {
       const expectedStats = {
         species: 593,
         checklists: 355,
-        newLifers: [],
-        newLifersCount: 0,
-        mostObserved: "",
-        topFamily: "",
+        newLifersCount: 452,
         totalTimeSpentMinutes: 22629,
         totalDistanceKm: 653.4519999999999,
         totalBirdsCounted: 22262,
+        mostObservedByChecklistFrequency: [
+          {
+            species: "American Robin",
+            totalCounts: 1072,
+            totalObservations: 155,
+          },
+          {
+            species: "European Starling",
+            totalCounts: 1365,
+            totalObservations: 122,
+          },
+          {
+            species: "House Sparrow",
+            totalCounts: 1031,
+            totalObservations: 111,
+          },
+          {
+            species: "Northern Cardinal",
+            totalCounts: 304,
+            totalObservations: 105,
+          },
+          {
+            species: "Mourning Dove",
+            totalCounts: 450,
+            totalObservations: 98,
+          },
+        ],
+        mostObservedByTotalCount: [
+          {
+            species: "European Starling",
+            totalCounts: 1365,
+            totalObservations: 122,
+          },
+          {
+            species: "American Robin",
+            totalCounts: 1072,
+            totalObservations: 155,
+          },
+          {
+            species: "House Sparrow",
+            totalCounts: 1031,
+            totalObservations: 111,
+          },
+          {
+            species: "American Coot",
+            totalCounts: 865,
+            totalObservations: 15,
+          },
+          {
+            species: "Canada Goose",
+            totalCounts: 697,
+            totalObservations: 76,
+          },
+        ],
+        mostObservedFamilies: [],
+        numberOfSpuhs: 22,
+        topHotspots: [],
       } as ChirpedContextType["yearStats"];
 
       expect(result.yearStats).toEqual(expectedStats);

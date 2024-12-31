@@ -28,13 +28,7 @@ const TestComponent = () => {
             <td>{chirped.lifeList.length}</td>
             <td>{chirped.lifeList[0]?.scientificName}</td>
           </tr>
-          {/* print each stat with the key as the first cell and the value as the second */}
-          {Object.entries(chirped.yearStats).map(([key, value]) => (
-            <tr key={key}>
-              <td>{key}</td>
-              <td>{value}</td>
-            </tr>
-          ))}
+          <pre>{JSON.stringify(chirped.yearStats, null, 2)}</pre>
         </tbody>
       </table>
     </>
