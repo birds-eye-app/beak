@@ -10,6 +10,8 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/birds_eye" element={<BirdMap />} />
         <Route path="/chirped" element={<Chirped />} />
+        {/* 404 */}
+        <Route path="*" element={<h1>🐦 Not Found 🐦</h1>} />
       </Routes>
     </>
   );
