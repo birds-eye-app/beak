@@ -2,8 +2,6 @@ import { useContext } from "react";
 import { ChirpedContext } from "../Context";
 const DebugSlide = () => {
   const chirped = useContext(ChirpedContext);
-  // make a simple html debug table of things like:
-  // allObservations.length, yearObservations.length, lifers.length
   return (
     <div>
       <table>

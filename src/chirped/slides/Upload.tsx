@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { BarLoader } from "react-spinners";
+import OutlinedCard from "../Card";
+import { Typography } from "@mui/material";
 
 const UploadCSV = ({
   onUploadComplete,
@@ -16,10 +18,22 @@ const UploadCSV = ({
   };
 
   return (
-    <div>
-      <h1>Chirped</h1>
-      <p>Welcome!</p>
-      <p>
+    <OutlinedCard>
+      <Typography
+        gutterBottom
+        sx={{
+          fontSize: 24,
+        }}
+      >
+        Welcome!
+      </Typography>
+      <Typography
+        gutterBottom
+        sx={{
+          fontSize: 14,
+          color: "text.primary",
+        }}
+      >
         🐦🕰️ Welcome to Chirped! To get started, you&apos;ll need to upload your
         eBird CSV export. You can request an export from eBird here:{" "}
         <a
@@ -29,31 +43,39 @@ const UploadCSV = ({
         >
           https://ebird.org/downloadMyData
         </a>
-      </p>
+      </Typography>
       <div>
         {processing && (
           <div>
             <BarLoader width={50} />
-            <p>📡 Processing todo... this might take a minute or 2.</p>
+            <Typography gutterBottom>
+              📡 Processing todo... this might take a minute or 2.
+            </Typography>
           </div>
         )}
-        {!processing && (
-          <>
-            <label htmlFor="file">📄 Upload your eBird export here:</label>
-            <input
-              id="file"
-              name="file"
-              type="file"
-              onChange={handleFileChange}
-              accept=".csv"
-              disabled={processing}
-            />
-          </>
-        )}
+        <label htmlFor="file">
+          <Typography
+            gutterBottom
+            sx={{
+              fontSize: 14,
+              color: "text.secondary",
+            }}
+          >
+            📄 Upload your eBird export here:
+          </Typography>
+        </label>
+        <input
+          id="file"
+          name="file"
+          type="file"
+          onChange={handleFileChange}
+          accept=".csv"
+          disabled={processing}
+        />
       </div>
 
       <br />
-    </div>
+    </OutlinedCard>
   );
 };
 
