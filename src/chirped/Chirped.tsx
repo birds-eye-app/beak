@@ -6,19 +6,19 @@ import { makeNewChirpedContext } from "./helpers";
 import { parseObservations } from "./parseEbirdExport";
 import Upload from "./slides/Upload";
 
+import { Container } from "@mui/material";
 import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
-import DebugSlide from "./slides/DebugSlide";
-import Totals from "./slides/Totals";
 import Checklists from "./slides/Checklists";
-import "./styles.css";
+import Counts from "./slides/Counts";
+import DebugSlide from "./slides/DebugSlide";
+import Hotspots from "./slides/Hotspots";
 import Lifers from "./slides/Lifers";
 import Species from "./slides/Species";
-import Counts from "./slides/Counts";
-import Hotspots from "./slides/Hotspots";
 import Summary from "./slides/Summary";
-import { Container } from "@mui/material";
+import Totals from "./slides/Totals";
+import "./styles.css";
 
 export const CurrentYear = 2024;
 
@@ -33,17 +33,13 @@ export function Chirped() {
 
   useEffect(() => {
     async function runObs() {
-      try {
-        const observations = await parseObservations(fileContents);
-        console.debug("found observations", observations.length);
-        const chirped = await performChirpedCalculations(
-          observations,
-          CurrentYear,
-        );
-        setChirpedObservations(chirped);
-      } catch (e) {
-        alert(`Error parsing observations: ${JSON.stringify(e)}`);
-      }
+      const observations = await parseObservations(fileContents);
+      console.debug("found observations", observations.length);
+      const chirped = await performChirpedCalculations(
+        observations,
+        CurrentYear,
+      );
+      setChirpedObservations(chirped);
     }
 
     runObs();

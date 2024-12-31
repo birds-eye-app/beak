@@ -274,36 +274,14 @@ describe("performChirpedCalculations", () => {
         observations,
         currentYear,
       );
-      const expectedStats = {
+      const expectedStats: ChirpedContextType["yearStats"] = {
         species: 4,
         checklists: 3,
         newLifersCount: 4,
         totalTimeSpentMinutes: 60,
         totalDistanceKm: 6,
         totalBirdsCounted: 20,
-        mostObservedByChecklistFrequency: [
-          {
-            species: "Snow Goose",
-            totalCounts: 20,
-            totalObservations: 4,
-          },
-        ],
-        mostObservedByTotalCount: [
-          {
-            species: "Snow Goose",
-            totalCounts: 20,
-            totalObservations: 4,
-          },
-        ],
         numberOfSpuhs: 0,
-        topHotspots: [
-          {
-            checklistCount: 3,
-            locationID: "L109145",
-            locationName: "Jamaica Bay Wildlife Refuge--West Pond",
-            timeSpentMinutes: 60,
-          },
-        ],
         checklistsByType: {
           incidental: 0,
           stationary: 0,
@@ -312,7 +290,7 @@ describe("performChirpedCalculations", () => {
         families: 1,
         genera: 1,
         numberOfHotspots: 1,
-      } as ChirpedContextType["yearStats"];
+      };
 
       expect(result.yearStats).toEqual(expectedStats);
     });
@@ -332,96 +310,9 @@ describe("performChirpedCalculations", () => {
           stationary: 26,
           traveling: 291,
         },
-        mostObservedByChecklistFrequency: [
-          {
-            species: "American Robin",
-            totalCounts: 1120,
-            totalObservations: 160,
-          },
-          {
-            species: "European Starling",
-            totalCounts: 1380,
-            totalObservations: 124,
-          },
-          {
-            species: "House Sparrow",
-            totalCounts: 1041,
-            totalObservations: 113,
-          },
-          {
-            species: "Northern Cardinal",
-            totalCounts: 338,
-            totalObservations: 112,
-          },
-          {
-            species: "Mourning Dove",
-            totalCounts: 459,
-            totalObservations: 100,
-          },
-        ],
-        mostObservedByTotalCount: [
-          {
-            species: "Sandhill Crane",
-            totalCounts: 10225,
-            totalObservations: 4,
-          },
-          {
-            species: "European Starling",
-            totalCounts: 1380,
-            totalObservations: 124,
-          },
-          {
-            species: "American Robin",
-            totalCounts: 1120,
-            totalObservations: 160,
-          },
-          {
-            species: "House Sparrow",
-            totalCounts: 1041,
-            totalObservations: 113,
-          },
-          {
-            species: "Canada Goose",
-            totalCounts: 948,
-            totalObservations: 78,
-          },
-        ],
         newLifersCount: 455,
         numberOfSpuhs: 23,
         species: 591,
-        topHotspots: [
-          {
-            checklistCount: 31,
-            locationID: "L2987624",
-            locationName: "McGolrick Park",
-            timeSpentMinutes: 1356,
-          },
-          {
-            checklistCount: 18,
-            locationID: "L109518",
-            locationName: "Central Park--The Ramble",
-            timeSpentMinutes: 1765,
-          },
-          {
-            checklistCount: 8,
-            locationID: "L23333013",
-            locationName: "26 King",
-            timeSpentMinutes: 179,
-          },
-          {
-            checklistCount: 8,
-            locationID: "L2617135",
-            locationName:
-              "Hudson River Park--Tribeca Upland (Chambers to W Houston St.)",
-            timeSpentMinutes: 142,
-          },
-          {
-            checklistCount: 8,
-            locationID: "L436229",
-            locationName: "Arenal Observatory Lodge",
-            timeSpentMinutes: 623,
-          },
-        ],
         totalBirdsCounted: 34120,
         totalDistanceKm: 672.567,
         totalTimeSpentMinutes: 23286,

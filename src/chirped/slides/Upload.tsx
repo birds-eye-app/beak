@@ -1,7 +1,7 @@
+import { Typography } from "@mui/material";
 import { useState } from "react";
 import { BarLoader } from "react-spinners";
 import OutlinedCard from "../Card";
-import { Typography } from "@mui/material";
 
 const UploadCSV = ({
   onUploadComplete,

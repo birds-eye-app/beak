@@ -7,6 +7,14 @@ export type ChirpedContextType = {
   allObservations: Observation[];
   yearObservations: Observation[];
   lifeList: Observation[];
+  rankings: {
+    // most observed species
+    mostObservedByChecklistFrequency: SpeciesStatsRanking;
+    // species with highest total count
+    mostObservedByTotalCount: SpeciesStatsRanking;
+    // top hotspots
+    topHotspots: HotSpotStatsRanking;
+  };
   yearStats: {
     // total number of species observed
     species: number;
@@ -16,16 +24,12 @@ export type ChirpedContextType = {
     totalBirdsCounted: number;
     // count of new lifers observed
     newLifersCount: number;
-    // most observed species
-    mostObservedByChecklistFrequency: SpeciesStatsRanking;
-    // species with highest total count
-    mostObservedByTotalCount: SpeciesStatsRanking;
+
     // families seen
     families: number;
     genera: number;
     numberOfHotspots: number;
-    // top hotspots
-    topHotspots: HotSpotStatsRanking;
+
     // total time spent birding in minutes
     totalTimeSpentMinutes: number;
     // total distance traveled in kilometers

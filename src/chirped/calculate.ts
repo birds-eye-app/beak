@@ -205,22 +205,22 @@ export async function performChirpedCalculations(
     (a, b) => b[1].totalObservations - a[1].totalObservations,
   );
   // set the top 5 most observed species
-  chirpedObservations.yearStats.mostObservedByChecklistFrequency =
-    speciesStatsArray.slice(0, 5).map(([, stats]) => stats);
+  chirpedObservations.rankings.mostObservedByChecklistFrequency =
+    speciesStatsArray.map(([, stats]) => stats);
 
   // find most observed species by total count
   speciesStatsArray.sort((a, b) => b[1].totalCounts - a[1].totalCounts);
   // set the top 5 most observed species
-  chirpedObservations.yearStats.mostObservedByTotalCount = speciesStatsArray
-    .slice(0, 5)
-    .map(([, stats]) => stats);
+  chirpedObservations.rankings.mostObservedByTotalCount = speciesStatsArray.map(
+    ([, stats]) => stats,
+  );
 
   // find top hotspots
   const locationCountArray = Array.from(locationStatsMapping.entries());
   locationCountArray.sort((a, b) => b[1].checklistCount - a[1].checklistCount);
-  chirpedObservations.yearStats.topHotspots = locationCountArray
-    .slice(0, 5)
-    .map(([, stats]) => stats);
+  chirpedObservations.rankings.topHotspots = locationCountArray.map(
+    ([, stats]) => stats,
+  );
 
   // calculate number of families and genera
   const families = new Set<string>();

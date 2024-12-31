@@ -3,6 +3,8 @@ import { useContext } from "react";
 import OutlinedCard from "../Card";
 import { ChirpedContext } from "../Context";
 import { CurrentYear } from "../Chirped";
+import List from "@mui/material/List";
+import { Container, ListItem } from "@mui/material";
 
 const Slide3 = () => {
   const chirped = useContext(ChirpedContext);
@@ -16,25 +18,54 @@ const Slide3 = () => {
       <Typography gutterBottom sx={{ color: "text.primary", fontSize: 14 }}>
         But only one was your favorite...
       </Typography>
-      <Typography gutterBottom sx={{ color: "text.primary", fontSize: 14 }}>
-        <b>{yearStats.topHotspots[0].locationName}</b> with{" "}
-        <b>{yearStats.topHotspots[0].checklistCount}</b> checklists. You spent a
-        total of <b>{yearStats.topHotspots[0].timeSpentMinutes}</b> minutes
-        here.
+      <br />
+      <Typography gutterBottom sx={{ color: "text.primary", fontSize: 18 }}>
+        <b>{chirped.rankings.topHotspots[0].locationName}</b> topped the list
+        with <b>{chirped.rankings.topHotspots[0].checklistCount}</b> checklists.
+        You spent a total of{" "}
+        <b>{chirped.rankings.topHotspots[0].timeSpentMinutes}</b> minutes here.
       </Typography>
+      <br />
       <Typography gutterBottom sx={{ color: "text.primary", fontSize: 14 }}>
         The runners up were...
       </Typography>
-      <ol style={{ maxHeight: 200, overflowY: "auto" }}>
-        {yearStats.topHotspots.slice(1).map((hotspot, index) => (
-          <li key={hotspot.locationID} value={index + 2}>
-            <Typography>
-              {hotspot.locationName} ({hotspot.checklistCount} checklists /{" "}
-              {hotspot.timeSpentMinutes} minutes)
-            </Typography>
-          </li>
-        ))}
-      </ol>
+      <Container
+        disableGutters
+        sx={{
+          width: "100%",
+          maxHeight: 300,
+          bgcolor: "background.paper",
+          overflowY: "auto",
+        }}
+      >
+        <List component="ol">
+          {chirped.rankings.topHotspots.map((hotspot, index) => (
+            <ListItem key={hotspot.locationID}>
+              <Container
+                disableGutters
+                sx={{ flexDirection: "row", display: "flex" }}
+              >
+                <Typography
+                  sx={{
+                    color: "text.secondary",
+                    fontSize: 14,
+                    marginRight: 1,
+                  }}
+                >
+                  {index + 1}.{" "}
+                </Typography>
+                <Typography sx={{ color: "text.secondary", fontSize: 14 }}>
+                  {hotspot.locationName}
+                </Typography>
+                <Container sx={{ flex: 1 }} />
+                <Typography sx={{ color: "text.primary", fontSize: 14 }}>
+                  {hotspot.checklistCount}
+                </Typography>
+              </Container>
+            </ListItem>
+          ))}
+        </List>
+      </Container>
     </OutlinedCard>
   );
 };

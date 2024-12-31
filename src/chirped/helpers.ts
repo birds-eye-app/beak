@@ -5,6 +5,11 @@ export function makeNewChirpedContext(): ChirpedContextType {
     allObservations: [],
     yearObservations: [],
     lifeList: [],
+    rankings: {
+      mostObservedByChecklistFrequency: [],
+      mostObservedByTotalCount: [],
+      topHotspots: [],
+    },
     yearStats: {
       species: 0,
       checklists: 0,
@@ -12,10 +17,7 @@ export function makeNewChirpedContext(): ChirpedContextType {
       totalTimeSpentMinutes: 0,
       totalDistanceKm: 0,
       totalBirdsCounted: 0,
-      mostObservedByChecklistFrequency: [],
-      mostObservedByTotalCount: [],
       numberOfSpuhs: 0,
-      topHotspots: [],
       checklistsByType: {
         incidental: 0,
         stationary: 0,
