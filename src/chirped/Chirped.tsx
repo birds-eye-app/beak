@@ -69,23 +69,24 @@ export function Chirped() {
             </SwiperSlide>
             <SwiperSlide>
               <div>
-                {yearStats.checlistsByType.stationary > 0 && (
+                {yearStats.checklistsByType.stationary > 0 && (
                   <p>
                     Some of the time you stuck it out in one spot... logging{" "}
-                    {yearStats.checlistsByType.stationary} stationary checklists
+                    {yearStats.checklistsByType.stationary} stationary
+                    checklists
                   </p>
                 )}
                 <p>
                   Other times you were on the move... logging{" "}
-                  {yearStats.checlistsByType.traveling} traveling checklists and
-                  covering {yearStats.totalDistanceKm.toFixed()} km over the
+                  {yearStats.checklistsByType.traveling} traveling checklists
+                  and covering {yearStats.totalDistanceKm.toFixed()} km over the
                   year!
                 </p>
-                {yearStats.checlistsByType.incidental > 0 && (
+                {yearStats.checklistsByType.incidental > 0 && (
                   <p>
                     And for others... well only you can say how you found the
                     bird. Here&apos;s to your{" "}
-                    <b>{yearStats.checlistsByType.incidental} </b> incidental
+                    <b>{yearStats.checklistsByType.incidental} </b> incidental
                     checklists, the birds seen on the way to somewhere else, the
                     ones you had to say &quot;excuse me a minute, I just heard
                     something&quot;, and the cars pulled over to the side of the

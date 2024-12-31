@@ -247,7 +247,7 @@ describe("performChirpedCalculations", () => {
             timeSpentMinutes: 60,
           },
         ],
-        checlistsByType: {
+        checklistsByType: {
           incidental: 0,
           stationary: 0,
           traveling: 3,
@@ -360,7 +360,7 @@ describe("performChirpedCalculations", () => {
             timeSpentMinutes: 623,
           },
         ],
-        checlistsByType: {
+        checklistsByType: {
           incidental: 48,
           stationary: 23,
           traveling: 284,

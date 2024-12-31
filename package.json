@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint . && yarn typecheck",
-    "lint:fix": "eslint . --fix",
+    "format": "eslint . --fix",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest --watch",
