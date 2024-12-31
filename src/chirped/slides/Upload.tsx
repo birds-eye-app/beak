@@ -1,18 +1,25 @@
-import { Typography } from "@mui/material";
-import { useState } from "react";
-import { BarLoader } from "react-spinners";
+import { Button, styled, Typography } from "@mui/material";
 import OutlinedCard from "../Card";
+
+const VisuallyHiddenInput = styled("input")({
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
+  height: 1,
+  overflow: "hidden",
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  whiteSpace: "nowrap",
+  width: 1,
+});
 
 const UploadCSV = ({
   onUploadComplete,
 }: {
   onUploadComplete: (contents: string) => void;
 }) => {
-  const [processing, setProcessing] = useState(false);
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setProcessing(true);
-      setProcessing(false);
       onUploadComplete(await e.target.files[0].text());
     }
   };
@@ -44,37 +51,15 @@ const UploadCSV = ({
           https://ebird.org/downloadMyData
         </a>
       </Typography>
-      <div>
-        {processing && (
-          <div>
-            <BarLoader width={50} />
-            <Typography gutterBottom>
-              📡 Processing todo... this might take a minute or 2.
-            </Typography>
-          </div>
-        )}
-        <label htmlFor="file">
-          <Typography
-            gutterBottom
-            sx={{
-              fontSize: 14,
-              color: "text.secondary",
-            }}
-          >
-            📄 Upload your eBird export here:
-          </Typography>
-        </label>
-        <input
-          id="file"
-          name="file"
-          type="file"
-          onChange={handleFileChange}
-          accept=".csv"
-          disabled={processing}
-        />
-      </div>
-
-      <br />
+      <Button
+        component="label"
+        role={undefined}
+        variant="contained"
+        tabIndex={-1}
+      >
+        📄 Upload eBird CSV
+        <VisuallyHiddenInput type="file" onChange={handleFileChange} multiple />
+      </Button>
     </OutlinedCard>
   );
 };
