@@ -21,7 +21,7 @@ const UploadCSV = ({
       <p>Welcome!</p>
       <p>
         🐦🕰️ Welcome to Chirped! To get started, you&apos;ll need to upload your
-        eBird CSV export. You can request an export from Cornell here:{" "}
+        eBird CSV export. You can request an export from eBird here:{" "}
         <a
           href="https://ebird.org/downloadMyData"
           target="_blank"
