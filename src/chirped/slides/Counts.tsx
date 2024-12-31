@@ -34,7 +34,7 @@ const Slide3 = () => {
         {" "}
         Here are the birds that topped the counts for the year
       </Typography>
-      <ol>
+      <ol style={{ maxHeight: 200, overflowY: "auto" }}>
         {yearStats.mostObservedByTotalCount.map((species) => (
           <li key={species.species}>
             <Typography

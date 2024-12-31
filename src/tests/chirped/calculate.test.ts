@@ -2,11 +2,15 @@ import { describe, expect, test } from "vitest";
 import {
   performChirpedCalculations,
   shouldIncludeInSpeciesCounts,
+  calculateLifeList,
 } from "../../chirped/calculate";
 import { Observation, parseObservations } from "../../chirped/parseEbirdExport";
 import * as path from "path";
 import * as fs from "fs";
 import { ChirpedContextType } from "../../chirped/Context";
+import Papa from "papaparse";
+import { fetchTaxonomyForSpecies } from "../../chirped/taxonomy/fetch";
+import { parse } from "date-fns";
 
 const exampleObservation: Observation = {
   submissionId: "S162264673",
@@ -31,6 +35,23 @@ const exampleObservation: Observation = {
   numberOfObservers: 2,
   mlCatalogNumbers: undefined,
   observationDetails: undefined,
+  taxonomy: {
+    bandingCodes: "",
+    category: "species",
+    comNameCodes: "SNGO",
+    commonName: "Snow Goose",
+    extinct: false,
+    extinctYear: undefined,
+    familyCode: "anatid1",
+    familyComName: "Ducks, Geese, and Swans",
+    familySciName: "Anatidae",
+    order: "Anseriformes",
+    reportAs: "",
+    sciNameCodes: "ANCA",
+    scientificName: "Anser caerulescens",
+    speciesCode: "snogoo",
+    taxonOrder: 257,
+  },
 };
 
 describe("performChirpedCalculations", () => {
@@ -120,25 +141,45 @@ describe("performChirpedCalculations", () => {
         ...exampleObservation,
         dateTime: new Date("2024-01-01T10:00:00Z"),
         date: "2024-01-01",
-        scientificName: "Species A",
+        scientificName: "Anser caerulescens",
+        taxonomy: {
+          ...exampleObservation.taxonomy,
+          scientificName: "Anser caerulescens",
+          speciesCode: "snogoo",
+        },
       },
       {
         ...exampleObservation,
         dateTime: new Date("2024-02-01T10:00:00Z"),
         date: "2024-02-01",
-        scientificName: "Species B",
+        scientificName: "Red-necked Spurfowl",
+        taxonomy: {
+          ...exampleObservation.taxonomy,
+          scientificName: "Red-necked Spurfowl",
+          speciesCode: "renfra1",
+        },
       },
       {
         ...exampleObservation,
         dateTime: new Date("2022-01-01T10:00:00Z"),
         date: "2022-01-01",
-        scientificName: "Species A",
+        scientificName: "Anser caerulescens",
+        taxonomy: {
+          ...exampleObservation.taxonomy,
+          scientificName: "Anser caerulescens",
+          speciesCode: "snogoo",
+        },
       },
       {
         ...exampleObservation,
         dateTime: new Date("2024-03-01T10:00:00Z"),
         date: "2024-03-01",
-        scientificName: "Species C",
+        scientificName: "Yellow-necked Spurfowl",
+        taxonomy: {
+          ...exampleObservation.taxonomy,
+          scientificName: "Yellow-necked Spurfowl",
+          speciesCode: "yenspu1",
+        },
       },
     ];
 
@@ -151,12 +192,12 @@ describe("performChirpedCalculations", () => {
 
     test("should only contain the first observation of a species", async () => {
       const result = await performChirpedCalculations(observations, 2024);
-      const speciesA = result.lifeList.filter(
-        (obs) => obs.scientificName === "Species A",
+      const snowGeese = result.lifeList.filter(
+        (obs) => obs.scientificName === "Anser caerulescens",
       );
 
-      expect(speciesA.length).toBe(1);
-      expect(speciesA[0].date).toBe("2022-01-01");
+      expect(snowGeese.length).toBe(1);
+      expect(snowGeese[0].date).toBe("2022-01-01");
     });
 
     test("works with my life list", async () => {
@@ -167,7 +208,7 @@ describe("performChirpedCalculations", () => {
 
       const result = await performChirpedCalculations(actual, currentYear);
 
-      expect(result.lifeList.length).toBe(599);
+      expect(result.lifeList.length).toBe(601);
     });
   });
 
@@ -182,6 +223,10 @@ describe("performChirpedCalculations", () => {
           scientificName: "Species A",
           durationMinutes: 10,
           distanceTraveledKm: 1,
+          taxonomy: {
+            ...exampleObservation.taxonomy,
+            speciesCode: "speciesa",
+          },
         },
         {
           ...exampleObservation,
@@ -191,6 +236,10 @@ describe("performChirpedCalculations", () => {
           scientificName: "Species B",
           durationMinutes: 20,
           distanceTraveledKm: 2,
+          taxonomy: {
+            ...exampleObservation.taxonomy,
+            speciesCode: "speciesb",
+          },
         },
         {
           ...exampleObservation,
@@ -200,6 +249,10 @@ describe("performChirpedCalculations", () => {
           scientificName: "Species C",
           durationMinutes: 30,
           distanceTraveledKm: 3,
+          taxonomy: {
+            ...exampleObservation.taxonomy,
+            speciesCode: "speciesc",
+          },
         },
         {
           ...exampleObservation,
@@ -209,6 +262,10 @@ describe("performChirpedCalculations", () => {
           scientificName: "Species D",
           durationMinutes: 30,
           distanceTraveledKm: 3,
+          taxonomy: {
+            ...exampleObservation.taxonomy,
+            speciesCode: "speciesd",
+          },
         },
       ];
 
@@ -265,74 +322,76 @@ describe("performChirpedCalculations", () => {
 
       const result = await performChirpedCalculations(actual, currentYear);
 
-      const expectedStats = {
-        species: 593,
-        checklists: 355,
-        newLifersCount: 452,
-        totalTimeSpentMinutes: 22629,
-        totalDistanceKm: 653.4519999999999,
-        totalBirdsCounted: 22262,
+      const expectedStats: ChirpedContextType["yearStats"] = {
+        checklists: 365,
+        checklistsByType: {
+          incidental: 48,
+          stationary: 26,
+          traveling: 291,
+        },
         mostObservedByChecklistFrequency: [
           {
             species: "American Robin",
-            totalCounts: 1072,
-            totalObservations: 155,
+            totalCounts: 1120,
+            totalObservations: 160,
           },
           {
             species: "European Starling",
-            totalCounts: 1365,
-            totalObservations: 122,
+            totalCounts: 1380,
+            totalObservations: 124,
           },
           {
             species: "House Sparrow",
-            totalCounts: 1031,
-            totalObservations: 111,
+            totalCounts: 1041,
+            totalObservations: 113,
           },
           {
             species: "Northern Cardinal",
-            totalCounts: 304,
-            totalObservations: 105,
+            totalCounts: 338,
+            totalObservations: 112,
           },
           {
             species: "Mourning Dove",
-            totalCounts: 450,
-            totalObservations: 98,
+            totalCounts: 459,
+            totalObservations: 100,
           },
         ],
         mostObservedByTotalCount: [
           {
+            species: "Sandhill Crane",
+            totalCounts: 10225,
+            totalObservations: 4,
+          },
+          {
             species: "European Starling",
-            totalCounts: 1365,
-            totalObservations: 122,
+            totalCounts: 1380,
+            totalObservations: 124,
           },
           {
             species: "American Robin",
-            totalCounts: 1072,
-            totalObservations: 155,
+            totalCounts: 1120,
+            totalObservations: 160,
           },
           {
             species: "House Sparrow",
-            totalCounts: 1031,
-            totalObservations: 111,
-          },
-          {
-            species: "American Coot",
-            totalCounts: 865,
-            totalObservations: 15,
+            totalCounts: 1041,
+            totalObservations: 113,
           },
           {
             species: "Canada Goose",
-            totalCounts: 697,
-            totalObservations: 76,
+            totalCounts: 948,
+            totalObservations: 78,
           },
         ],
-        numberOfSpuhs: 22,
+        newLifersCount: 455,
+        numberOfSpuhs: 23,
+        species: 591,
         topHotspots: [
           {
-            checklistCount: 30,
+            checklistCount: 31,
             locationID: "L2987624",
             locationName: "McGolrick Park",
-            timeSpentMinutes: 1344,
+            timeSpentMinutes: 1356,
           },
           {
             checklistCount: 18,
@@ -360,12 +419,10 @@ describe("performChirpedCalculations", () => {
             timeSpentMinutes: 623,
           },
         ],
-        checklistsByType: {
-          incidental: 48,
-          stationary: 23,
-          traveling: 284,
-        },
-      } as ChirpedContextType["yearStats"];
+        totalBirdsCounted: 34120,
+        totalDistanceKm: 672.567,
+        totalTimeSpentMinutes: 23286,
+      };
 
       expect(result.yearStats).toEqual(expectedStats);
     });
@@ -394,5 +451,156 @@ describe("shouldIncludeInSpeciesCounts", () => {
       };
       expect(shouldIncludeInSpeciesCounts(observation)).toBe(false);
     }
+  });
+});
+
+type EbirdlifeList = {
+  rowNumber: number;
+  taxonOrder: number;
+  category: string;
+  commonName: string;
+  scientificName: string;
+  count: number;
+  location: string;
+  stateProvince: string;
+  date: string;
+  locationId: string;
+  subId: string;
+  exotic: string;
+  countable: boolean;
+};
+
+// check https://ebird.org/lifelist against the output of this
+function parseEbirdLifeList() {
+  const csvFilePath = path.join(__dirname, "ebird_world_life_list.csv");
+  const csvData = fs.readFileSync(csvFilePath, "utf8");
+
+  const parsed = Papa.parse(csvData, {
+    delimiter: ",",
+    skipEmptyLines: true,
+  });
+
+  if (parsed.errors.length > 0) {
+    throw new Error("Error parsing taxonomy file" + parsed.errors);
+  }
+
+  const expectedHeaders = [
+    "Row #",
+    "Taxon Order",
+    "Category",
+    "Common Name",
+    "Scientific Name",
+    "Count",
+    "Location",
+    "S/P",
+    "Date",
+    "LocID",
+    "SubID",
+    "Exotic",
+    "Countable",
+  ];
+
+  const results: EbirdlifeList[] = [];
+  (parsed.data as string[][]).forEach((record: string[], index) => {
+    if (index === 0) {
+      if (!expectedHeaders.every((header, i) => header === record[i])) {
+        throw new Error("Invalid headers in CSV");
+      }
+
+      return;
+    }
+
+    const [
+      rowNumber,
+      taxonOrder,
+      category,
+      commonName,
+      scientificName,
+      count,
+      location,
+      stateProvince,
+      date,
+      locationId,
+      subId,
+      exotic,
+      countable,
+    ] = record;
+
+    const isCountable = countable === "1";
+
+    if (!isCountable) {
+      return;
+    }
+
+    // need to convert 29 Aug 2024 to 2024-08-29
+    const parsedDate = parse(date, "dd MMM yyyy", new Date());
+
+    results.push({
+      rowNumber: parseInt(rowNumber, 10),
+      taxonOrder: parseInt(taxonOrder, 10),
+      category,
+      commonName,
+      scientificName,
+      count: parseInt(count, 10),
+      location,
+      stateProvince,
+      date: parsedDate.toISOString().split("T")[0],
+      locationId,
+      subId,
+      exotic,
+      countable: isCountable,
+    });
+  });
+
+  return results.sort((a, b) => {
+    return a.date.localeCompare(b.date);
+  });
+}
+
+describe("calculateLifeList", () => {
+  async function calculateMyLifeList() {
+    const csvFilePath = path.join(__dirname, "MyEBirdData.csv");
+    const csvData = fs.readFileSync(csvFilePath, "utf8");
+    const actual = await parseObservations(csvData);
+
+    return calculateLifeList(actual);
+  }
+  test("should work with my data", async () => {
+    const result = await calculateMyLifeList();
+
+    // make sure it includes the damn pigeon
+    expect(result["rocpig"]).toBeDefined();
+
+    expect(Object.entries(result).length).toBe(601);
+  });
+
+  test("it matches the ebird life list", async () => {
+    const myResult = await calculateMyLifeList();
+
+    const ebirdLifeList = parseEbirdLifeList();
+
+    // first test the sets of species code
+
+    // transform each into a comparable object with keys for the code
+    // and values for the date
+    const myResultMapping: Record<string, string> = {};
+    Object.entries(myResult).forEach(([key, value]) => {
+      myResultMapping[key] = value.date;
+    });
+
+    const ebirdLifeListMapping: Record<string, string> = {};
+    ebirdLifeList.forEach((record) => {
+      ebirdLifeListMapping[
+        fetchTaxonomyForSpecies(record.scientificName).speciesCode
+      ] = record.date;
+    });
+
+    // expect(myResultMapping).toEqual(ebirdLifeListMapping);
+
+    const myResultKeys = new Set(Object.keys(myResultMapping));
+    const ebirdLifeListKeys = new Set(Object.keys(ebirdLifeListMapping));
+    expect(myResultKeys).toEqual(ebirdLifeListKeys);
+
+    // expect(Object.entries(myResult).length).toBe(ebirdLifeList.length);
   });
 });

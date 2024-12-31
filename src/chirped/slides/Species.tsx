@@ -29,7 +29,7 @@ const Slide3 = () => {
       <Typography gutterBottom sx={{ color: "text.primary", fontSize: 14 }}>
         The runner ups were...
       </Typography>
-      <ol>
+      <ol style={{ maxHeight: 200, overflowY: "auto" }}>
         {yearStats.mostObservedByChecklistFrequency
           .slice(1)
           .map((species, index) => (

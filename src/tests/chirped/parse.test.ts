@@ -8,35 +8,50 @@ test("parseObservations", async () => {
   const csvData = fs.readFileSync(csvFilePath, "utf8");
   const actual = await parseObservations(csvData);
 
-  expect(actual.length).toBe(4826);
+  expect(actual.length).toBe(4999);
   const first = actual[0];
 
-  // S162264673,Snow Goose,Anser caerulescens,257,5,US-NY,Queens,L109145,Jamaica Bay Wildlife Refuge--West Pond,40.6188482,-73.8307995,2024-02-19,10:26 AM,eBird - Traveling Count,203,1,5.057,,2
   const expected: Observation = {
-    submissionId: "S162264673",
-    commonName: "Snow Goose",
-    scientificName: "Anser caerulescens",
-    taxonomicOrder: 257,
-    count: 5,
-    stateProvince: "US-NY",
-    county: "Queens",
-    locationId: "L109145",
-    location: "Jamaica Bay Wildlife Refuge--West Pond",
-    latitude: 40.6188482,
-    longitude: -73.8307995,
-    date: "2024-02-19",
-    time: "10:26 AM",
-    dateTime: new Date("2024-02-19 10:26 AM"),
-    protocol: "eBird - Traveling Count",
-    durationMinutes: 203,
-    allObsReported: true,
-    distanceTraveledKm: 5.057,
+    allObsReported: false,
     areaCoveredHa: undefined,
-    numberOfObservers: 2,
-    mlCatalogNumbers: undefined,
-    observationDetails: undefined,
     breedingCode: undefined,
     checklistComments: undefined,
+    commonName: "Northern Harrier",
+    count: "X",
+    county: "St. Bernard",
+    date: "2022-11-21",
+    dateTime: new Date("2022-11-21T17:00:00.000Z"),
+    distanceTraveledKm: undefined,
+    durationMinutes: NaN,
+    latitude: 29.819019,
+    location: "Hopedale",
+    locationId: "L21909958",
+    longitude: -89.61216,
+    mlCatalogNumbers: undefined,
+    numberOfObservers: 1,
+    observationDetails: undefined,
+    protocol: "eBird - Casual Observation",
+    scientificName: "Circus hudsonius",
+    stateProvince: "US-LA",
+    submissionId: "S131890239",
+    taxonomicOrder: 8228,
+    taxonomy: {
+      bandingCodes: "NOHA",
+      category: "species",
+      comNameCodes: "",
+      commonName: "Northern Harrier",
+      extinct: false,
+      familyCode: "accipi1",
+      familyComName: "Hawks, Eagles, and Kites",
+      familySciName: "Accipitridae",
+      order: "Accipitriformes",
+      reportAs: "",
+      sciNameCodes: "CIHU",
+      scientificName: "Circus hudsonius",
+      speciesCode: "norhar2",
+      taxonOrder: 8228,
+    },
+    time: "",
   };
 
   expect(first).toEqual(expected);

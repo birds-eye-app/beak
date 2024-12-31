@@ -24,7 +24,7 @@ const Slide3 = () => {
       <Typography gutterBottom sx={{ color: "text.primary", fontSize: 14 }}>
         The runners up were...
       </Typography>
-      <ol>
+      <ol style={{ maxHeight: 200, overflowY: "auto" }}>
         {yearStats.topHotspots.slice(1).map((hotspot, index) => (
           <li key={hotspot.locationID} value={index + 2}>
             <Typography>

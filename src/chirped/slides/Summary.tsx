@@ -10,7 +10,7 @@ const Slide3 = () => {
     <OutlinedCard>
       <Typography gutterBottom>Thanks for all the birds!</Typography>
       <b>Top Birds</b>
-      <ol>
+      <ol style={{ maxHeight: 200, overflowY: "auto" }}>
         {yearStats.mostObservedByTotalCount.map((species) => (
           <li key={species.species}>
             {species.species} ({species.totalObservations} sightings)
@@ -18,7 +18,7 @@ const Slide3 = () => {
         ))}
       </ol>
       <b>Top Hotspots</b>
-      <ol>
+      <ol style={{ maxHeight: 200, overflowY: "auto" }}>
         {yearStats.topHotspots.map((hotspot) => (
           <li key={hotspot.locationID}>
             {hotspot.locationName} ({hotspot.checklistCount} checklists)

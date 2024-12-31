@@ -1,5 +1,7 @@
 import Papa from "papaparse";
 import { parse } from "date-fns";
+import { Taxonomy } from "./taxonomy/parse";
+import { fetchTaxonomyForSpecies } from "./taxonomy/fetch";
 
 export interface Observation {
   submissionId: string;
@@ -26,6 +28,7 @@ export interface Observation {
   observationDetails?: string;
   checklistComments?: string;
   mlCatalogNumbers?: string;
+  taxonomy: Taxonomy;
 }
 
 // Submission ID,Common Name,Scientific Name,Taxonomic Order,Count,State/Province,County,Location ID,Location,Latitude,Longitude,Date,Time,Protocol,Duration (Min),All Obs Reported,Distance Traveled (km),Area Covered (ha),Number of Observers,Breeding Code,Observation Details,Checklist Comments,ML Catalog Numbers
@@ -109,6 +112,8 @@ export async function parseObservations(
         continue;
       }
 
+      const taxonomy = fetchTaxonomyForSpecies(record[2]);
+
       observations.push({
         submissionId: record[0],
         commonName: record[1],
@@ -134,8 +139,12 @@ export async function parseObservations(
         observationDetails: record[20],
         checklistComments: record[21],
         mlCatalogNumbers: record[22],
+        taxonomy,
       });
     }
+
+    // finally sort by date
+    observations.sort((a, b) => a.dateTime.getTime() - b.dateTime.getTime());
 
     console.debug("[csv-parse] parsed", observations.length, "observations");
 

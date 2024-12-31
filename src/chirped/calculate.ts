@@ -40,6 +40,37 @@ export function shouldIncludeObservationForYear(
   return observation.dateTime.getFullYear() === currentYear;
 }
 
+// this is a mapping of the species code to the observation
+export type LifeList = Record<string, Observation>;
+const categoriesToIncludeInLifeList = ["species", "issf"];
+
+const feralRockPigeon = "Columba livia (Feral Pigeon)";
+
+// to calculate the life list, we need to go through each
+// observation and see if we've already seen it before
+// this gets a little nuanced when it comes to things like subspecies
+export function calculateLifeList(observations: Observation[]): LifeList {
+  const lifeList: LifeList = {};
+
+  for (const observation of observations) {
+    if (
+      !categoriesToIncludeInLifeList.includes(observation.taxonomy.category) &&
+      observation.taxonomy.scientificName !== feralRockPigeon
+    ) {
+      continue;
+    }
+    const key =
+      observation.taxonomy.reportAs || observation.taxonomy.speciesCode;
+
+    if (lifeList[key]) {
+      continue;
+    }
+
+    lifeList[key] = observation;
+  }
+  return lifeList;
+}
+
 export type SpeciesStats = {
   species: string;
   totalObservations: number;
@@ -71,7 +102,6 @@ export async function performChirpedCalculations(
 
   console.debug("sorted observations", sortedObservations.length);
 
-  const lifeList = new Set<string>();
   const speciesForYear = new Set<string>();
   const checklistsForYear = new Set<string>();
   const speciesStats = new Map<string, SpeciesStats>();
@@ -81,17 +111,6 @@ export async function performChirpedCalculations(
 
   for (const observation of sortedObservations) {
     chirpedObservations.allObservations.push(observation);
-
-    if (
-      !lifeList.has(observation.scientificName) &&
-      shouldIncludeInSpeciesCounts(observation)
-    ) {
-      chirpedObservations.lifeList.push(observation);
-      lifeList.add(observation.scientificName);
-      if (shouldIncludeObservationForYear(observation, currentYear)) {
-        chirpedObservations.yearStats.newLifersCount += 1;
-      }
-    }
 
     if (!shouldIncludeObservationForYear(observation, currentYear)) {
       continue;
@@ -169,6 +188,16 @@ export async function performChirpedCalculations(
       });
     }
   }
+
+  const lifeList = calculateLifeList(allObservations);
+  chirpedObservations.lifeList = Object.values(lifeList);
+
+  // figure out which new lifers occured this year
+  Object.values(lifeList).forEach((observation) => {
+    if (shouldIncludeObservationForYear(observation, currentYear)) {
+      chirpedObservations.yearStats.newLifersCount += 1;
+    }
+  });
 
   // find most observed species
   const speciesStatsArray = Array.from(speciesStats.entries());
