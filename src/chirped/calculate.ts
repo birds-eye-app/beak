@@ -234,6 +234,8 @@ export async function performChirpedCalculations(
   chirpedObservations.yearStats.families = families.size;
   chirpedObservations.yearStats.genera = genera.size;
 
+  chirpedObservations.yearStats.numberOfHotspots = locationCountArray.length;
+
   // console.debug("internal stats", {
   //   lifeList,
   //   speciesForYear,

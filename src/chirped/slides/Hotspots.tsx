@@ -10,7 +10,8 @@ const Slide3 = () => {
   return (
     <OutlinedCard>
       <Typography gutterBottom sx={{ color: "text.primary", fontSize: 14 }}>
-        You visited XXX_Unique_Hotspots in {CurrentYear}.
+        You visited <b>{yearStats.numberOfHotspots}</b> hotspots in{" "}
+        {CurrentYear}.
       </Typography>
       <Typography gutterBottom sx={{ color: "text.primary", fontSize: 14 }}>
         But only one was your favorite...

@@ -311,6 +311,7 @@ describe("performChirpedCalculations", () => {
         },
         families: 1,
         genera: 1,
+        numberOfHotspots: 1,
       } as ChirpedContextType["yearStats"];
 
       expect(result.yearStats).toEqual(expectedStats);
@@ -426,6 +427,7 @@ describe("performChirpedCalculations", () => {
         totalTimeSpentMinutes: 23286,
         families: 78,
         genera: 353,
+        numberOfHotspots: 201,
       };
 
       expect(result.yearStats).toEqual(expectedStats);

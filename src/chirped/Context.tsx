@@ -23,6 +23,7 @@ export type ChirpedContextType = {
     // families seen
     families: number;
     genera: number;
+    numberOfHotspots: number;
     // top hotspots
     topHotspots: HotSpotStatsRanking;
     // total time spent birding in minutes

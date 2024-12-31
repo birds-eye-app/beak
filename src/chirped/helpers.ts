@@ -23,6 +23,7 @@ export function makeNewChirpedContext(): ChirpedContextType {
       },
       families: 0,
       genera: 0,
+      numberOfHotspots: 0,
     },
   };
 }
