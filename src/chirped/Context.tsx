@@ -12,8 +12,8 @@ export type ChirpedContextType = {
     mostObservedByChecklistFrequency: SpeciesStatsRanking;
     // species with highest total count
     mostObservedByTotalCount: SpeciesStatsRanking;
-    // top hotspots
-    topHotspots: HotSpotStatsRanking;
+    topHotspotsByChecklists: HotSpotStatsRanking;
+    topHotspotsByTimeSpent: HotSpotStatsRanking;
   };
   yearStats: {
     // total number of species observed

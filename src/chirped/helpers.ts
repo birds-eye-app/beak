@@ -9,7 +9,7 @@ export function makeNewChirpedContext(): ChirpedContextType {
     rankings: {
       mostObservedByChecklistFrequency: [],
       mostObservedByTotalCount: [],
-      topHotspots: [],
+      topHotspotsByChecklists: [],
     },
     yearStats: {
       species: 0,

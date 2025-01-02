@@ -1,16 +1,23 @@
-import Typography from "@mui/material/Typography";
-import { useContext } from "react";
-import OutlinedCard from "../../Card";
-import { ChirpedContext } from "../../Context";
-import { CurrentYear } from "../../Chirped";
+import { Button, Container, ListItem } from "@mui/material";
 import List from "@mui/material/List";
-import { Container, ListItem } from "@mui/material";
-import { TypographyWithFadeIn } from "../Text";
+import Typography from "@mui/material/Typography";
+import { useContext, useState } from "react";
+import OutlinedCard from "../../Card";
+import { CurrentYear } from "../../Chirped";
+import { ChirpedContext } from "../../Context";
 import { FadeInWithInitialDelay } from "../FadeWithInitialDelay";
+import { TypographyWithFadeIn } from "../Text";
 
 const Hotspots = ({ isActive }: { isActive: boolean }) => {
+  const [displayBy, setDisplayBy] = useState<"checklists" | "minutes">(
+    "checklists",
+  );
   const chirped = useContext(ChirpedContext);
   const yearStats = chirped.yearStats;
+  const ranking =
+    displayBy === "checklists"
+      ? chirped.rankings.topHotspotsByChecklists
+      : chirped.rankings.topHotspotsByTimeSpent;
   return (
     <OutlinedCard>
       <TypographyWithFadeIn
@@ -26,13 +33,34 @@ const Hotspots = ({ isActive }: { isActive: boolean }) => {
         But only one was your favorite...
       </TypographyWithFadeIn>
       <br />
-      <TypographyWithFadeIn in={isActive} initialDelay={3500} variant="body1">
-        <b>{chirped.rankings.topHotspots[0].locationName}</b> was your most
-        frequently visited hotspot with{" "}
-        <b>{chirped.rankings.topHotspots[0].checklistCount}</b> checklists. You
-        spent a total of{" "}
-        <b>{chirped.rankings.topHotspots[0].timeSpentMinutes}</b> minutes here.
-      </TypographyWithFadeIn>
+
+      {displayBy === "checklists" ? (
+        <TypographyWithFadeIn in={isActive} initialDelay={3500} variant="body1">
+          <b>{chirped.rankings.topHotspotsByChecklists[0].locationName}</b> was
+          your most frequently visited hotspot with{" "}
+          <b>
+            {chirped.rankings.topHotspotsByChecklists[0].checklistCount.toLocaleString()}
+          </b>{" "}
+          checklists. You spent a total of{" "}
+          <b>
+            {chirped.rankings.topHotspotsByChecklists[0].timeSpentMinutes.toLocaleString()}
+          </b>{" "}
+          minutes here.
+        </TypographyWithFadeIn>
+      ) : (
+        <TypographyWithFadeIn in={isActive} initialDelay={3500} variant="body1">
+          <b>{chirped.rankings.topHotspotsByTimeSpent[0].locationName}</b> kept
+          you the longest with{" "}
+          <b>
+            {chirped.rankings.topHotspotsByTimeSpent[0].timeSpentMinutes.toLocaleString()}
+          </b>{" "}
+          minutes spent here. You visited this hotspot{" "}
+          <b>
+            {chirped.rankings.topHotspotsByTimeSpent[0].checklistCount.toLocaleString()}
+          </b>{" "}
+          times.
+        </TypographyWithFadeIn>
+      )}
       <br />
       <TypographyWithFadeIn
         in={isActive}
@@ -40,7 +68,7 @@ const Hotspots = ({ isActive }: { isActive: boolean }) => {
         variant="body2"
         sx={{ mb: 2 }}
       >
-        The runners up were...
+        Here are all your top hotspots:
       </TypographyWithFadeIn>
       <Container
         disableGutters
@@ -52,7 +80,7 @@ const Hotspots = ({ isActive }: { isActive: boolean }) => {
       >
         <FadeInWithInitialDelay in={isActive} initialDelay={7000}>
           <List component="ol">
-            {chirped.rankings.topHotspots.map((hotspot, index) => (
+            {ranking.map((hotspot, index) => (
               <ListItem disableGutters disablePadding key={hotspot.locationID}>
                 <Container
                   disableGutters
@@ -71,7 +99,9 @@ const Hotspots = ({ isActive }: { isActive: boolean }) => {
                   </Typography>
                   <Container sx={{ flex: 1 }} />
                   <Typography variant="body2">
-                    {hotspot.checklistCount}
+                    {displayBy === "checklists"
+                      ? hotspot.checklistCount.toLocaleString()
+                      : hotspot.timeSpentMinutes.toLocaleString()}
                   </Typography>
                 </Container>
               </ListItem>
@@ -79,6 +109,21 @@ const Hotspots = ({ isActive }: { isActive: boolean }) => {
           </List>
         </FadeInWithInitialDelay>
       </Container>
+      <br />
+      <FadeInWithInitialDelay in={isActive} initialDelay={9000}>
+        <Button
+          component="label"
+          role={undefined}
+          variant="contained"
+          tabIndex={-1}
+          color="secondary"
+          onClick={() =>
+            setDisplayBy(displayBy === "checklists" ? "minutes" : "checklists")
+          }
+        >
+          Display by {displayBy === "checklists" ? "minutes" : "checklists"}
+        </Button>
+      </FadeInWithInitialDelay>
     </OutlinedCard>
   );
 };

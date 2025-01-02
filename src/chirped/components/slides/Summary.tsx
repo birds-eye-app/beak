@@ -119,7 +119,7 @@ const Summary = ({ isActive }: { isActive: boolean }) => {
                 }}
               >
                 <List component="ol">
-                  {chirped.rankings.topHotspots
+                  {chirped.rankings.topHotspotsByChecklists
                     .slice(0, 5)
                     .map((hotspot, index) => (
                       <ListItem

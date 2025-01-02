@@ -17,7 +17,7 @@ const Counts = ({ isActive }: { isActive: boolean }) => {
       </TypographyWithFadeIn>
       <TypographyWithFadeIn initialDelay={2000} in={isActive} variant="body1">
         {" "}
-        It&apos;s also about counting the birds!
+        It&apos;s also about counting the birds (and sometimes estimating)!
       </TypographyWithFadeIn>
       <br />
       <TypographyWithFadeIn initialDelay={3750} in={isActive} variant="h5">

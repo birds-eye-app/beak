@@ -215,10 +215,17 @@ export async function performChirpedCalculations(
     ([, stats]) => stats,
   );
 
-  // find top hotspots
+  // find top hotspots by checklist count
   const locationCountArray = Array.from(locationStatsMapping.entries());
   locationCountArray.sort((a, b) => b[1].checklistCount - a[1].checklistCount);
-  chirpedObservations.rankings.topHotspots = locationCountArray.map(
+  chirpedObservations.rankings.topHotspotsByChecklists = locationCountArray.map(
+    ([, stats]) => stats,
+  );
+  // find top hotspots by time spent
+  locationCountArray.sort(
+    (a, b) => b[1].timeSpentMinutes - a[1].timeSpentMinutes,
+  );
+  chirpedObservations.rankings.topHotspotsByTimeSpent = locationCountArray.map(
     ([, stats]) => stats,
   );
 
