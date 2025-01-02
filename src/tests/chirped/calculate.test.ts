@@ -11,6 +11,7 @@ import { ChirpedContextType } from "../../chirped/contexts/Chirped";
 import Papa from "papaparse";
 import { fetchTaxonomyForSpecies } from "../../chirped/taxonomy/fetch";
 import { parse } from "date-fns";
+import { CurrentYear } from "../../chirped/Chirped";
 
 const exampleObservation: Observation = {
   submissionId: "S162264673",
@@ -460,7 +461,7 @@ describe("calculateLifeList", () => {
     const csvData = fs.readFileSync(csvFilePath, "utf8");
     const actual = await parseObservations(csvData);
 
-    return calculateLifeList(actual);
+    return calculateLifeList(actual, CurrentYear);
   }
   test("should work with my data", async () => {
     const result = await calculateMyLifeList();
