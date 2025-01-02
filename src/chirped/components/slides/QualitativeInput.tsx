@@ -3,22 +3,29 @@ import {
   Autocomplete,
   Button,
   Container,
+  createFilterOptions,
   Divider,
   TextField,
   Typography,
 } from "@mui/material";
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import OutlinedCard from "../../Card";
 import { CurrentYear } from "../../Chirped";
 import { UserSelectionsContext } from "../../contexts/UserSelections";
-import { TypographyWithFadeIn } from "../Text";
+import { eBirdTaxonomy } from "../../taxonomy/fetch";
 import { FadeInWithInitialDelay } from "../FadeWithInitialDelay";
+import { TypographyWithFadeIn } from "../Text";
 
 export type QualitativeQuestionData = {
   question: string;
   answer: string;
 };
 const maxQuestions = 8;
+
+function isQuestionAboutABird(question: string) {
+  const birdWords = ["bird", "species", "dip"];
+  return birdWords.some((word) => question.toLowerCase().includes(word));
+}
 
 const QualitativeInput = ({ isActive }: { isActive: boolean }) => {
   const { qualitativeQuestions, setQualitativeQuestions } = useContext(
@@ -27,23 +34,52 @@ const QualitativeInput = ({ isActive }: { isActive: boolean }) => {
 
   console.debug("qualitativeQuestions-input", qualitativeQuestions);
 
-  const defaultQuestionOptions = [
-    `Favorite bird of ${CurrentYear}`,
-    `Nemesis bird of ${CurrentYear}`,
-    `Bird you're most excited to see in ${CurrentYear + 1}`,
-    "Hardest bird you found this year",
-    "Biggest dip of the year",
-    "Biggest surprise bird",
-    "Favorite birding moment",
-    "Rarest bird you found this year",
-    "Favorite mixed flock",
-    "Favorite new hotpot you found this year",
-    "Best birding buddy",
-  ];
+  // parse the taxonomy object and return an object with species code and common name
+  const speciesMappingFromTaxonomy = Object.values(eBirdTaxonomy)
+    // rank by type: species first, then sub species, then all else
+    .sort((a, b) => {
+      if (a.category === "species" && b.category !== "species") {
+        return -1;
+      }
+      if (a.category !== "species" && b.category === "species") {
+        return 1;
+      }
+      if (a.category === "subspecies" && b.category !== "subspecies") {
+        return -1;
+      }
+      if (a.category !== "subspecies" && b.category === "subspecies") {
+        return 1;
+      }
+      return 0;
+    })
+    .map((taxon) => ({
+      speciesCode: taxon.speciesCode,
+      commonName: taxon.commonName,
+      scientificName: taxon.scientificName,
+      label: taxon.commonName,
+      category: taxon.category,
+      bandingCodes: taxon.bandingCodes,
+    }));
 
-  const questionOptions = defaultQuestionOptions.filter(
-    (option) => !qualitativeQuestions.some((q) => q.question === option),
-  );
+  const questionOptions = useMemo(() => {
+    const defaultQuestionOptions = [
+      `Favorite bird of ${CurrentYear}`,
+      `Nemesis bird of ${CurrentYear}`,
+      `Bird you're most excited to see in ${CurrentYear + 1}`,
+      "Hardest bird you found this year",
+      "Biggest dip of the year",
+      "Biggest surprise bird",
+      "Favorite birding moment",
+      "Rarest bird you found this year",
+      "Favorite mixed flock",
+      "Favorite new hotpot you found this year",
+      "Best birding buddy",
+    ];
+
+    return defaultQuestionOptions.filter(
+      (option) => !qualitativeQuestions.some((q) => q.question === option),
+    );
+  }, [qualitativeQuestions]);
 
   return (
     <OutlinedCard>
@@ -106,19 +142,52 @@ const QualitativeInput = ({ isActive }: { isActive: boolean }) => {
                       />
                     )}
                   />
-                  <TextField
-                    id={`qd-${index}`}
-                    label="Answer"
-                    variant="outlined"
-                    key={"tf2-" + index}
-                    sx={{ mb: 2, width: "100%" }}
-                    defaultValue={data.answer}
-                    onBlur={(e) => {
-                      const newData = [...qualitativeQuestions];
-                      newData[index].answer = e.target.value;
-                      setQualitativeQuestions(newData);
-                    }}
-                  />
+                  {/* show species autocomplete if we think the question involves a bird */}
+                  {isQuestionAboutABird(data.question) ? (
+                    <Autocomplete
+                      sx={{ width: "100%", mb: 1 }}
+                      freeSolo
+                      key={"ac-" + index}
+                      options={speciesMappingFromTaxonomy}
+                      filterOptions={createFilterOptions({
+                        ignoreCase: true,
+                        limit: 10,
+                        stringify: (option) => Object.values(option).join(" "),
+                      })}
+                      value={data.answer}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          id={`qd-${index}`}
+                          label="Answer"
+                          variant="outlined"
+                          key={"tf2-" + index}
+                          sx={{ mb: 2, width: "100%" }}
+                          defaultValue={data.answer}
+                          onBlur={(e) => {
+                            const newData = [...qualitativeQuestions];
+                            newData[index].answer = e.target.value;
+                            setQualitativeQuestions(newData);
+                          }}
+                        />
+                      )}
+                    />
+                  ) : (
+                    <TextField
+                      id={`qd-${index}`}
+                      label="Answer"
+                      variant="outlined"
+                      key={"tf2-" + index}
+                      sx={{ mb: 2, width: "100%" }}
+                      defaultValue={data.answer}
+                      onBlur={(e) => {
+                        const newData = [...qualitativeQuestions];
+                        newData[index].answer = e.target.value;
+                        setQualitativeQuestions(newData);
+                      }}
+                    />
+                  )}
+
                   <Button
                     key={"b-" + index}
                     variant="outlined"
