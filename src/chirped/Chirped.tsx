@@ -79,42 +79,42 @@ export function Chirped() {
   return (
     <>
       <ChirpedContext.Provider value={chirpedObservations}>
-        <Swiper
-          navigation={chirpedObservations.allObservations.length !== 0}
-          modules={[Navigation]}
-          className="mySwiper"
-        >
-          {/* <UserSelections>
+        <UserSelections>
+          <Swiper
+            navigation={chirpedObservations.allObservations.length !== 0}
+            modules={[Navigation]}
+            className="mySwiper"
+          >
             <SwiperSlide style={swiperSlideStyle}>
               {({ isActive }) => <QualitativeInput isActive={isActive} />}
             </SwiperSlide>
             <SwiperSlide style={swiperSlideStyle}>
               {({ isActive }) => <ViewQualitative isActive={isActive} />}
             </SwiperSlide>
-          </UserSelections> */}
 
-          <SwiperSlide style={swiperSlideStyle}>
-            {({ isActive }) => <Totals isActive={isActive} />}
-          </SwiperSlide>
-          <SwiperSlide style={swiperSlideStyle}>
-            {({ isActive }) => <Checklists isActive={isActive} />}
-          </SwiperSlide>
-          <SwiperSlide style={swiperSlideStyle}>
-            {({ isActive }) => <Lifers isActive={isActive} />}
-          </SwiperSlide>
-          <SwiperSlide style={swiperSlideStyle}>
-            {({ isActive }) => <Species isActive={isActive} />}
-          </SwiperSlide>
-          <SwiperSlide style={swiperSlideStyle}>
-            {({ isActive }) => <Counts isActive={isActive} />}
-          </SwiperSlide>
-          <SwiperSlide style={swiperSlideStyle}>
-            {({ isActive }) => <Hotspots isActive={isActive} />}
-          </SwiperSlide>
-          <SwiperSlide style={swiperSlideStyle}>
-            {({ isActive }) => <Summary isActive={isActive} />}
-          </SwiperSlide>
-        </Swiper>
+            <SwiperSlide style={swiperSlideStyle}>
+              {({ isActive }) => <Totals isActive={isActive} />}
+            </SwiperSlide>
+            <SwiperSlide style={swiperSlideStyle}>
+              {({ isActive }) => <Checklists isActive={isActive} />}
+            </SwiperSlide>
+            <SwiperSlide style={swiperSlideStyle}>
+              {({ isActive }) => <Lifers isActive={isActive} />}
+            </SwiperSlide>
+            <SwiperSlide style={swiperSlideStyle}>
+              {({ isActive }) => <Species isActive={isActive} />}
+            </SwiperSlide>
+            <SwiperSlide style={swiperSlideStyle}>
+              {({ isActive }) => <Counts isActive={isActive} />}
+            </SwiperSlide>
+            <SwiperSlide style={swiperSlideStyle}>
+              {({ isActive }) => <Hotspots isActive={isActive} />}
+            </SwiperSlide>
+            <SwiperSlide style={swiperSlideStyle}>
+              {({ isActive }) => <Summary isActive={isActive} />}
+            </SwiperSlide>
+          </Swiper>
+        </UserSelections>
       </ChirpedContext.Provider>
     </>
   );

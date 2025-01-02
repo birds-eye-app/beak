@@ -116,7 +116,7 @@ const QualitativeInput = ({ isActive }: { isActive: boolean }) => {
             onClick={() => {
               const newData = [...qualitativeQuestions];
               newData.splice(index, 1);
-              setqualitativeQuestions(newData);
+              setQualitativeQuestions(newData);
             }}
           >
             Delete
