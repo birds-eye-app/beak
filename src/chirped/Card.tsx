@@ -1,16 +1,24 @@
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
+import { forwardRef } from "react";
 
-export default function OutlinedCard({
-  justifyContent = "center",
-  minHeight,
-  children,
-}: {
-  justifyContent?: "center" | "flex-start" | "flex-end";
-  minHeight?: number;
-  children: React.ReactNode;
-}) {
+const OutlinedCard = forwardRef(function OutlinedCard(
+  {
+    justifyContent = "center",
+    minHeight,
+    children,
+    disableScroll = false,
+    maxHeight = "80%",
+  }: {
+    justifyContent?: "center" | "flex-start" | "flex-end";
+    minHeight?: number;
+    children: React.ReactNode;
+    disableScroll?: boolean;
+    maxHeight?: number | string;
+  },
+  ref: React.Ref<HTMLDivElement>,
+) {
   return (
     <Box
       sx={{
@@ -20,9 +28,10 @@ export default function OutlinedCard({
         alignItems: "center",
         maxWidth: 400,
         minHeight: minHeight || 400,
-        maxHeight: "80%",
+        maxHeight: maxHeight,
         margin: 5,
       }}
+      ref={ref}
     >
       <Card
         sx={{
@@ -31,7 +40,7 @@ export default function OutlinedCard({
           justifyContent: "center",
           alignItems: "center",
           flex: 1,
-          overflowY: "auto",
+          overflowY: disableScroll ? "hidden" : "auto",
         }}
       >
         <CardContent
@@ -49,4 +58,6 @@ export default function OutlinedCard({
       </Card>
     </Box>
   );
-}
+});
+
+export default OutlinedCard;

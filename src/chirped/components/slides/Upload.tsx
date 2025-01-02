@@ -1,6 +1,6 @@
 import { Button, Fade, Link, styled, Typography } from "@mui/material";
-import OutlinedCard from "../../Card";
 import { useEffect, useState } from "react";
+import OutlinedCard from "../../Card";
 import { TypographyWithFadeIn } from "../Text";
 
 const VisuallyHiddenInput = styled("input")({
