@@ -49,10 +49,17 @@ const feralRockPigeon = "Columba livia (Feral Pigeon)";
 // to calculate the life list, we need to go through each
 // observation and see if we've already seen it before
 // this gets a little nuanced when it comes to things like subspecies
-export function calculateLifeList(observations: Observation[]): LifeList {
+export function calculateLifeList(
+  observations: Observation[],
+  currentYear: number,
+): LifeList {
   const lifeList: LifeList = {};
 
   for (const observation of observations) {
+    // don't include anything in the life list after this year (since we're running this in currentYear +1)
+    if (observation.dateTime.getFullYear() > currentYear) {
+      continue;
+    }
     if (
       !categoriesToIncludeInLifeList.includes(observation.taxonomy.category) &&
       observation.taxonomy.scientificName !== feralRockPigeon
@@ -189,7 +196,7 @@ export async function performChirpedCalculations(
     }
   }
 
-  const lifeList = calculateLifeList(allObservations);
+  const lifeList = calculateLifeList(allObservations, currentYear);
   chirpedObservations.lifeList = Object.values(lifeList);
 
   // figure out which new lifers occured this year
