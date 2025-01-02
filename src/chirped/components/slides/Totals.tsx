@@ -1,29 +1,30 @@
-import Typography from "@mui/material/Typography";
-import { CurrentYear } from "../../Chirped";
 import { useContext } from "react";
-import { ChirpedContext } from "../../Context";
 import OutlinedCard from "../../Card";
+import { CurrentYear } from "../../Chirped";
+import { ChirpedContext } from "../../Context";
+import { TypographyWithFadeIn } from "../Text";
 
-const Slide1 = () => {
+const Totals = ({ isActive }: { isActive: boolean }) => {
   const chirped = useContext(ChirpedContext);
   const yearStats = chirped.yearStats;
+  console.debug("totals active:", isActive);
   return (
     <OutlinedCard>
       <br />
       <br />
-      <Typography variant="h5">
+      <TypographyWithFadeIn in={isActive} variant="h5" initialDelay={500}>
         You submitted <b>{yearStats.checklists.toLocaleString()}</b> checklists
         in {CurrentYear} and spent a total of{" "}
         <b>{yearStats.totalTimeSpentMinutes.toLocaleString()}</b> minutes
         birding!
-      </Typography>
+      </TypographyWithFadeIn>
       <br />
       <br />
-      <Typography variant="body1">
+      <TypographyWithFadeIn in={isActive} variant="body1" initialDelay={2000}>
         Let&apos;s see how those checklists broke down...
-      </Typography>
+      </TypographyWithFadeIn>
     </OutlinedCard>
   );
 };
 
-export default Slide1;
+export default Totals;

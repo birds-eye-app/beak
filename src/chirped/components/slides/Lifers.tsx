@@ -1,35 +1,55 @@
-import Typography from "@mui/material/Typography";
 import { useContext } from "react";
 import OutlinedCard from "../../Card";
-import { ChirpedContext } from "../../Context";
 import { CurrentYear } from "../../Chirped";
+import { ChirpedContext } from "../../Context";
+import { TypographyWithFadeIn } from "../Text";
 
-const Slide3 = () => {
+const Lifers = ({ isActive }: { isActive: boolean }) => {
   const chirped = useContext(ChirpedContext);
   const yearStats = chirped.yearStats;
   return (
     <OutlinedCard>
-      <Typography variant="body2" sx={{ mb: 2 }}>
+      <TypographyWithFadeIn
+        in={isActive}
+        initialDelay={500}
+        variant="body1"
+        sx={{ mb: 2 }}
+      >
         You started the year with{" "}
         <b>{chirped.lifeList.length - yearStats.newLifersCount}</b> birds on
         your life list.
-      </Typography>
+      </TypographyWithFadeIn>
       <br />
-      <Typography variant="h5" sx={{ mb: 1, textAlign: "left" }}>
+      <TypographyWithFadeIn
+        in={isActive}
+        variant="h5"
+        initialDelay={2000}
+        sx={{ mb: 1, textAlign: "left" }}
+      >
         You added <b>{yearStats.newLifersCount}</b> new birds to your life list
         in {CurrentYear}...
-      </Typography>
-      <Typography variant="h5" sx={{ mb: 1, textAlign: "right" }}>
+      </TypographyWithFadeIn>
+      <TypographyWithFadeIn
+        in={isActive}
+        variant="h5"
+        initialDelay={3500}
+        sx={{ mb: 1, textAlign: "right" }}
+      >
         ... which means your total life list is now{" "}
         <b>{chirped.lifeList.length}!</b>
-      </Typography>
+      </TypographyWithFadeIn>
       <br />
       <br />
-      <Typography variant="body2" sx={{ mb: 1, textAlign: "left" }}>
+      <TypographyWithFadeIn
+        in={isActive}
+        variant="body1"
+        initialDelay={5500}
+        sx={{ mb: 1, textAlign: "left" }}
+      >
         Let&apos;s take a closer look at those species...
-      </Typography>
+      </TypographyWithFadeIn>
     </OutlinedCard>
   );
 };
 
-export default Slide3;
+export default Lifers;

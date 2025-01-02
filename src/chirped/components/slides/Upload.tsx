@@ -1,6 +1,7 @@
 import { Button, Fade, Link, styled, Typography } from "@mui/material";
 import OutlinedCard from "../../Card";
 import { useEffect, useState } from "react";
+import { TypographyWithFadeIn } from "../Text";
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -14,7 +15,7 @@ const VisuallyHiddenInput = styled("input")({
   width: 1,
 });
 
-const loadingTextDelay = 750;
+const loadingTextDelay = import.meta.env.MODE === "development" ? 1 : 750;
 const processingText = [
   "Performing breeding display...",
   "Gathering nesting material...",
@@ -26,7 +27,7 @@ const processingText = [
   "Feeding...",
   "Time to fledge!",
 ];
-const transitionDelay = 750 * processingText.length + 2000;
+const transitionDelay = loadingTextDelay * processingText.length + 1000;
 
 const UploadCSV = ({
   onUploadComplete,
@@ -60,38 +61,37 @@ const UploadCSV = ({
 
   return (
     <OutlinedCard>
-      <Fade in={true} timeout={1000}>
-        <Typography
-          gutterBottom
-          sx={{
-            fontSize: 24,
-            color: "text.primary",
-          }}
-        >
-          🐦🕰️ Welcome!
-        </Typography>
-      </Fade>
+      <TypographyWithFadeIn
+        gutterBottom
+        sx={{
+          fontSize: 24,
+          color: "text.primary",
+        }}
+        initialDelay={0}
+      >
+        🐦🕰️ Welcome!
+      </TypographyWithFadeIn>
       <br />
-      <Fade in={true} timeout={1000}>
-        <Typography
-          gutterBottom
-          sx={{
-            fontSize: 14,
-            color: "text.primary",
-            textAlign: "center",
-          }}
+      <TypographyWithFadeIn
+        gutterBottom
+        sx={{
+          fontSize: 14,
+          color: "text.primary",
+          textAlign: "center",
+        }}
+        initialDelay={0}
+      >
+        To get started, you&apos;ll need to upload your eBird CSV export. You
+        can request an export from eBird here:{" "}
+        <Link
+          href="https://ebird.org/downloadMyData"
+          target="_blank"
+          rel="noreferrer"
         >
-          To get started, you&apos;ll need to upload your eBird CSV export. You
-          can request an export from eBird here:{" "}
-          <Link
-            href="https://ebird.org/downloadMyData"
-            target="_blank"
-            rel="noreferrer"
-          >
-            https://ebird.org/downloadMyData
-          </Link>
-        </Typography>
-      </Fade>
+          https://ebird.org/downloadMyData
+        </Link>
+      </TypographyWithFadeIn>
+
       <br />
       {animationReady &&
         processingText.map((text, index) => (
@@ -106,7 +106,6 @@ const UploadCSV = ({
             </Typography>
           </Fade>
         ))}
-
       <br />
       {!animationComplete && (
         <Fade in={true} timeout={1000}>

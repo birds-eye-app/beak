@@ -1,28 +1,49 @@
-import Typography from "@mui/material/Typography";
 import { useContext } from "react";
 import OutlinedCard from "../../Card";
 import { ChirpedContext } from "../../Context";
+import { TypographyWithFadeIn } from "../Text";
 
-const Slide2 = () => {
+const Checklists = ({ isActive }: { isActive: boolean }) => {
   const chirped = useContext(ChirpedContext);
   const yearStats = chirped.yearStats;
+  console.debug("checklist active:", isActive);
   return (
     <OutlinedCard>
       {yearStats.checklistsByType.stationary > 0 && (
-        <Typography variant="body1" sx={{ mb: 2, textAlign: "left" }}>
+        <TypographyWithFadeIn
+          in={isActive}
+          initialDelay={500}
+          variant="body1"
+          sx={{ mb: 2, textAlign: "left" }}
+        >
           Some of the time you stuck it out in one spot... logging{" "}
           <b>{yearStats.checklistsByType.stationary.toLocaleString()}</b>{" "}
           stationary checklists.
-        </Typography>
+        </TypographyWithFadeIn>
       )}
-      <Typography variant="body1" sx={{ mb: 2, textAlign: "left" }}>
-        Other times you were on the move... logging{" "}
-        <b>{yearStats.checklistsByType.traveling.toLocaleString()}</b> traveling
-        checklists and covering <b>{yearStats.totalDistanceKm.toFixed()}</b> km
-        over the year!
-      </Typography>
+      {yearStats.checklistsByType.traveling > 0 && (
+        <TypographyWithFadeIn
+          in={isActive}
+          variant="body1"
+          initialDelay={3000}
+          sx={{ mb: 2, textAlign: "left" }}
+        >
+          {yearStats.checklistsByType.stationary > 0
+            ? "Other times"
+            : "Sometimes"}{" "}
+          you were on the move... submitting{" "}
+          <b>{yearStats.checklistsByType.traveling.toLocaleString()}</b>{" "}
+          traveling checklists and covering{" "}
+          <b>{yearStats.totalDistanceKm.toFixed()}</b> km over the year!
+        </TypographyWithFadeIn>
+      )}
       {yearStats.checklistsByType.incidental > 0 && (
-        <Typography variant="body1" sx={{ mb: 2, textAlign: "left" }}>
+        <TypographyWithFadeIn
+          in={isActive}
+          initialDelay={6000}
+          variant="body1"
+          sx={{ mb: 2, textAlign: "left" }}
+        >
           And for the others... well only you can say how you found the birds!
           Here&apos;s to your{" "}
           <b>{yearStats.checklistsByType.incidental.toLocaleString()}</b>{" "}
@@ -30,10 +51,10 @@ const Slide2 = () => {
           the ones you had to say &quot;excuse me a minute, I just heard
           something&quot;, and the cars pulled over to the side of the road to
           get a better look.
-        </Typography>
+        </TypographyWithFadeIn>
       )}
     </OutlinedCard>
   );
 };
 
-export default Slide2;
+export default Checklists;

@@ -1,9 +1,20 @@
-import { Fade, Typography, TypographyProps } from "@mui/material";
+import { Typography, TypographyProps } from "@mui/material";
+import { FadeInWithInitialDelay } from "./FadeWithInitialDelay";
 
-export const TypographyWithFadeIn = (props: TypographyProps) => {
+export type TypographyWithFadeInProps = TypographyProps & {
+  in?: boolean;
+  timeout?: number;
+  initialDelay: number;
+};
+
+export const TypographyWithFadeIn = (props: TypographyWithFadeInProps) => {
   return (
-    <Fade in timeout={500}>
+    <FadeInWithInitialDelay
+      in={props.in}
+      timeout={props.timeout}
+      initialDelay={props.initialDelay}
+    >
       <Typography {...props} />
-    </Fade>
+    </FadeInWithInitialDelay>
   );
 };

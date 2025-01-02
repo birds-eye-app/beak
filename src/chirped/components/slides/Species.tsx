@@ -5,25 +5,47 @@ import { useContext } from "react";
 import OutlinedCard from "../../Card";
 import { CurrentYear } from "../../Chirped";
 import { ChirpedContext } from "../../Context";
+import { FadeInWithInitialDelay } from "../FadeWithInitialDelay";
+import { TypographyWithFadeIn } from "../Text";
 
-const Slide3 = () => {
+const Species = ({ isActive }: { isActive: boolean }) => {
   const chirped = useContext(ChirpedContext);
   const yearStats = chirped.yearStats;
   return (
     <OutlinedCard>
-      <Typography variant="h5" sx={{ mb: 1, textAlign: "center" }}>
+      <TypographyWithFadeIn
+        in={isActive}
+        initialDelay={500}
+        variant="h5"
+        sx={{ mb: 1, textAlign: "center" }}
+      >
         You saw <b>{yearStats.species}</b> species of birds in {CurrentYear}{" "}
-      </Typography>
-      <Typography variant="body1" sx={{ mb: 1, textAlign: "center" }}>
+      </TypographyWithFadeIn>
+      <TypographyWithFadeIn
+        in={isActive}
+        initialDelay={2000}
+        variant="body1"
+        sx={{ mb: 1, textAlign: "center" }}
+      >
         That&apos;s across <b>{yearStats.genera}</b> genera and{" "}
         <b>{yearStats.families}</b> families!
-      </Typography>
-      <Typography variant="body2" sx={{ mb: 1, textAlign: "center" }}>
+      </TypographyWithFadeIn>
+      <TypographyWithFadeIn
+        in={isActive}
+        initialDelay={3500}
+        variant="body2"
+        sx={{ mb: 1, textAlign: "center" }}
+      >
         {" "}
         You took the safe option and left things as a spuh{" "}
         <b>{yearStats.numberOfSpuhs}</b> times...
-      </Typography>
-      <Typography variant="body1" sx={{ mb: 1, textAlign: "center" }}>
+      </TypographyWithFadeIn>
+      <TypographyWithFadeIn
+        in={isActive}
+        initialDelay={5000}
+        variant="body1"
+        sx={{ mb: 1, textAlign: "center" }}
+      >
         Your most observed bird by checklist frequency was{" "}
         <b>{chirped.rankings.mostObservedByChecklistFrequency[0].species}</b>{" "}
         with{" "}
@@ -34,11 +56,16 @@ const Slide3 = () => {
           }
         </b>{" "}
         sightings.
-      </Typography>
+      </TypographyWithFadeIn>
       <br />
-      <Typography variant="body2" sx={{ mb: 1, textAlign: "center" }}>
+      <TypographyWithFadeIn
+        in={isActive}
+        variant="body2"
+        initialDelay={7000}
+        sx={{ mb: 1, textAlign: "center" }}
+      >
         Here&apos;s the full list:
-      </Typography>
+      </TypographyWithFadeIn>
       <Container
         disableGutters
         sx={{
@@ -48,33 +75,39 @@ const Slide3 = () => {
           overflowY: "auto",
         }}
       >
-        <List component="ol">
-          {chirped.rankings.mostObservedByChecklistFrequency.map(
-            (species, index) => (
-              <ListItem disableGutters disablePadding key={species.species}>
-                <Container
-                  disableGutters
-                  sx={{ flexDirection: "row", display: "flex" }}
-                >
-                  <Typography
-                    variant="body2"
-                    sx={{ mr: 1, textAlign: "center" }}
+        <FadeInWithInitialDelay
+          in={isActive}
+          timeout={1000}
+          initialDelay={8250}
+        >
+          <List component="ol">
+            {chirped.rankings.mostObservedByChecklistFrequency.map(
+              (species, index) => (
+                <ListItem disableGutters disablePadding key={species.species}>
+                  <Container
+                    disableGutters
+                    sx={{ flexDirection: "row", display: "flex" }}
                   >
-                    {index + 1}.{" "}
-                  </Typography>
-                  <Typography variant="body2">{species.species}</Typography>
-                  <Container sx={{ flex: 1 }} />
-                  <Typography variant="body2">
-                    {species.totalObservations}
-                  </Typography>
-                </Container>
-              </ListItem>
-            ),
-          )}
-        </List>
+                    <Typography
+                      variant="body2"
+                      sx={{ mr: 1, textAlign: "center" }}
+                    >
+                      {index + 1}.{" "}
+                    </Typography>
+                    <Typography variant="body2">{species.species}</Typography>
+                    <Container sx={{ flex: 1 }} />
+                    <Typography variant="body2">
+                      {species.totalObservations}
+                    </Typography>
+                  </Container>
+                </ListItem>
+              ),
+            )}
+          </List>
+        </FadeInWithInitialDelay>
       </Container>
     </OutlinedCard>
   );
 };
 
-export default Slide3;
+export default Species;

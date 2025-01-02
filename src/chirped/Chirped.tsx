@@ -21,6 +21,8 @@ import { Container } from "@mui/material";
 
 export const CurrentYear = 2024;
 
+const swiperSlideStyle = { backgroundColor: "#555555" };
+
 export function Chirped() {
   const [fileContents, setFileContents] = useState("");
   const [actualProcessingComplete, setActualProcessingComplete] =
@@ -79,26 +81,26 @@ export function Chirped() {
           modules={[Navigation]}
           className="mySwiper"
         >
-          <SwiperSlide style={{ background: "#555555" }}>
-            <Totals />
+          <SwiperSlide style={swiperSlideStyle}>
+            {({ isActive }) => <Totals isActive={isActive} />}
           </SwiperSlide>
-          <SwiperSlide style={{ background: "#555555" }}>
-            <Checklists />
+          <SwiperSlide style={swiperSlideStyle}>
+            {({ isActive }) => <Checklists isActive={isActive} />}
           </SwiperSlide>
-          <SwiperSlide style={{ background: "#555555" }}>
-            <Lifers />
+          <SwiperSlide style={swiperSlideStyle}>
+            {({ isActive }) => <Lifers isActive={isActive} />}
           </SwiperSlide>
-          <SwiperSlide style={{ background: "#555555" }}>
-            <Species />
+          <SwiperSlide style={swiperSlideStyle}>
+            {({ isActive }) => <Species isActive={isActive} />}
           </SwiperSlide>
-          <SwiperSlide style={{ background: "#555555" }}>
-            <Counts />
+          <SwiperSlide style={swiperSlideStyle}>
+            {({ isActive }) => <Counts isActive={isActive} />}
           </SwiperSlide>
-          <SwiperSlide style={{ background: "#555555" }}>
-            <Hotspots />
+          <SwiperSlide style={swiperSlideStyle}>
+            {({ isActive }) => <Hotspots isActive={isActive} />}
           </SwiperSlide>
-          <SwiperSlide style={{ background: "#555555" }}>
-            <Summary />
+          <SwiperSlide style={swiperSlideStyle}>
+            {({ isActive }) => <Summary isActive={isActive} />}
           </SwiperSlide>
         </Swiper>
       </ChirpedContext.Provider>
