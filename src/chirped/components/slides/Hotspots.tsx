@@ -1,21 +1,22 @@
 import { Button, Container, ListItem } from "@mui/material";
 import List from "@mui/material/List";
 import Typography from "@mui/material/Typography";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import OutlinedCard from "../../Card";
 import { CurrentYear } from "../../Chirped";
 import { ChirpedContext } from "../../contexts/Chirped";
+import { UserSelectionsContext } from "../../contexts/UserSelections";
 import { FadeInWithInitialDelay } from "../FadeWithInitialDelay";
 import { TypographyWithFadeIn } from "../Text";
 
 const Hotspots = ({ isActive }: { isActive: boolean }) => {
-  const [displayBy, setDisplayBy] = useState<"checklists" | "minutes">(
-    "checklists",
-  );
   const chirped = useContext(ChirpedContext);
+  const { hotspotRanking, setHotspotRanking } = useContext(
+    UserSelectionsContext,
+  );
   const yearStats = chirped.yearStats;
   const ranking =
-    displayBy === "checklists"
+    hotspotRanking === "checklists"
       ? chirped.rankings.topHotspotsByChecklists
       : chirped.rankings.topHotspotsByTimeSpent;
   return (
@@ -34,7 +35,7 @@ const Hotspots = ({ isActive }: { isActive: boolean }) => {
       </TypographyWithFadeIn>
       <br />
 
-      {displayBy === "checklists" ? (
+      {hotspotRanking === "checklists" ? (
         <TypographyWithFadeIn in={isActive} initialDelay={3500} variant="body1">
           <b>{chirped.rankings.topHotspotsByChecklists[0].locationName}</b> was
           your most frequently visited hotspot with{" "}
@@ -99,7 +100,7 @@ const Hotspots = ({ isActive }: { isActive: boolean }) => {
                   </Typography>
                   <Container sx={{ flex: 1 }} />
                   <Typography variant="body2">
-                    {displayBy === "checklists"
+                    {hotspotRanking === "checklists"
                       ? hotspot.checklistCount.toLocaleString()
                       : hotspot.timeSpentMinutes.toLocaleString()}
                   </Typography>
@@ -110,7 +111,7 @@ const Hotspots = ({ isActive }: { isActive: boolean }) => {
         </FadeInWithInitialDelay>
       </Container>
       <br />
-      <FadeInWithInitialDelay in={isActive} initialDelay={9000}>
+      <FadeInWithInitialDelay in={isActive} initialDelay={8500}>
         <Button
           component="button"
           role={undefined}
@@ -118,10 +119,13 @@ const Hotspots = ({ isActive }: { isActive: boolean }) => {
           tabIndex={-1}
           color="secondary"
           onClick={() =>
-            setDisplayBy(displayBy === "checklists" ? "minutes" : "checklists")
+            setHotspotRanking(
+              hotspotRanking === "checklists" ? "timeSpent" : "checklists",
+            )
           }
         >
-          Display by {displayBy === "checklists" ? "minutes" : "checklists"}
+          Display by{" "}
+          {hotspotRanking === "checklists" ? "minutes" : "checklists"}
         </Button>
       </FadeInWithInitialDelay>
     </OutlinedCard>

@@ -118,7 +118,7 @@ const QualitativeInput = ({ isActive }: { isActive: boolean }) => {
                   <Autocomplete
                     sx={{ width: "100%", mb: 1 }}
                     freeSolo
-                    key={"ac-" + index}
+                    key={"acq-" + index}
                     options={questionOptions}
                     value={data.question}
                     renderInput={(params) => (
@@ -146,7 +146,7 @@ const QualitativeInput = ({ isActive }: { isActive: boolean }) => {
                     <Autocomplete
                       sx={{ width: "100%", mb: 1 }}
                       freeSolo
-                      key={"ac-" + index}
+                      key={"acb-" + index}
                       options={speciesMappingFromTaxonomy}
                       filterOptions={createFilterOptions({
                         ignoreCase: true,
