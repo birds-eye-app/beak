@@ -119,8 +119,8 @@ const UploadCSV = ({
             📄 Upload eBird CSV
             <VisuallyHiddenInput
               type="file"
+              accept=".csv"
               onChange={handleFileChange}
-              multiple
             />
           </Button>
         </Fade>
