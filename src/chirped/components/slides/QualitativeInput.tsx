@@ -27,18 +27,23 @@ const QualitativeInput = ({ isActive }: { isActive: boolean }) => {
 
   console.debug("qualitativeQuestions-input", qualitativeQuestions);
 
-  const questionOptions = [
-    `what was your favorite bird of ${CurrentYear}?`,
-    "What was your nemesis bird this year?",
-    "What bird are you most excited to see next year?",
-    "Hardest bird you found this year?",
-    "Biggest dip of the year?",
-    "Biggest surprise bird?",
-    "Favorite birding moment?",
-    "Favorite mixed flock?",
-    "Favorite new hotpot you found this year?",
-    "Best birding buddy?",
+  const defaultQuestionOptions = [
+    `Favorite bird of ${CurrentYear}`,
+    `Nemesis bird of ${CurrentYear}`,
+    `Bird you're most excited to see in ${CurrentYear + 1}`,
+    "Hardest bird you found this year",
+    "Biggest dip of the year",
+    "Biggest surprise bird",
+    "Favorite birding moment",
+    "Rarest bird you found this year",
+    "Favorite mixed flock",
+    "Favorite new hotpot you found this year",
+    "Best birding buddy",
   ];
+
+  const questionOptions = defaultQuestionOptions.filter(
+    (option) => !qualitativeQuestions.some((q) => q.question === option),
+  );
 
   return (
     <OutlinedCard>
