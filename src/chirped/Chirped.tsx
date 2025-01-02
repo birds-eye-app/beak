@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { performChirpedCalculations } from "./calculate";
-import { ChirpedContext, ChirpedContextType } from "./Context";
+import {
+  ChirpedContext,
+  ChirpedContextType,
+  UserSelectionsContext,
+  UserSelections,
+} from "./Context";
 import { makeNewChirpedContext } from "./helpers";
 import { parseObservations } from "./parseEbirdExport";
 import Upload from "./components/slides/Upload";
@@ -18,6 +23,9 @@ import Summary from "./components/slides/Summary";
 import Totals from "./components/slides/Totals";
 import "./styles.css";
 import { Container } from "@mui/material";
+import QualitativeInput from "./components/slides/QualitativeInput";
+import { QualitativeQuestionData } from "./components/slides/QualitativeInput";
+import ViewQualitative from "./components/slides/ViewQualitative";
 
 export const CurrentYear = 2024;
 
@@ -30,6 +38,10 @@ export function Chirped() {
   const [fakeProcessingComplete, setFakeProcessingComplete] = useState(false);
   const [chirpedObservations, setChirpedObservations] =
     useState<ChirpedContextType>(makeNewChirpedContext());
+  const [userSelections, setUserSelections] = useState<UserSelections>({
+    hotspotRanking: "checklists",
+    qualitativeQuestions: [],
+  });
 
   const onUploadComplete = async (contents: string) => {
     setFileContents(contents);
@@ -73,6 +85,8 @@ export function Chirped() {
     );
   }
 
+  console.debug("userSelections-chirped", userSelections);
+
   return (
     <>
       <ChirpedContext.Provider value={chirpedObservations}>
@@ -81,6 +95,28 @@ export function Chirped() {
           modules={[Navigation]}
           className="mySwiper"
         >
+          <UserSelectionsContext.Provider value={userSelections}>
+            <SwiperSlide style={swiperSlideStyle}>
+              {({ isActive }) => (
+                <QualitativeInput
+                  isActive={isActive}
+                  setqualitativeQuestions={(
+                    newData: QualitativeQuestionData[],
+                  ) => {
+                    console.log("newData", newData);
+                    setUserSelections({
+                      ...userSelections,
+                      qualitativeQuestions: newData,
+                    });
+                  }}
+                />
+              )}
+            </SwiperSlide>
+            <SwiperSlide style={swiperSlideStyle}>
+              {({ isActive }) => <ViewQualitative isActive={isActive} />}
+            </SwiperSlide>
+          </UserSelectionsContext.Provider>
+
           <SwiperSlide style={swiperSlideStyle}>
             {({ isActive }) => <Totals isActive={isActive} />}
           </SwiperSlide>

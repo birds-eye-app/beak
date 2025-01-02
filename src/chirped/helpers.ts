@@ -10,6 +10,7 @@ export function makeNewChirpedContext(): ChirpedContextType {
       mostObservedByChecklistFrequency: [],
       mostObservedByTotalCount: [],
       topHotspotsByChecklists: [],
+      topHotspotsByTimeSpent: [],
     },
     yearStats: {
       species: 0,

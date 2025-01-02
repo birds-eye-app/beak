@@ -112,7 +112,7 @@ const Hotspots = ({ isActive }: { isActive: boolean }) => {
       <br />
       <FadeInWithInitialDelay in={isActive} initialDelay={9000}>
         <Button
-          component="label"
+          component="button"
           role={undefined}
           variant="contained"
           tabIndex={-1}

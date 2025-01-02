@@ -1,5 +1,6 @@
 import { createContext } from "react";
 import { HotSpotStatsRanking, SpeciesStatsRanking } from "./calculate";
+import { QualitativeQuestionData } from "./components/slides/QualitativeInput";
 import { makeNewChirpedContext } from "./helpers";
 import { Observation } from "./parseEbirdExport";
 
@@ -46,3 +47,13 @@ export type ChirpedContextType = {
 export const ChirpedContext = createContext<ChirpedContextType>(
   makeNewChirpedContext(),
 );
+
+export type UserSelections = {
+  hotspotRanking: "checklists" | "timeSpent";
+  qualitativeQuestions: QualitativeQuestionData[];
+};
+
+export const UserSelectionsContext = createContext<UserSelections>({
+  hotspotRanking: "checklists",
+  qualitativeQuestions: [],
+});
