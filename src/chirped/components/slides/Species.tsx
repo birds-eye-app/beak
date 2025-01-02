@@ -2,9 +2,9 @@ import { Container, ListItem } from "@mui/material";
 import List from "@mui/material/List";
 import Typography from "@mui/material/Typography";
 import { useContext } from "react";
-import OutlinedCard from "../Card";
-import { CurrentYear } from "../Chirped";
-import { ChirpedContext } from "../Context";
+import OutlinedCard from "../../Card";
+import { CurrentYear } from "../../Chirped";
+import { ChirpedContext } from "../../Context";
 
 const Slide3 = () => {
   const chirped = useContext(ChirpedContext);

@@ -1,9 +1,9 @@
 import { useContext } from "react";
-import OutlinedCard from "../Card";
-import { ChirpedContext } from "../Context";
+import OutlinedCard from "../../Card";
+import { ChirpedContext } from "../../Context";
 import { Typography, Container, ListItem } from "@mui/material";
 import List from "@mui/material/List";
-import { CurrentYear } from "../Chirped";
+import { CurrentYear } from "../../Chirped";
 
 const BigNumberWithLabelBelow = ({
   number,

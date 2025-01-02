@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { ChirpedContext } from "../Context";
+import { ChirpedContext } from "../../Context";
 const DebugSlide = () => {
   const chirped = useContext(ChirpedContext);
   return (

@@ -1,8 +1,8 @@
 import Typography from "@mui/material/Typography";
 import { useContext } from "react";
-import OutlinedCard from "../Card";
-import { ChirpedContext } from "../Context";
-import { CurrentYear } from "../Chirped";
+import OutlinedCard from "../../Card";
+import { ChirpedContext } from "../../Context";
+import { CurrentYear } from "../../Chirped";
 
 const Slide3 = () => {
   const chirped = useContext(ChirpedContext);

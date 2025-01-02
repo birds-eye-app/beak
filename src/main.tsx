@@ -6,6 +6,8 @@ import { ErrorBoundary } from "react-error-boundary";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App.tsx";
 import "./index.css";
+import { ErrorDisplay } from "./ErrorBoundary.tsx";
+import { onError } from "./chirped/helpers.ts";
 
 const theme = createTheme({
   palette: {
@@ -19,14 +21,7 @@ const theme = createTheme({
 });
 
 createRoot(document.getElementById("root")!).render(
-  <ErrorBoundary
-    fallback={
-      <h1>
-        🚨🔥 Something went wrong. We have our wisest owls and our fastest
-        peregrines looking into it... 🦉🔧🔨
-      </h1>
-    }
-  >
+  <ErrorBoundary fallback={<ErrorDisplay />} onError={onError}>
     <StrictMode>
       <ThemeProvider theme={theme}>
         <BrowserRouter>

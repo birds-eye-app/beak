@@ -1,7 +1,7 @@
 import Typography from "@mui/material/Typography";
 import { useContext } from "react";
-import OutlinedCard from "../Card";
-import { ChirpedContext } from "../Context";
+import OutlinedCard from "../../Card";
+import { ChirpedContext } from "../../Context";
 import List from "@mui/material/List";
 import { Container, ListItem } from "@mui/material";
 

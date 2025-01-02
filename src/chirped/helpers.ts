@@ -1,4 +1,5 @@
 import { ChirpedContextType } from "./Context";
+import { ErrorInfo } from "react";
 
 export function makeNewChirpedContext(): ChirpedContextType {
   return {
@@ -29,3 +30,7 @@ export function makeNewChirpedContext(): ChirpedContextType {
     },
   };
 }
+
+export const onError = (error: Error, info: ErrorInfo) => {
+  console.error(error, info);
+};

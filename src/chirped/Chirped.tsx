@@ -4,25 +4,28 @@ import { performChirpedCalculations } from "./calculate";
 import { ChirpedContext, ChirpedContextType } from "./Context";
 import { makeNewChirpedContext } from "./helpers";
 import { parseObservations } from "./parseEbirdExport";
-import Upload from "./slides/Upload";
+import Upload from "./components/slides/Upload";
 
-import { Container } from "@mui/material";
 import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
-import Checklists from "./slides/Checklists";
-import Counts from "./slides/Counts";
-import Hotspots from "./slides/Hotspots";
-import Lifers from "./slides/Lifers";
-import Species from "./slides/Species";
-import Summary from "./slides/Summary";
-import Totals from "./slides/Totals";
+import Checklists from "./components/slides/Checklists";
+import Counts from "./components/slides/Counts";
+import Hotspots from "./components/slides/Hotspots";
+import Lifers from "./components/slides/Lifers";
+import Species from "./components/slides/Species";
+import Summary from "./components/slides/Summary";
+import Totals from "./components/slides/Totals";
 import "./styles.css";
+import { Container } from "@mui/material";
 
 export const CurrentYear = 2024;
 
 export function Chirped() {
   const [fileContents, setFileContents] = useState("");
+  const [actualProcessingComplete, setActualProcessingComplete] =
+    useState(false);
+  const [fakeProcessingComplete, setFakeProcessingComplete] = useState(false);
   const [chirpedObservations, setChirpedObservations] =
     useState<ChirpedContextType>(makeNewChirpedContext());
 
@@ -39,12 +42,13 @@ export function Chirped() {
         CurrentYear,
       );
       setChirpedObservations(chirped);
+      setActualProcessingComplete(true);
     }
 
     runObs();
   }, [fileContents]);
 
-  if (chirpedObservations.allObservations.length === 0) {
+  if (!fakeProcessingComplete) {
     return (
       <Container
         sx={{
@@ -57,7 +61,12 @@ export function Chirped() {
           width: "100%",
         }}
       >
-        <Upload onUploadComplete={onUploadComplete} />
+        <Upload
+          onUploadComplete={onUploadComplete}
+          actualProcessingComplete={actualProcessingComplete}
+          onFakeProcessingComplete={() => {}}
+          onStartChirped={() => setFakeProcessingComplete(true)}
+        />
       </Container>
     );
   }
@@ -91,35 +100,6 @@ export function Chirped() {
           <SwiperSlide style={{ background: "#555555" }}>
             <Summary />
           </SwiperSlide>
-          {/* <SwiperSlide style={{background: '#eee'}}>
-            <div style={{ maxHeight: "400px", overflowY: "auto" }}>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Species</th>
-                    <th>Observation Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {chirpedObservations.lifeList
-                    .sort(
-                      (a, b) =>
-                        new Date(b.dateTime).getTime() -
-                        new Date(a.dateTime).getTime(),
-                    )
-                    .map((bird) => (
-                      <tr key={bird.scientificName}>
-                        <td>{bird.commonName}</td>
-                        <td>{new Date(bird.dateTime).toLocaleDateString()}</td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-          </SwiperSlide>
-          <SwiperSlide style={{background: '#eee'}}>
-            <DebugSlide />
-          </SwiperSlide> */}
         </Swiper>
       </ChirpedContext.Provider>
     </>
