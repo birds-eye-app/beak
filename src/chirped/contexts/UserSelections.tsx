@@ -20,7 +20,7 @@ import { ReactNode } from "react";
 const defaultQuestions = import.meta.env.DEV
   ? [
       { question: "What was your favorite hotspot?", answer: "My backyard" },
-      { question: "What was your favorite bird?", answer: "Common Grackle" },
+      { question: "What was your favorite bird?", answer: "Eastern Phoebe" },
     ]
   : [];
 

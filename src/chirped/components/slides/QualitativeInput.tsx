@@ -82,10 +82,10 @@ const QualitativeInput = ({ isActive }: { isActive: boolean }) => {
   }, [qualitativeQuestions]);
 
   return (
-    <OutlinedCard>
+    <OutlinedCard justifyContent="flex-start">
       <TypographyWithFadeIn
         in={isActive}
-        initialDelay={500}
+        initialDelay={250}
         variant="h5"
         sx={{ mb: 2 }}
       >
@@ -98,9 +98,8 @@ const QualitativeInput = ({ isActive }: { isActive: boolean }) => {
         sx={{ mb: 2 }}
         textAlign={"left"}
       >
-        Here you can add some more of the personal touch to your Chirped.
-        We&apos;ve added some suggested questions, but feel free to add your
-        own!
+        Here you can add some more personal details to your year. We&apos;ve
+        included some suggested questions, but feel free to write your own!
       </TypographyWithFadeIn>
       <Divider sx={{ mb: 2 }} />
       <FadeInWithInitialDelay in={isActive} initialDelay={2750}>

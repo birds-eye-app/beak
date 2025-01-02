@@ -4,9 +4,11 @@ import CardContent from "@mui/material/CardContent";
 
 export default function OutlinedCard({
   justifyContent = "center",
+  minHeight,
   children,
 }: {
   justifyContent?: "center" | "flex-start" | "flex-end";
+  minHeight?: number;
   children: React.ReactNode;
 }) {
   return (
@@ -17,7 +19,7 @@ export default function OutlinedCard({
         justifyContent: "center",
         alignItems: "center",
         maxWidth: 400,
-        minHeight: 400,
+        minHeight: minHeight || 400,
         maxHeight: "80%",
         margin: 5,
       }}

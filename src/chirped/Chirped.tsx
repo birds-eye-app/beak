@@ -91,7 +91,6 @@ export function Chirped() {
             <SwiperSlide style={swiperSlideStyle}>
               {({ isActive }) => <ViewQualitative isActive={isActive} />}
             </SwiperSlide>
-
             <SwiperSlide style={swiperSlideStyle}>
               {({ isActive }) => <Totals isActive={isActive} />}
             </SwiperSlide>
@@ -109,6 +108,12 @@ export function Chirped() {
             </SwiperSlide>
             <SwiperSlide style={swiperSlideStyle}>
               {({ isActive }) => <Hotspots isActive={isActive} />}
+            </SwiperSlide>
+            <SwiperSlide style={swiperSlideStyle}>
+              {({ isActive }) => <QualitativeInput isActive={isActive} />}
+            </SwiperSlide>
+            <SwiperSlide style={swiperSlideStyle}>
+              {({ isActive }) => <ViewQualitative isActive={isActive} />}
             </SwiperSlide>
             <SwiperSlide style={swiperSlideStyle}>
               {({ isActive }) => <Summary isActive={isActive} />}

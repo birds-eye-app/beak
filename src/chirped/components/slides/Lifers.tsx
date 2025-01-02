@@ -8,7 +8,7 @@ const Lifers = ({ isActive }: { isActive: boolean }) => {
   const chirped = useContext(ChirpedContext);
   const yearStats = chirped.yearStats;
   return (
-    <OutlinedCard justifyContent="flex-start">
+    <OutlinedCard>
       <TypographyWithFadeIn
         in={isActive}
         initialDelay={500}
