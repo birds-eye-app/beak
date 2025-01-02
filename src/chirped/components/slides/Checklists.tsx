@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import OutlinedCard from "../../Card";
-import { ChirpedContext } from "../../Context";
+import { ChirpedContext } from "../../contexts/Chirped";
 import { TypographyWithFadeIn } from "../Text";
 
 const Checklists = ({ isActive }: { isActive: boolean }) => {

@@ -1,7 +1,7 @@
 import { createContext } from "react";
-import { HotSpotStatsRanking, SpeciesStatsRanking } from "./calculate";
-import { makeNewChirpedContext } from "./helpers";
-import { Observation } from "./parseEbirdExport";
+import { HotSpotStatsRanking, SpeciesStatsRanking } from "../calculate";
+import { makeNewChirpedContext } from "../helpers";
+import { Observation } from "../parseEbirdExport";
 
 export type ChirpedContextType = {
   allObservations: Observation[];

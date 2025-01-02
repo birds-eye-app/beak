@@ -4,7 +4,7 @@ import Typography from "@mui/material/Typography";
 import { useContext } from "react";
 import OutlinedCard from "../../Card";
 import { CurrentYear } from "../../Chirped";
-import { ChirpedContext } from "../../Context";
+import { ChirpedContext } from "../../contexts/Chirped";
 import { FadeInWithInitialDelay } from "../FadeWithInitialDelay";
 import { TypographyWithFadeIn } from "../Text";
 
@@ -12,7 +12,7 @@ const Species = ({ isActive }: { isActive: boolean }) => {
   const chirped = useContext(ChirpedContext);
   const yearStats = chirped.yearStats;
   return (
-    <OutlinedCard>
+    <OutlinedCard justifyContent="flex-start">
       <TypographyWithFadeIn
         in={isActive}
         initialDelay={500}

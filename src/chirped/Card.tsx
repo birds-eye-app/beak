@@ -3,10 +3,12 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 
 export default function OutlinedCard({
-  justifyContent = "flex-start",
+  justifyContent = "center",
+  minHeight,
   children,
 }: {
   justifyContent?: "center" | "flex-start" | "flex-end";
+  minHeight?: number;
   children: React.ReactNode;
 }) {
   return (
@@ -14,10 +16,10 @@ export default function OutlinedCard({
       sx={{
         display: "flex",
         flexDirection: "column",
-        justifyContent: justifyContent,
+        justifyContent: "center",
         alignItems: "center",
         maxWidth: 400,
-        minHeight: 400,
+        minHeight: minHeight || 400,
         maxHeight: "80%",
         margin: 5,
       }}
@@ -36,7 +38,7 @@ export default function OutlinedCard({
           sx={{
             display: "flex",
             flexDirection: "column",
-            justifyContent: "center",
+            justifyContent,
             alignItems: "center",
             flex: 1,
             paddingBottom: 5,

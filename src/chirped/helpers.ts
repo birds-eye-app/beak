@@ -1,5 +1,5 @@
-import { ChirpedContextType } from "./Context";
 import { ErrorInfo } from "react";
+import { ChirpedContextType } from "./contexts/Chirped";
 
 export function makeNewChirpedContext(): ChirpedContextType {
   return {
