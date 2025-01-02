@@ -1,4 +1,4 @@
-import { ChirpedContextType } from "./Context";
+import { ChirpedContextType } from "./contexts/Chirped";
 import { makeNewChirpedContext } from "./helpers";
 import { Observation } from "./parseEbirdExport";
 

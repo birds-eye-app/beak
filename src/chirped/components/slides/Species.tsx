@@ -4,7 +4,7 @@ import Typography from "@mui/material/Typography";
 import { useContext } from "react";
 import OutlinedCard from "../../Card";
 import { CurrentYear } from "../../Chirped";
-import { ChirpedContext } from "../../Context";
+import { ChirpedContext } from "../../contexts/Chirped";
 import { FadeInWithInitialDelay } from "../FadeWithInitialDelay";
 import { TypographyWithFadeIn } from "../Text";
 

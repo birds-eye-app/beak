@@ -10,7 +10,7 @@ import {
 import { useContext } from "react";
 import OutlinedCard from "../../Card";
 import { CurrentYear } from "../../Chirped";
-import { UserSelectionsContext } from "../../Context";
+import { UserSelectionsContext } from "../../contexts/UserSelections";
 import { TypographyWithFadeIn } from "../Text";
 
 export type QualitativeQuestionData = {
@@ -19,15 +19,10 @@ export type QualitativeQuestionData = {
 };
 const maxQuestions = 8;
 
-const QualitativeInput = ({
-  isActive,
-  setqualitativeQuestions,
-}: {
-  isActive: boolean;
-  setqualitativeQuestions: (data: QualitativeQuestionData[]) => void;
-}) => {
-  const userSelections = useContext(UserSelectionsContext);
-  const qualitativeQuestions = userSelections.qualitativeQuestions;
+const QualitativeInput = ({ isActive }: { isActive: boolean }) => {
+  const { qualitativeQuestions, setQualitativeQuestions } = useContext(
+    UserSelectionsContext,
+  );
 
   console.debug("qualitativeQuestions-input", qualitativeQuestions);
 
@@ -96,7 +91,7 @@ const QualitativeInput = ({
                 onBlur={(e) => {
                   const newData = [...qualitativeQuestions];
                   newData[index].question = e.target.value;
-                  setqualitativeQuestions(newData);
+                  setQualitativeQuestions(newData);
                 }}
               />
             )}
@@ -111,7 +106,7 @@ const QualitativeInput = ({
             onBlur={(e) => {
               const newData = [...qualitativeQuestions];
               newData[index].answer = e.target.value;
-              setqualitativeQuestions(newData);
+              setQualitativeQuestions(newData);
             }}
           />
           <Button
@@ -137,7 +132,7 @@ const QualitativeInput = ({
           tabIndex={-1}
           color="primary"
           onClick={() =>
-            setqualitativeQuestions([
+            setQualitativeQuestions([
               ...qualitativeQuestions,
               {
                 question: "",

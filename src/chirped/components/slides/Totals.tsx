@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import OutlinedCard from "../../Card";
 import { CurrentYear } from "../../Chirped";
-import { ChirpedContext } from "../../Context";
+import { ChirpedContext } from "../../contexts/Chirped";
 import { TypographyWithFadeIn } from "../Text";
 
 const Totals = ({ isActive }: { isActive: boolean }) => {

@@ -7,7 +7,7 @@ import {
 import { Observation, parseObservations } from "../../chirped/parseEbirdExport";
 import * as path from "path";
 import * as fs from "fs";
-import { ChirpedContextType } from "../../chirped/Context";
+import { ChirpedContextType } from "../../chirped/contexts/Chirped";
 import Papa from "papaparse";
 import { fetchTaxonomyForSpecies } from "../../chirped/taxonomy/fetch";
 import { parse } from "date-fns";

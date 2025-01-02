@@ -1,16 +1,13 @@
 import { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { performChirpedCalculations } from "./calculate";
-import {
-  ChirpedContext,
-  ChirpedContextType,
-  UserSelectionsContext,
-  UserSelections,
-} from "./Context";
+import Upload from "./components/slides/Upload";
+import { ChirpedContext, ChirpedContextType } from "./contexts/Chirped";
+import { UserSelections } from "./contexts/UserSelections";
 import { makeNewChirpedContext } from "./helpers";
 import { parseObservations } from "./parseEbirdExport";
-import Upload from "./components/slides/Upload";
 
+import { Container } from "@mui/material";
 import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
@@ -18,14 +15,12 @@ import Checklists from "./components/slides/Checklists";
 import Counts from "./components/slides/Counts";
 import Hotspots from "./components/slides/Hotspots";
 import Lifers from "./components/slides/Lifers";
+import QualitativeInput from "./components/slides/QualitativeInput";
 import Species from "./components/slides/Species";
 import Summary from "./components/slides/Summary";
 import Totals from "./components/slides/Totals";
-import "./styles.css";
-import { Container } from "@mui/material";
-import QualitativeInput from "./components/slides/QualitativeInput";
-import { QualitativeQuestionData } from "./components/slides/QualitativeInput";
 import ViewQualitative from "./components/slides/ViewQualitative";
+import "./styles.css";
 
 export const CurrentYear = 2024;
 
@@ -38,10 +33,6 @@ export function Chirped() {
   const [fakeProcessingComplete, setFakeProcessingComplete] = useState(false);
   const [chirpedObservations, setChirpedObservations] =
     useState<ChirpedContextType>(makeNewChirpedContext());
-  const [userSelections, setUserSelections] = useState<UserSelections>({
-    hotspotRanking: "checklists",
-    qualitativeQuestions: [],
-  });
 
   const onUploadComplete = async (contents: string) => {
     setFileContents(contents);
@@ -85,8 +76,6 @@ export function Chirped() {
     );
   }
 
-  console.debug("userSelections-chirped", userSelections);
-
   return (
     <>
       <ChirpedContext.Provider value={chirpedObservations}>
@@ -95,27 +84,14 @@ export function Chirped() {
           modules={[Navigation]}
           className="mySwiper"
         >
-          <UserSelectionsContext.Provider value={userSelections}>
+          {/* <UserSelections>
             <SwiperSlide style={swiperSlideStyle}>
-              {({ isActive }) => (
-                <QualitativeInput
-                  isActive={isActive}
-                  setqualitativeQuestions={(
-                    newData: QualitativeQuestionData[],
-                  ) => {
-                    console.log("newData", newData);
-                    setUserSelections({
-                      ...userSelections,
-                      qualitativeQuestions: newData,
-                    });
-                  }}
-                />
-              )}
+              {({ isActive }) => <QualitativeInput isActive={isActive} />}
             </SwiperSlide>
             <SwiperSlide style={swiperSlideStyle}>
               {({ isActive }) => <ViewQualitative isActive={isActive} />}
             </SwiperSlide>
-          </UserSelectionsContext.Provider>
+          </UserSelections> */}
 
           <SwiperSlide style={swiperSlideStyle}>
             {({ isActive }) => <Totals isActive={isActive} />}

@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import OutlinedCard from "../../Card";
 import { TypographyWithFadeIn } from "../Text";
-import { UserSelectionsContext } from "../../Context";
+import { UserSelectionsContext } from "../../contexts/UserSelections";
 
 export type QualitativeQuestionData = {
   question: string;
