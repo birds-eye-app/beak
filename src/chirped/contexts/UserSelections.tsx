@@ -17,10 +17,17 @@ export const UserSelectionsContext = createContext<UserSelections>({
 
 import { ReactNode } from "react";
 
+const defaultQuestions = import.meta.env.DEV
+  ? [
+      { question: "What was your favorite hotspot?", answer: "My backyard" },
+      { question: "What was your favorite bird?", answer: "Common Grackle" },
+    ]
+  : [];
+
 export const UserSelections = ({ children }: { children: ReactNode }) => {
   const [userSelections, setUserSelections] = useState<UserSelections>({
     hotspotRanking: "checklists",
-    qualitativeQuestions: [],
+    qualitativeQuestions: defaultQuestions,
     setHotspotRanking: () => {},
     setQualitativeQuestions: (questions: QualitativeQuestionData[]) => {
       console.debug("qualitativeQuestions-set", questions);

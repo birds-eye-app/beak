@@ -19,7 +19,7 @@ const Hotspots = ({ isActive }: { isActive: boolean }) => {
       ? chirped.rankings.topHotspotsByChecklists
       : chirped.rankings.topHotspotsByTimeSpent;
   return (
-    <OutlinedCard>
+    <OutlinedCard justifyContent="flex-start">
       <TypographyWithFadeIn
         in={isActive}
         initialDelay={500}

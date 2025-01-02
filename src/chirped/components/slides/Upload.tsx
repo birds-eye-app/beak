@@ -53,7 +53,6 @@ const UploadCSV = ({
     if (actualProcessingComplete && animationReady) {
       setTimeout(() => {
         onFakeProcessingComplete();
-        setAnimationReady(false);
         setAnimationComplete(true);
       }, transitionDelay);
     }
@@ -134,7 +133,6 @@ const UploadCSV = ({
             variant="contained"
             tabIndex={-1}
             color="secondary"
-            disabled={animationReady}
             onClick={onStartChirped}
           >
             Start chirped!

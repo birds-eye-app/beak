@@ -12,6 +12,7 @@ import OutlinedCard from "../../Card";
 import { CurrentYear } from "../../Chirped";
 import { UserSelectionsContext } from "../../contexts/UserSelections";
 import { TypographyWithFadeIn } from "../Text";
+import { FadeInWithInitialDelay } from "../FadeWithInitialDelay";
 
 export type QualitativeQuestionData = {
   question: string;
@@ -61,91 +62,100 @@ const QualitativeInput = ({ isActive }: { isActive: boolean }) => {
         own!
       </TypographyWithFadeIn>
       <Divider sx={{ mb: 2 }} />
-      {qualitativeQuestions.map((data, index) => (
-        <Container key={index} disableGutters sx={{ width: "100%" }}>
-          <Typography
-            variant="body2"
-            sx={{ textAlign: "left", color: "text.secondary", mb: 1 }}
-            key={"t-" + index}
-          >
-            Question {index + 1}
-          </Typography>
-          <Autocomplete
-            sx={{ width: "100%", mb: 1 }}
-            freeSolo
-            key={"ac-" + index}
-            options={questionOptions}
-            value={data.question}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                key={"tf-" + index}
-                label="Prompt"
-                slotProps={{
-                  input: {
-                    ...params.InputProps,
-                    type: "search",
+      <FadeInWithInitialDelay in={isActive} initialDelay={2750}>
+        <Container disableGutters sx={{ width: "100%" }}>
+          {qualitativeQuestions.map((data, index) => (
+            <FadeInWithInitialDelay key={index} in={isActive} initialDelay={0}>
+              <Container disableGutters sx={{ width: "100%" }}>
+                <>
+                  <Typography
+                    variant="body2"
+                    sx={{ textAlign: "left", color: "text.secondary", mb: 1 }}
+                    key={"t-" + index}
+                  >
+                    Question {index + 1}
+                  </Typography>
+                  <Autocomplete
+                    sx={{ width: "100%", mb: 1 }}
+                    freeSolo
+                    key={"ac-" + index}
+                    options={questionOptions}
+                    value={data.question}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        key={"tf-" + index}
+                        label="Prompt"
+                        slotProps={{
+                          input: {
+                            ...params.InputProps,
+                            type: "search",
+                          },
+                        }}
+                        value={data.question}
+                        onBlur={(e) => {
+                          const newData = [...qualitativeQuestions];
+                          newData[index].question = e.target.value;
+                          setQualitativeQuestions(newData);
+                        }}
+                      />
+                    )}
+                  />
+                  <TextField
+                    id={`qd-${index}`}
+                    label="Answer"
+                    variant="outlined"
+                    key={"tf2-" + index}
+                    sx={{ mb: 2, width: "100%" }}
+                    defaultValue={data.answer}
+                    onBlur={(e) => {
+                      const newData = [...qualitativeQuestions];
+                      newData[index].answer = e.target.value;
+                      setQualitativeQuestions(newData);
+                    }}
+                  />
+                  <Button
+                    key={"b-" + index}
+                    variant="outlined"
+                    startIcon={<DeleteIcon />}
+                    onClick={() => {
+                      const newData = [...qualitativeQuestions];
+                      newData.splice(index, 1);
+                      setQualitativeQuestions(newData);
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </>
+              </Container>
+            </FadeInWithInitialDelay>
+          ))}
+
+          <br />
+          {qualitativeQuestions.length < maxQuestions && (
+            <Button
+              component="button"
+              role={undefined}
+              variant="contained"
+              tabIndex={-1}
+              color="primary"
+              onClick={() =>
+                setQualitativeQuestions([
+                  ...qualitativeQuestions,
+                  {
+                    question: "",
+                    answer: "",
                   },
-                }}
-                value={data.question}
-                onBlur={(e) => {
-                  const newData = [...qualitativeQuestions];
-                  newData[index].question = e.target.value;
-                  setQualitativeQuestions(newData);
-                }}
-              />
-            )}
-          />
-          <TextField
-            id={`qd-${index}`}
-            label="Answer"
-            variant="outlined"
-            key={"tf2-" + index}
-            sx={{ mb: 2, width: "100%" }}
-            defaultValue={data.answer}
-            onBlur={(e) => {
-              const newData = [...qualitativeQuestions];
-              newData[index].answer = e.target.value;
-              setQualitativeQuestions(newData);
-            }}
-          />
-          <Button
-            key={"b-" + index}
-            variant="outlined"
-            startIcon={<DeleteIcon />}
-            onClick={() => {
-              const newData = [...qualitativeQuestions];
-              newData.splice(index, 1);
-              setQualitativeQuestions(newData);
-            }}
-          >
-            Delete
-          </Button>
+                ])
+              }
+            >
+              {qualitativeQuestions.length > 0
+                ? "Add another question"
+                : "Add a question"}
+            </Button>
+          )}
         </Container>
-      ))}
-      <br />
-      {qualitativeQuestions.length < maxQuestions && (
-        <Button
-          component="button"
-          role={undefined}
-          variant="contained"
-          tabIndex={-1}
-          color="primary"
-          onClick={() =>
-            setQualitativeQuestions([
-              ...qualitativeQuestions,
-              {
-                question: "",
-                answer: "",
-              },
-            ])
-          }
-        >
-          {qualitativeQuestions.length > 0
-            ? "Add another question"
-            : "Add a question"}
-        </Button>
-      )}
+      </FadeInWithInitialDelay>
     </OutlinedCard>
   );
 };

@@ -3,7 +3,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 
 export default function OutlinedCard({
-  justifyContent = "flex-start",
+  justifyContent = "center",
   children,
 }: {
   justifyContent?: "center" | "flex-start" | "flex-end";
@@ -14,7 +14,7 @@ export default function OutlinedCard({
       sx={{
         display: "flex",
         flexDirection: "column",
-        justifyContent: justifyContent,
+        justifyContent: "center",
         alignItems: "center",
         maxWidth: 400,
         minHeight: 400,
@@ -36,7 +36,7 @@ export default function OutlinedCard({
           sx={{
             display: "flex",
             flexDirection: "column",
-            justifyContent: "center",
+            justifyContent,
             alignItems: "center",
             flex: 1,
             paddingBottom: 5,

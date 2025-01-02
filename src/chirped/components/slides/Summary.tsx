@@ -5,6 +5,7 @@ import { Typography, Container, ListItem } from "@mui/material";
 import List from "@mui/material/List";
 import { CurrentYear } from "../../Chirped";
 import { FadeInWithInitialDelay } from "../FadeWithInitialDelay";
+import { UserSelectionsContext } from "../../contexts/UserSelections";
 
 const BigNumberWithLabelBelow = ({
   number,
@@ -24,8 +25,14 @@ const BigNumberWithLabelBelow = ({
 const Summary = ({ isActive }: { isActive: boolean }) => {
   const chirped = useContext(ChirpedContext);
   const yearStats = chirped.yearStats;
+  const { hotspotRanking } = useContext(UserSelectionsContext);
+
+  const topHotspots =
+    hotspotRanking === "checklists"
+      ? chirped.rankings.topHotspotsByChecklists
+      : chirped.rankings.topHotspotsByTimeSpent;
   return (
-    <OutlinedCard>
+    <OutlinedCard justifyContent="flex-start">
       <FadeInWithInitialDelay in={isActive} initialDelay={500}>
         <Container>
           <Typography variant="h5" sx={{ mb: 2 }}>
@@ -119,32 +126,30 @@ const Summary = ({ isActive }: { isActive: boolean }) => {
                 }}
               >
                 <List component="ol">
-                  {chirped.rankings.topHotspotsByChecklists
-                    .slice(0, 5)
-                    .map((hotspot, index) => (
-                      <ListItem
+                  {topHotspots.slice(0, 5).map((hotspot, index) => (
+                    <ListItem
+                      disableGutters
+                      disablePadding
+                      key={hotspot.locationID}
+                    >
+                      <Container
                         disableGutters
-                        disablePadding
-                        key={hotspot.locationID}
+                        sx={{ flexDirection: "row", display: "flex" }}
                       >
-                        <Container
-                          disableGutters
-                          sx={{ flexDirection: "row", display: "flex" }}
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            marginRight: 1,
+                          }}
                         >
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              marginRight: 1,
-                            }}
-                          >
-                            {index + 1}.{" "}
-                          </Typography>
-                          <Typography variant="body2">
-                            {hotspot.locationName}
-                          </Typography>
-                        </Container>
-                      </ListItem>
-                    ))}
+                          {index + 1}.{" "}
+                        </Typography>
+                        <Typography variant="body2">
+                          {hotspot.locationName}
+                        </Typography>
+                      </Container>
+                    </ListItem>
+                  ))}
                 </List>
               </Container>
             </Container>

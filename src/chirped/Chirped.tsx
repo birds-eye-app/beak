@@ -19,7 +19,7 @@ import QualitativeInput from "./components/slides/QualitativeInput";
 import Species from "./components/slides/Species";
 import Summary from "./components/slides/Summary";
 import Totals from "./components/slides/Totals";
-import ViewQualitative from "./components/slides/ViewQualitative";
+import ViewQualitative from "./components/slides/QualitativeView";
 import "./styles.css";
 
 export const CurrentYear = 2024;
