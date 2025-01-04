@@ -1,7 +1,7 @@
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import { forwardRef } from "react";
+import { forwardRef, useEffect, useRef } from "react";
 
 const OutlinedCard = forwardRef(function OutlinedCard(
   {
@@ -19,6 +19,15 @@ const OutlinedCard = forwardRef(function OutlinedCard(
   },
   ref: React.Ref<HTMLDivElement>,
 ) {
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  // always start with the card scrolled to the top
+  useEffect(() => {
+    if (cardRef.current) {
+      cardRef.current.scrollTop = -1000;
+    }
+  }, []);
+
   return (
     <Box
       sx={{
@@ -42,6 +51,7 @@ const OutlinedCard = forwardRef(function OutlinedCard(
           flex: 1,
           overflowY: disableScroll ? "hidden" : "auto",
         }}
+        ref={cardRef}
       >
         <CardContent
           sx={{
