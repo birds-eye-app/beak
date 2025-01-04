@@ -160,7 +160,6 @@ const QualitativeInput = ({ isActive }: { isActive: boolean }) => {
                           variant="outlined"
                           key={"tf2-" + index}
                           sx={{ mb: 2, width: "100%" }}
-                          defaultValue={data.answer}
                           onBlur={(e) => {
                             const newData = [...qualitativeQuestions];
                             newData[index].answer = e.target.value;

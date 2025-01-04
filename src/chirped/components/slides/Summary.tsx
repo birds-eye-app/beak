@@ -114,7 +114,6 @@ const Summary = ({ isActive }: { isActive: boolean }) => {
     .filter((question) => question.question.trim() && question.answer.trim())
     .slice(0, 8);
 
-  console.debug("showBreakdownBy", showBreakdownBy);
   return (
     <Container
       disableGutters
