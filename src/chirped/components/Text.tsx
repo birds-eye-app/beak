@@ -8,13 +8,17 @@ export type TypographyWithFadeInProps = TypographyProps & {
 };
 
 export const TypographyWithFadeIn = (props: TypographyWithFadeInProps) => {
+  // only pass props to the child Typography component
+  // that it knows how to handle
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { in: _, timeout: __, initialDelay: ___, ...rest } = props;
   return (
     <FadeInWithInitialDelay
       in={props.in}
       timeout={props.timeout}
       initialDelay={props.initialDelay}
     >
-      <Typography {...props} />
+      <Typography {...rest} />
     </FadeInWithInitialDelay>
   );
 };
