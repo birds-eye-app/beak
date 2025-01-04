@@ -1,12 +1,12 @@
 import { Share } from "@mui/icons-material";
-import { Button, Container, ListItem, Typography } from "@mui/material";
+import { Alert, Button, Container, ListItem, Typography } from "@mui/material";
 import List from "@mui/material/List";
-import { useCallback, useContext, useRef } from "react";
+import { useContext, useRef, useState } from "react";
 import OutlinedCard from "../../Card";
 import { CurrentYear } from "../../Chirped";
 import { ChirpedContext } from "../../contexts/Chirped";
 import { UserSelectionsContext } from "../../contexts/UserSelections";
-import { exportComponentAsImage } from "../../helpers";
+import { shareComponent } from "../../sharing";
 import { FadeInWithInitialDelay } from "../FadeWithInitialDelay";
 
 const BigNumberWithLabelBelow = ({
@@ -24,15 +24,55 @@ const BigNumberWithLabelBelow = ({
   </Container>
 );
 
+export const ShareButton = ({
+  shareRef,
+  fileName,
+}: {
+  shareRef: React.RefObject<HTMLDivElement>;
+  fileName: string;
+}) => {
+  const [shareSuccessful, setShareSuccessful] = useState<boolean | null>(null);
+
+  return (
+    <Container
+      disableGutters
+      // floating footer button
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        position: "fixed",
+        bottom: 20,
+        zIndex: 3,
+      }}
+    >
+      {shareSuccessful !== null && (
+        <Alert severity={shareSuccessful ? "success" : "error"} sx={{ mb: 2 }}>
+          {shareSuccessful
+            ? "Successfully shared!"
+            : "Failed to share. Maybe try taking a screenshot of this page instead."}
+        </Alert>
+      )}
+      <Button
+        variant="contained"
+        startIcon={<Share />}
+        onClick={async () => {
+          setShareSuccessful(await shareComponent(shareRef.current!, fileName));
+          // reset the success message after a few seconds
+          setTimeout(() => setShareSuccessful(null), 5000);
+        }}
+      >
+        Share
+      </Button>
+    </Container>
+  );
+};
+
 const Summary = ({ isActive }: { isActive: boolean }) => {
   const chirped = useContext(ChirpedContext);
   const yearStats = chirped.yearStats;
   const { hotspotRanking } = useContext(UserSelectionsContext);
   const shareRef = useRef<HTMLDivElement>(null);
-
-  const onShare = useCallback(() => {
-    exportComponentAsImage(shareRef.current!, "chirped-summary.png");
-  }, []);
 
   const topHotspots =
     hotspotRanking === "checklists"
@@ -85,24 +125,25 @@ const Summary = ({ isActive }: { isActive: boolean }) => {
               disableGutters
               sx={{
                 width: "100%",
-                maxHeight: 300,
-
+                maxHeight: 400,
                 display: "flex",
                 flexDirection: "row",
+                overflow: "hidden",
               }}
             >
               <Container disableGutters sx={{ flex: 1, padding: 0 }}>
-                <Typography gutterBottom>Top birds</Typography>
+                <Typography gutterBottom variant="h5">
+                  Top species
+                </Typography>
                 <Container
                   disableGutters
                   sx={{
                     width: "100%",
                     maxHeight: 300,
-                    overflowY: "auto",
                   }}
                 >
                   <List component="ol">
-                    {chirped.rankings.mostObservedByTotalCount
+                    {chirped.rankings.mostObservedByChecklistFrequency
                       .slice(0, 5)
                       .map((species, index) => (
                         <ListItem
@@ -132,13 +173,14 @@ const Summary = ({ isActive }: { isActive: boolean }) => {
                 </Container>
               </Container>
               <Container disableGutters sx={{ flex: 1 }}>
-                <Typography gutterBottom>Top Hotspots</Typography>
+                <Typography gutterBottom variant="h5">
+                  Top Hotspots
+                </Typography>
                 <Container
                   disableGutters
                   sx={{
                     width: "100%",
                     maxHeight: 300,
-                    overflowY: "auto",
                   }}
                 >
                   <List component="ol">
@@ -160,7 +202,13 @@ const Summary = ({ isActive }: { isActive: boolean }) => {
                           >
                             {index + 1}.{" "}
                           </Typography>
-                          <Typography variant="body2">
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              maxHeight: 100,
+                              overflow: "hidden",
+                            }}
+                          >
                             {hotspot.locationName}
                           </Typography>
                         </Container>
@@ -170,25 +218,13 @@ const Summary = ({ isActive }: { isActive: boolean }) => {
                 </Container>
               </Container>
             </Container>
-            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+            <Typography color="success" sx={{ color: "warning" }}>
               {"dtmeadows.me/chirped"}
             </Typography>
           </Container>
         </FadeInWithInitialDelay>
       </OutlinedCard>
-      <Button
-        variant="contained"
-        startIcon={<Share />}
-        onClick={onShare}
-        // floating footer button
-        sx={{
-          position: "fixed",
-          bottom: 20,
-          zIndex: 3,
-        }}
-      >
-        Share
-      </Button>
+      <ShareButton shareRef={shareRef} fileName="chirped-summary.png" />
     </Container>
   );
 };

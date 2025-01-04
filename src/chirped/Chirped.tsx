@@ -41,7 +41,6 @@ export function Chirped() {
   useEffect(() => {
     async function runObs() {
       const observations = await parseObservations(fileContents);
-      console.debug("found observations", observations.length);
       const chirped = await performChirpedCalculations(
         observations,
         CurrentYear,
@@ -87,6 +86,12 @@ export function Chirped() {
           >
             <SwiperSlide style={swiperSlideStyle}>
               {({ isActive }) => <Summary isActive={isActive} />}
+            </SwiperSlide>
+            <SwiperSlide style={swiperSlideStyle}>
+              {({ isActive }) => <ViewQualitative isActive={isActive} />}
+            </SwiperSlide>
+            <SwiperSlide style={swiperSlideStyle}>
+              {({ isActive }) => <QualitativeInput isActive={isActive} />}
             </SwiperSlide>
             <SwiperSlide style={swiperSlideStyle}>
               {({ isActive }) => <Totals isActive={isActive} />}

@@ -29,14 +29,12 @@ export const UserSelections = ({ children }: { children: ReactNode }) => {
     hotspotRanking: "checklists",
     qualitativeQuestions: defaultQuestions,
     setHotspotRanking: (ranking: "checklists" | "timeSpent") => {
-      console.debug("hotspotRanking-set", ranking);
       setUserSelections((prevState) => ({
         ...prevState,
         hotspotRanking: ranking,
       }));
     },
     setQualitativeQuestions: (questions: QualitativeQuestionData[]) => {
-      console.debug("qualitativeQuestions-set", questions);
       setUserSelections((prevState) => ({
         ...prevState,
         qualitativeQuestions: questions,
