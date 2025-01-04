@@ -6,7 +6,6 @@ import { TypographyWithFadeIn } from "../Text";
 const Checklists = ({ isActive }: { isActive: boolean }) => {
   const chirped = useContext(ChirpedContext);
   const yearStats = chirped.yearStats;
-  console.debug("checklist active:", isActive);
   return (
     <OutlinedCard>
       {yearStats.checklistsByType.stationary > 0 && (

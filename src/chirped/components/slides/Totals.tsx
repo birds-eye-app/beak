@@ -7,7 +7,6 @@ import { TypographyWithFadeIn } from "../Text";
 const Totals = ({ isActive }: { isActive: boolean }) => {
   const chirped = useContext(ChirpedContext);
   const yearStats = chirped.yearStats;
-  console.debug("totals active:", isActive);
   return (
     <OutlinedCard>
       <br />

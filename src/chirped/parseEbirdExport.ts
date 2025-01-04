@@ -83,15 +83,6 @@ export async function parseObservations(
       reject(parsed.errors);
     }
 
-    console.debug("[csv-parse] finished parsing", {
-      rows: parsed.data.length,
-      errors: parsed.errors.length,
-    });
-    console.debug("[csv-parse] headers", JSON.stringify(parsed.meta.fields));
-    console.debug(parsed.meta);
-    console.debug(parsed.meta.fields);
-    console.debug("[csv-parse] parsed meta", JSON.stringify(parsed.meta));
-
     for (const record of parsed.data as string[][]) {
       // ignore header
       if (record[0] === "Submission ID") {
@@ -145,8 +136,6 @@ export async function parseObservations(
 
     // finally sort by date
     observations.sort((a, b) => a.dateTime.getTime() - b.dateTime.getTime());
-
-    console.debug("[csv-parse] parsed", observations.length, "observations");
 
     resolve(observations);
   });

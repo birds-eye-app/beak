@@ -32,8 +32,6 @@ const QualitativeInput = ({ isActive }: { isActive: boolean }) => {
     UserSelectionsContext,
   );
 
-  console.debug("qualitativeQuestions-input", qualitativeQuestions);
-
   // parse the taxonomy object and return an object with species code and common name
   const speciesMappingFromTaxonomy = Object.values(eBirdTaxonomy)
     // rank by type: species first, then sub species, then all else

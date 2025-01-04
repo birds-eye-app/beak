@@ -12,7 +12,6 @@ export function shouldIncludeInSpeciesCounts(observation: Observation) {
   // - spuhs: `gull sp.` or `sparrow sp.`
   // - hybrids: `Mallard x American Black Duck`
   if (isSpuh(observation) || observation.commonName.includes("(hybrid)")) {
-    console.debug("skipping spuh/hybrid", observation.commonName);
     return false;
   }
 
@@ -26,7 +25,6 @@ export function shouldIncludeInSpeciesCounts(observation: Observation) {
     observation.scientificName.includes("/") ||
     observation.scientificName.trim().split(" ").length > 2
   ) {
-    console.debug("skipping scientific name", observation.scientificName);
     return false;
   }
 
@@ -101,20 +99,14 @@ export async function performChirpedCalculations(
 ): Promise<ChirpedContextType> {
   const chirpedObservations = makeNewChirpedContext();
 
-  console.debug(`running performChirpedCalculations for year ${currentYear}`);
-
   const sortedObservations = allObservations.sort(
     (a, b) => a.dateTime.getTime() - b.dateTime.getTime(),
   );
-
-  console.debug("sorted observations", sortedObservations.length);
 
   const speciesForYear = new Set<string>();
   const checklistsForYear = new Set<string>();
   const speciesStats = new Map<string, SpeciesStats>();
   const locationStatsMapping = new Map<string, HotSpotStats>();
-
-  console.debug("sample observation", sortedObservations[0]);
 
   for (const observation of sortedObservations) {
     chirpedObservations.allObservations.push(observation);
@@ -249,13 +241,6 @@ export async function performChirpedCalculations(
   chirpedObservations.yearStats.genera = genera.size;
 
   chirpedObservations.yearStats.numberOfHotspots = locationCountArray.length;
-
-  // console.debug("internal stats", {
-  //   lifeList,
-  //   speciesForYear,
-  //   checklistsForYear,
-  // });
-  console.debug("year stats", chirpedObservations.yearStats);
 
   return chirpedObservations;
 }

@@ -1,7 +1,7 @@
 import { Share } from "@mui/icons-material";
 import { Button, Container, ListItem, Typography } from "@mui/material";
 import List from "@mui/material/List";
-import { useCallback, useContext, useRef } from "react";
+import { useContext, useRef } from "react";
 import OutlinedCard from "../../Card";
 import { CurrentYear } from "../../Chirped";
 import { ChirpedContext } from "../../contexts/Chirped";
@@ -29,10 +29,6 @@ const Summary = ({ isActive }: { isActive: boolean }) => {
   const yearStats = chirped.yearStats;
   const { hotspotRanking } = useContext(UserSelectionsContext);
   const shareRef = useRef<HTMLDivElement>(null);
-
-  const onShare = useCallback(() => {
-    shareComponent(shareRef.current!, "chirped-summary.png");
-  }, []);
 
   const topHotspots =
     hotspotRanking === "checklists"
@@ -179,7 +175,9 @@ const Summary = ({ isActive }: { isActive: boolean }) => {
       <Button
         variant="contained"
         startIcon={<Share />}
-        onClick={onShare}
+        onClick={() => {
+          shareComponent(shareRef.current!, "chirped-summary.png");
+        }}
         // floating footer button
         sx={{
           position: "fixed",
