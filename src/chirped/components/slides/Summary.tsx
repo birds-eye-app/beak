@@ -211,8 +211,8 @@ const Summary = ({ isActive }: { isActive: boolean }) => {
                 label="Species"
               />
               <BigNumberWithLabelBelow
-                number={chirped.lifeList.length}
-                label="Lifers now"
+                number={chirped.lifeList.length - yearStats.newLifersCount}
+                label="New lifers"
               />
               <BigNumberWithLabelBelow
                 number={yearStats.totalTimeSpentMinutes}
