@@ -132,7 +132,9 @@ const Summary = ({ isActive }: { isActive: boolean }) => {
               }}
             >
               <Container disableGutters sx={{ flex: 1, padding: 0 }}>
-                <Typography gutterBottom>Top birds</Typography>
+                <Typography gutterBottom variant="h5">
+                  Top species
+                </Typography>
                 <Container
                   disableGutters
                   sx={{
@@ -141,7 +143,7 @@ const Summary = ({ isActive }: { isActive: boolean }) => {
                   }}
                 >
                   <List component="ol">
-                    {chirped.rankings.mostObservedByTotalCount
+                    {chirped.rankings.mostObservedByChecklistFrequency
                       .slice(0, 5)
                       .map((species, index) => (
                         <ListItem
@@ -171,7 +173,9 @@ const Summary = ({ isActive }: { isActive: boolean }) => {
                 </Container>
               </Container>
               <Container disableGutters sx={{ flex: 1 }}>
-                <Typography gutterBottom>Top Hotspots</Typography>
+                <Typography gutterBottom variant="h5">
+                  Top Hotspots
+                </Typography>
                 <Container
                   disableGutters
                   sx={{
