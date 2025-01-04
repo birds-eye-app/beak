@@ -6,7 +6,7 @@ import OutlinedCard from "../../Card";
 import { CurrentYear } from "../../Chirped";
 import { ChirpedContext } from "../../contexts/Chirped";
 import { UserSelectionsContext } from "../../contexts/UserSelections";
-import { exportComponentAsImage } from "../../helpers";
+import { shareComponent } from "../../sharing";
 import { FadeInWithInitialDelay } from "../FadeWithInitialDelay";
 
 const BigNumberWithLabelBelow = ({
@@ -31,7 +31,7 @@ const Summary = ({ isActive }: { isActive: boolean }) => {
   const shareRef = useRef<HTMLDivElement>(null);
 
   const onShare = useCallback(() => {
-    exportComponentAsImage(shareRef.current!, "chirped-summary.png");
+    shareComponent(shareRef.current!, "chirped-summary.png");
   }, []);
 
   const topHotspots =
