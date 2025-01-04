@@ -214,6 +214,10 @@ const Summary = ({ isActive }: { isActive: boolean }) => {
                 number={chirped.lifeList.length}
                 label="Lifers now"
               />
+              <BigNumberWithLabelBelow
+                number={yearStats.totalTimeSpentMinutes}
+                label="Minutes"
+              />
             </Container>
             <Container
               disableGutters
@@ -226,6 +230,10 @@ const Summary = ({ isActive }: { isActive: boolean }) => {
               <BigNumberWithLabelBelow
                 number={yearStats.numberOfHotspots}
                 label="Hotspots"
+              />
+              <BigNumberWithLabelBelow
+                number={parseInt(yearStats.totalDistanceKm.toFixed())}
+                label="Kilometers"
               />
             </Container>
             <br />

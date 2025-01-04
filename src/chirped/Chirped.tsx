@@ -104,6 +104,7 @@ export function Chirped() {
             <SwiperSlide style={swiperSlideStyle}>
               {({ isActive }) => <QualitativeInput isActive={isActive} />}
             </SwiperSlide>
+
             <SwiperSlide style={swiperSlideStyle}>
               {({ isActive }) => <Summary isActive={isActive} />}
             </SwiperSlide>
