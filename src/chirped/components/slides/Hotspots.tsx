@@ -75,7 +75,7 @@ const Hotspots = ({ isActive }: { isActive: boolean }) => {
         disableGutters
         sx={{
           width: "100%",
-          maxHeight: 200,
+          maxHeight: 150,
           overflowY: "auto",
         }}
       >

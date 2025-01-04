@@ -72,7 +72,9 @@ const Counts = ({ isActive }: { isActive: boolean }) => {
                   </Typography>
                   <Typography variant="body2">{species.species}</Typography>
                   <Container sx={{ flex: 1 }} />
-                  <Typography variant="body2">{species.totalCounts}</Typography>
+                  <Typography variant="body2">
+                    {species.totalCounts.toLocaleString()}
+                  </Typography>
                 </Container>
               </ListItem>
             ))}
