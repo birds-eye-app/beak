@@ -19,7 +19,6 @@ import QualitativeInput from "./components/slides/QualitativeInput";
 import Species from "./components/slides/Species";
 import Summary from "./components/slides/Summary";
 import Totals from "./components/slides/Totals";
-import ViewQualitative from "./components/slides/QualitativeView";
 import "./styles.css";
 
 export const CurrentYear = 2024;
@@ -88,9 +87,6 @@ export function Chirped() {
               {({ isActive }) => <Summary isActive={isActive} />}
             </SwiperSlide>
             <SwiperSlide style={swiperSlideStyle}>
-              {({ isActive }) => <ViewQualitative isActive={isActive} />}
-            </SwiperSlide>
-            <SwiperSlide style={swiperSlideStyle}>
               {({ isActive }) => <QualitativeInput isActive={isActive} />}
             </SwiperSlide>
             <SwiperSlide style={swiperSlideStyle}>
@@ -113,9 +109,6 @@ export function Chirped() {
             </SwiperSlide>
             <SwiperSlide style={swiperSlideStyle}>
               {({ isActive }) => <QualitativeInput isActive={isActive} />}
-            </SwiperSlide>
-            <SwiperSlide style={swiperSlideStyle}>
-              {({ isActive }) => <ViewQualitative isActive={isActive} />}
             </SwiperSlide>
             <SwiperSlide style={swiperSlideStyle}>
               {({ isActive }) => <Summary isActive={isActive} />}
