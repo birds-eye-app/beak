@@ -195,6 +195,7 @@ const Summary = ({ isActive }: { isActive: boolean }) => {
         ref={shareRef}
         disableScroll
         maxHeight={800}
+        minHeight={1}
       >
         <FadeInWithInitialDelay in={isActive} initialDelay={500}>
           <Container>
@@ -344,7 +345,7 @@ const Summary = ({ isActive }: { isActive: boolean }) => {
                   }}
                 >
                   <TableContainer component={GutterLessContainer}>
-                    <Table aria-label="simple table">
+                    <Table size="small" aria-label="simple table">
                       <TableBody>
                         {questionsToShow.map((row, index) => (
                           <TableRow
@@ -367,7 +368,7 @@ const Summary = ({ isActive }: { isActive: boolean }) => {
                 </Container>
               </FadeInWithInitialDelay>
             )}
-            <Typography color="success" sx={{ color: "warning" }}>
+            <Typography color="success" sx={{ mt: 1, color: "warning" }}>
               {"dtmeadows.me/chirped"}
             </Typography>
           </Container>
