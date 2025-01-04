@@ -1,7 +1,7 @@
 import { Share } from "@mui/icons-material";
-import { Button, Container, ListItem, Typography } from "@mui/material";
+import { Alert, Button, Container, ListItem, Typography } from "@mui/material";
 import List from "@mui/material/List";
-import { useContext, useRef } from "react";
+import { useContext, useRef, useState } from "react";
 import OutlinedCard from "../../Card";
 import { CurrentYear } from "../../Chirped";
 import { ChirpedContext } from "../../contexts/Chirped";
@@ -23,6 +23,48 @@ const BigNumberWithLabelBelow = ({
     </Typography>
   </Container>
 );
+
+export const ShareButton = ({
+  shareRef,
+  fileName,
+}: {
+  shareRef: React.RefObject<HTMLDivElement>;
+  fileName: string;
+}) => {
+  const [shareSuccessful, setShareSuccessful] = useState<boolean | null>(null);
+
+  return (
+    <Container
+      disableGutters
+      // floating footer button
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        position: "fixed",
+        bottom: 20,
+        zIndex: 3,
+      }}
+    >
+      {shareSuccessful !== null && (
+        <Alert severity={shareSuccessful ? "success" : "error"} sx={{ mb: 2 }}>
+          {shareSuccessful
+            ? "Successfully shared!"
+            : "Failed to share. Maybe try taking a screenshot of this page instead."}
+        </Alert>
+      )}
+      <Button
+        variant="contained"
+        startIcon={<Share />}
+        onClick={async () => {
+          setShareSuccessful(await shareComponent(shareRef.current!, fileName));
+        }}
+      >
+        Share
+      </Button>
+    </Container>
+  );
+};
 
 const Summary = ({ isActive }: { isActive: boolean }) => {
   const chirped = useContext(ChirpedContext);
@@ -172,21 +214,7 @@ const Summary = ({ isActive }: { isActive: boolean }) => {
           </Container>
         </FadeInWithInitialDelay>
       </OutlinedCard>
-      <Button
-        variant="contained"
-        startIcon={<Share />}
-        onClick={() => {
-          shareComponent(shareRef.current!, "chirped-summary.png");
-        }}
-        // floating footer button
-        sx={{
-          position: "fixed",
-          bottom: 20,
-          zIndex: 3,
-        }}
-      >
-        Share
-      </Button>
+      <ShareButton shareRef={shareRef} fileName="chirped-summary.png" />
     </Container>
   );
 };

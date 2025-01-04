@@ -2,13 +2,14 @@ import html2canvas from "html2canvas";
 
 export async function exportComponentAsBlob(
   element: HTMLElement,
-): Promise<Blob> {
+): Promise<Blob | null> {
   const canvas = await html2canvas(element);
 
-  const blob = await new Promise<Blob | null>((resolve) => {
+  return await new Promise<Blob | null>((resolve) => {
     const blobCallback = (blob: Blob | null) => {
       if (!blob) {
         console.error("Failed to export component as image.");
+
         resolve(null);
         return;
       }
@@ -18,12 +19,6 @@ export async function exportComponentAsBlob(
 
     canvas.toBlob(blobCallback, "image/png", 1.0);
   });
-
-  if (!blob) {
-    throw new Error("Failed to export component as image.");
-  }
-
-  return blob;
 }
 
 const downloadImage = (blob: Blob, fileName: string) => {
@@ -42,16 +37,28 @@ const downloadImage = (blob: Blob, fileName: string) => {
 
 // works by trying to share the file with the Web Share API
 // if it's available, otherwise it falls back to a download
-export async function shareComponent(element: HTMLElement, fileName: string) {
-  const blob = await exportComponentAsBlob(element);
-  const file = new File([blob], fileName, { type: "image/png" });
-  const shareData = {
-    files: [file],
-  };
-  const navigator = window.navigator;
-  if (navigator.canShare && navigator.canShare(shareData)) {
-    await navigator.share(shareData);
-  } else {
-    downloadImage(blob, fileName);
+export async function shareComponent(
+  element: HTMLElement,
+  fileName: string,
+): Promise<boolean> {
+  try {
+    const blob = await exportComponentAsBlob(element);
+    if (!blob) {
+      return false;
+    }
+    const file = new File([blob], fileName, { type: "image/png" });
+    const shareData = {
+      files: [file],
+    };
+    const navigator = window.navigator;
+    if (navigator.canShare && navigator.canShare(shareData)) {
+      await navigator.share(shareData);
+    } else {
+      downloadImage(blob, fileName);
+    }
+    return true;
+  } catch (error) {
+    console.error("Failed to share component", error);
+    return false;
   }
 }

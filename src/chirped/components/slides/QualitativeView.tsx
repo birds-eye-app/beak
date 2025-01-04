@@ -6,15 +6,13 @@ import {
   TableContainer,
   TableRow,
   Typography,
-  Button,
 } from "@mui/material";
 import { useContext, useRef } from "react";
 import OutlinedCard from "../../Card";
 import { UserSelectionsContext } from "../../contexts/UserSelections";
 import { FadeInWithInitialDelay } from "../FadeWithInitialDelay";
 import { TypographyWithFadeIn } from "../Text";
-import { Share } from "@mui/icons-material";
-import { shareComponent } from "../../sharing";
+import { ShareButton } from "./Summary";
 
 export type QualitativeQuestionData = {
   question: string;
@@ -76,21 +74,7 @@ const QualitativeView = ({ isActive }: { isActive: boolean }) => {
           </Container>
         </FadeInWithInitialDelay>
       </OutlinedCard>
-      <Button
-        variant="contained"
-        startIcon={<Share />}
-        onClick={() => {
-          shareComponent(shareRef.current!, "chirped-summary.png");
-        }}
-        // floating footer button
-        sx={{
-          position: "fixed",
-          bottom: 20,
-          zIndex: 3,
-        }}
-      >
-        Share
-      </Button>
+      <ShareButton shareRef={shareRef} fileName="chirped-summary.png" />
     </Container>
   );
 };
