@@ -58,6 +58,8 @@ export const ShareButton = ({
         startIcon={<Share />}
         onClick={async () => {
           setShareSuccessful(await shareComponent(shareRef.current!, fileName));
+          // reset the success message after a few seconds
+          setTimeout(() => setShareSuccessful(null), 5000);
         }}
       >
         Share
@@ -123,10 +125,10 @@ const Summary = ({ isActive }: { isActive: boolean }) => {
               disableGutters
               sx={{
                 width: "100%",
-                maxHeight: 300,
-
+                maxHeight: 400,
                 display: "flex",
                 flexDirection: "row",
+                overflow: "hidden",
               }}
             >
               <Container disableGutters sx={{ flex: 1, padding: 0 }}>
@@ -136,7 +138,6 @@ const Summary = ({ isActive }: { isActive: boolean }) => {
                   sx={{
                     width: "100%",
                     maxHeight: 300,
-                    overflowY: "auto",
                   }}
                 >
                   <List component="ol">
@@ -176,7 +177,6 @@ const Summary = ({ isActive }: { isActive: boolean }) => {
                   sx={{
                     width: "100%",
                     maxHeight: 300,
-                    overflowY: "auto",
                   }}
                 >
                   <List component="ol">
@@ -198,7 +198,13 @@ const Summary = ({ isActive }: { isActive: boolean }) => {
                           >
                             {index + 1}.{" "}
                           </Typography>
-                          <Typography variant="body2">
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              maxHeight: 100,
+                              overflow: "hidden",
+                            }}
+                          >
                             {hotspot.locationName}
                           </Typography>
                         </Container>
@@ -208,7 +214,7 @@ const Summary = ({ isActive }: { isActive: boolean }) => {
                 </Container>
               </Container>
             </Container>
-            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+            <Typography color="success" sx={{ color: "warning" }}>
               {"dtmeadows.me/chirped"}
             </Typography>
           </Container>
