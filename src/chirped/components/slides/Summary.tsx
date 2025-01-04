@@ -36,7 +36,7 @@ const BigNumberWithLabelBelow = ({
   label: string;
 }) => (
   <Container disableGutters sx={{ textAlign: "center" }}>
-    <Typography variant="h4">{number.toLocaleString()}</Typography>
+    <Typography variant="h5">{number.toLocaleString()}</Typography>
     <Typography variant="body1" sx={{ color: "text.secondary" }}>
       {label}
     </Typography>
