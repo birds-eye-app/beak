@@ -3,11 +3,12 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { ErrorBoundary } from "react-error-boundary";
-import { BrowserRouter } from "react-router-dom";
-import App from "./App.tsx";
-import "./index.css";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BirdMap } from "./BirdMap";
 import { ErrorDisplay } from "./ErrorBoundary.tsx";
+import { Chirped } from "./chirped/Chirped";
 import { onError } from "./chirped/helpers.ts";
+import "./index.css";
 
 const theme = createTheme({
   palette: {
@@ -20,12 +21,30 @@ const theme = createTheme({
   },
 });
 
+// eslint-disable-next-line react-refresh/only-export-components
+const NotFound = () => <h1>🐦 Not Found 🐦</h1>;
+
+// eslint-disable-next-line react-refresh/only-export-components
+const ErrorCausingPage = () => {
+  // eslint-disable-next-line no-constant-condition
+  if (1 + 1 === 2) {
+    throw new Error("Oh no! Something went wrong.");
+  }
+  return null;
+};
+
 createRoot(document.getElementById("root")!).render(
   <ErrorBoundary fallback={<ErrorDisplay />} onError={onError}>
     <StrictMode>
       <ThemeProvider theme={theme}>
         <BrowserRouter>
-          <App />
+          <Routes>
+            <Route path="/" element={<Chirped />} />
+            <Route path="/birds_eye" element={<BirdMap />} />
+            <Route path="/chirped" element={<Chirped />} />
+            <Route path="/error" element={<ErrorCausingPage />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </BrowserRouter>
       </ThemeProvider>
     </StrictMode>
