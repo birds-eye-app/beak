@@ -1,5 +1,9 @@
 import { Feature, GeoJsonProperties, Geometry } from "geojson";
-const apiBaseUrl = import.meta.env.VITE_BASE_URL;
+const viteBaseURL = import.meta.env.VITE_BASE_URL;
+
+// hard code route to render backend... probably just wanna move this over to vercel or 
+// fix render site hosting at some point
+const apiBaseUrl = import.meta.env.DEV ? viteBaseURL : 'https://cloaca.onrender.com/'
 
 export type Lifer = {
   common_name: string;
