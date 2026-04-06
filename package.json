@@ -34,6 +34,7 @@
     "react-web-share": "^2.0.2",
     "swiper": "^11.1.15",
     "use-debounce": "^10.0.3",
+    "xeno-canto-api-ts": "^2.0.3",
     "yarn": "^1.22.22"
   },
   "devDependencies": {

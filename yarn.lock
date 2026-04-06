@@ -3799,6 +3799,11 @@ wrap-ansi@^9.0.0:
     string-width "^7.0.0"
     strip-ansi "^7.1.0"
 
+xeno-canto-api-ts@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/xeno-canto-api-ts/-/xeno-canto-api-ts-2.0.3.tgz#7388d6f0221b431688acf044d58e192cd3000d2b"
+  integrity sha512-9waFzzYYDmB3lzDR+9czetaGY136hNHmwPqT6+KZVffYeg552gU4iMBR/Cl0GovrTGljefR+zX00WgigSoVXkQ==
+
 yallist@^3.0.2:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/yallist/-/yallist-3.1.1.tgz#dbb7daf9bfd8bac9ab45ebf602b8cbad0d5d08fd"

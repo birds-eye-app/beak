@@ -8,6 +8,8 @@ import { BirdMap } from "./BirdMap";
 import { ErrorDisplay } from "./ErrorBoundary.tsx";
 import { Chirped } from "./chirped/Chirped";
 import { onError } from "./chirped/helpers.ts";
+import { Admin } from "./quiz/Admin";
+import { Quiz } from "./quiz/Quiz";
 import "./index.css";
 
 const theme = createTheme({
@@ -42,6 +44,8 @@ createRoot(document.getElementById("root")!).render(
             <Route path="/" element={<Chirped />} />
             <Route path="/birds_eye" element={<BirdMap />} />
             <Route path="/chirped" element={<Chirped />} />
+            <Route path="/quiz" element={<Quiz />} />
+            <Route path="/quiz/admin" element={<Admin />} />
             <Route path="/error" element={<ErrorCausingPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
